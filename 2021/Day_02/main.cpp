@@ -44,6 +44,8 @@ class Command {
         constexpr bool operator ==(const Command &) const = default;
 };
 
+static_assert(Command::Parse("forward 5") == Command{Direction::Forward, 5});
+
 template<typename Child>
 class SubmarineImpl {
     public:
