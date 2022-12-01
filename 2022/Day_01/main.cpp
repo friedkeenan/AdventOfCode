@@ -1,7 +1,7 @@
 #include <advent/advent.hpp>
 
 template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_value_t<Rng>, std::string_view>)
+requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
 constexpr std::size_t find_max_calories(Rng &&calorie_list) {
     std::size_t current_max_calories = 0;
     std::size_t current_item_calories = 0;
@@ -52,7 +52,7 @@ constexpr Elem &find_min_element(std::array<Elem, Size> &elements) {
 }
 
 template<std::size_t NumMaximums, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_value_t<Rng>, std::string_view>)
+requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
 constexpr std::size_t find_sum_of_max_calories(Rng &&calorie_list) {
     std::array<std::size_t, NumMaximums> current_max_calories = {};
 
