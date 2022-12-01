@@ -1,22 +1,14 @@
 #pragma once
 
+#include <advent/common.hpp>
+
 namespace advent {
 
-    /* TODO: Remove this when 'std::unreachable' is accepted and implemented. */
-    [[noreturn]]
-    void unreachable() {
-        __builtin_unreachable();
-    }
-
-    /* TODO: Remove this when an 'assume' facility is accepted and implemented. */
-    struct _assume_fn {
-        constexpr void operator ()(const bool success) const {
-            if (!success) {
-                advent::unreachable();
-            }
+    /* TODO: Remove this when I receive an [[assume]] implementation. */
+    constexpr void assume(const bool success) {
+        if (!success) {
+            std::unreachable();
         }
-    };
-
-    constexpr inline _assume_fn assume{};
+    }
 
 }

@@ -26,7 +26,7 @@ class Command {
                 return Direction::Up;
             }
 
-            advent::unreachable();
+            std::unreachable();
         }
 
         static constexpr Command Parse(const std::string_view command) {
@@ -89,7 +89,7 @@ class FaultySubmarine : public SubmarineImpl<FaultySubmarine> {
                     this->depth -= command.value;
                 } break;
 
-                default: advent::unreachable();
+                default: std::unreachable();
             }
         }
 };
@@ -113,7 +113,7 @@ class ProperSubmarine : public SubmarineImpl<ProperSubmarine> {
                     this->aim -= command.value;
                 } break;
 
-                default: advent::unreachable();
+                default: std::unreachable();
             }
         }
 };

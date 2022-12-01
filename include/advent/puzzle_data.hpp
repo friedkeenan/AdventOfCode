@@ -10,7 +10,7 @@ namespace advent {
             /* TODO: 'constexpr' when I receive an implementation of constexpr 'std::string'. */
 
             /* 'argv' is a pointer to a const pointer to a const 'char'. */
-            inline puzzle_data(int argc, const char * const *argv) : optional<std::string>() {
+            constexpr puzzle_data(int argc, const char * const *argv) : std::optional<std::string>() {
                 /* NOTE: If we need more complex logic, we can put the args in a span. */
                 if (argc < 2) {
                     return;
@@ -50,5 +50,7 @@ namespace advent {
                 this->emplace(file_contents);
             }
     };
+
+    static_assert(!advent::puzzle_data(1, nullptr).has_value());
 
 }

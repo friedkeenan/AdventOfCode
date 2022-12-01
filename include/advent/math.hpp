@@ -18,6 +18,6 @@ namespace advent {
         }
     };
 
-    constexpr inline _pow_fn pow{};
+    constexpr inline auto pow = _pow_fn{};
 
 }

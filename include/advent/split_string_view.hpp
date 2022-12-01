@@ -7,7 +7,7 @@ namespace advent {
     /*
         Used to split strings and get strings back.
 
-        TODO: Potentially remove this when I receive a fixed 'std::views::split'.
+        I hope 'reconstructed_range' stuff gets in at some point.
     */
     class split_string_view : public std::ranges::view_interface<split_string_view> {
         public:
@@ -81,7 +81,7 @@ namespace advent {
 
     namespace views {
 
-        /* TODO: Maybe make this a range adaptor. */
+        /* TODO: Make this a range adaptor when I receive an implementation of user-defined range adaptors. */
         constexpr inline auto split_string = [](const std::string_view str, const char delimiter) {
             return advent::split_string_view(str, delimiter);
         };

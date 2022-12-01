@@ -2,17 +2,11 @@
 
 #include <advent/common.hpp>
 #include <advent/math.hpp>
-#include <advent/basic_vector.hpp>
 #include <advent/concepts.hpp>
 
 namespace advent {
 
-    /*
-        TODO: Do we want it like this or like a normal function template definition?
-
-        This can automatically be passed around as an invocable.
-    */
-    template<std::integral ToConvert>
+    template<std::integral ToConvert, ToConvert Base>
     struct _to_integral_fn {
         template<std::ranges::input_range R>
         requires (
@@ -37,32 +31,37 @@ namespace advent {
             }();
 
             const auto base = [&]() -> ToConvert {
-                if (*it == '0') {
-                    it++;
-
-                    if (*it == 'b') {
+                /* If the base is unspecified. */
+                if constexpr (Base == 0) {
+                    if (*it == '0') {
                         it++;
 
-                        return 2;
+                        if (*it == 'b') {
+                            it++;
+
+                            return 2;
+                        }
+
+                        if (*it == 'o') {
+                            it++;
+
+                            return 8;
+                        }
+
+                        if (*it == 'x') {
+                            it++;
+
+                            return 16;
+                        }
+
+                        /* Since the first digit was 0, we don't need to worry about it. */
+                        return 10;
                     }
 
-                    if (*it == 'o') {
-                        it++;
-
-                        return 8;
-                    }
-
-                    if (*it == 'x') {
-                        it++;
-
-                        return 16;
-                    }
-
-                    /* Since the first digit was 0, we don't need to worry about it. */
                     return 10;
+                } else {
+                    return Base;
                 }
-
-                return 10;
             }();
 
             /*
@@ -82,7 +81,8 @@ namespace advent {
                 } else if constexpr (std::ranges::bidirectional_range<Subrange>) {
                     return std::move(subrange) | std::views::reverse;
                 } else {
-                    return advent::basic_vector(std::move(subrange));
+                    auto common_subrange = subrange | std::views::common;
+                    return std::vector(std::ranges::begin(common_subrange), std::ranges::end(common_subrange));
                 }
             }();
 
@@ -131,12 +131,15 @@ namespace advent {
         }
     };
 
-    template<std::integral ToConvert>
-    constexpr inline _to_integral_fn<ToConvert> to_integral{};
+    template<std::integral ToConvert, ToConvert Base = 0>
+    constexpr inline _to_integral_fn<ToConvert, Base> to_integral{};
 
     static_assert(advent::to_integral<std::uint16_t>("200") == 200);
     static_assert(advent::to_integral<std::int16_t>("-200") == -200);
     static_assert(advent::to_integral<std::uint16_t>("0x200") == 0x200);
     static_assert(advent::to_integral<std::int16_t>("-0x200") == -0x200);
+
+    static_assert(advent::to_integral<std::uint8_t, 2>("110")  == 6);
+    static_assert(advent::to_integral<std::int8_t,  2>("-110") == -6);
 
 }
