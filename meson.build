@@ -30,7 +30,7 @@ cpp_args  = [
 link_args += sanitizers
 cpp_args  += sanitizers
 
-advent_years = ['2021']
+advent_years = ['2021', '2022']
 
 foreach year : advent_years
 

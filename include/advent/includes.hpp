@@ -12,6 +12,7 @@
 #include <optional>
 #include <utility>
 #include <functional>
+#include <numeric>
 #include <iterator>
 #include <ranges>
 #include <type_traits>
