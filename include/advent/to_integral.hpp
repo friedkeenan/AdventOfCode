@@ -10,6 +10,11 @@ namespace advent {
     struct _to_integral_fn {
         template<std::ranges::input_range R>
         requires (
+            /*
+                We stop char arrays from using this overload so
+                that they can be converted to a 'std::string_view'
+                by another overload.
+            */
             !advent::array_of<R, char>                        &&
             std::same_as<std::ranges::range_value_t<R>, char>
         )
@@ -21,7 +26,7 @@ namespace advent {
                     return ToConvert{1};
                 } else {
                     if (*it == '-') {
-                        it++;
+                        ++it;
 
                         return ToConvert{-1};
                     }
@@ -34,22 +39,22 @@ namespace advent {
                 /* If the base is unspecified. */
                 if constexpr (Base == 0) {
                     if (*it == '0') {
-                        it++;
+                        ++it;
 
                         if (*it == 'b') {
-                            it++;
+                            ++it;
 
                             return 2;
                         }
 
                         if (*it == 'o') {
-                            it++;
+                            ++it;
 
                             return 8;
                         }
 
                         if (*it == 'x') {
-                            it++;
+                            ++it;
 
                             return 16;
                         }
@@ -64,33 +69,26 @@ namespace advent {
                 }
             }();
 
-            /*
-                If we have a sized range, just start the place at the maximum and count down.
-
-                Else if we have a bidirectional range, start at 0 and go through the range backwards and count up.
-
-                Else, convert the range to a vector and proceed as a sized range.
-            */
+            /* If our range is only an input range and is not sized, just stuff the range into a vector. */
             auto rng = [&]() {
                 /* Use a subrange as getting the sign and base may have incremented 'it'. */
                 auto subrange = std::ranges::subrange(it, std::ranges::end(str));
 
                 using Subrange = decltype(subrange);
-                if constexpr (std::ranges::sized_range<Subrange>) {
-                    return subrange;
-                } else if constexpr (std::ranges::bidirectional_range<Subrange>) {
-                    return std::move(subrange) | std::views::reverse;
-                } else {
+                if constexpr (!std::ranges::sized_range<Subrange> && !std::ranges::forward_range<Subrange>) {
                     auto common_subrange = subrange | std::views::common;
                     return std::vector(std::ranges::begin(common_subrange), std::ranges::end(common_subrange));
+                } else {
+                    return subrange;
                 }
             }();
 
             auto digit_place = [&]() {
+                /* If we have a sized range, use the size. Else use the distance from the start to end of the range. */
                 if constexpr (std::ranges::sized_range<decltype(rng)>) {
                     return std::ranges::size(rng) - 1;
                 } else {
-                    return std::size_t{0};
+                    return std::ranges::distance(std::ranges::begin(rng), std::ranges::end(rng)) - 1;
                 }
             }();
 
@@ -114,11 +112,7 @@ namespace advent {
                     converted += static_cast<ToConvert>(advent::pow(base, digit_place) * (digit - 'A' + 0xA));
                 }
 
-                if constexpr (std::ranges::sized_range<decltype(rng)>) {
-                    digit_place--;
-                } else {
-                    digit_place++;
-                }
+                --digit_place;
             }
 
             return sign * converted;

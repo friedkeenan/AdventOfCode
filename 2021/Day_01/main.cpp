@@ -7,7 +7,7 @@ constexpr std::size_t count_depth_increases(R &&rng) {
 
     /* TODO: Use 'std::views::pairwise' when implemented. */
     auto prev_depth = *it;
-    it++;
+    ++it;
 
     std::size_t depth_increases = 0;
     for (const auto depth : std::ranges::subrange(it, std::ranges::end(rng))) {
@@ -28,11 +28,11 @@ constexpr std::size_t count_chunked_depth_increases(R &&rng) {
     auto it = std::ranges::begin(rng);
 
     const auto first_depth = *it;
-    it++;
+    ++it;
     const auto second_depth = *it;
-    it++;
+    ++it;
     const auto third_depth = *it;
-    it++;
+    ++it;
 
     auto prev_depths = std::array{second_depth, third_depth};
     auto prev_sum    = first_depth + second_depth + third_depth;
@@ -42,7 +42,7 @@ constexpr std::size_t count_chunked_depth_increases(R &&rng) {
         const auto new_sum = prev_depths[0] + prev_depths[1] + depth;
 
         if (new_sum > prev_sum) {
-            depth_increases++;
+            ++depth_increases;
         }
 
         prev_depths[0] = prev_depths[1];

@@ -34,7 +34,7 @@ requires (Size > 0)
 constexpr Elem &find_min_element(std::array<Elem, Size> &elements) {
     Elem *current_min = &elements[0];
 
-    for (auto i = 1uz; i < Size; i++) {
+    for (auto i = 1uz; i < Size; ++i) {
         if (elements[i] < *current_min) {
             current_min = &elements[i];
         }
