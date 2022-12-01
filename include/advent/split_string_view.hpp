@@ -28,14 +28,14 @@ namespace advent {
                     constexpr iterator() = default;
 
                     constexpr iterator(const std::string_view str, const char delimiter)
-                        : _str(str), _delimiter(delimiter), _next_delimiter_pos(str.find(delimiter)) { }
+                        : _str(str), _delimiter(delimiter), _next_delimiter_pos(str.find_first_of(delimiter)) { }
 
                     constexpr iterator &operator ++() {
                         if (this->_next_delimiter_pos != std::string_view::npos) {
-                            this->_str                = this->_str.substr(this->_next_delimiter_pos + 1);
-                            this->_next_delimiter_pos = this->_str.find(this->_delimiter);
+                            this->_str.remove_prefix(this->_next_delimiter_pos + 1);
+                            this->_next_delimiter_pos = this->_str.find_first_of(this->_delimiter);
                         } else {
-                            this->_str = this->_str.substr(this->_str.size());
+                            this->_str.remove_prefix(this->_str.size());
                         }
 
                         return *this;
@@ -44,7 +44,11 @@ namespace advent {
                     constexpr ADVENT_RIGHT_UNARY_OP_FROM_LEFT(iterator, ++)
 
                     constexpr reference operator *() const {
-                        return this->_str.substr(0, this->_next_delimiter_pos);
+                        if (this->_next_delimiter_pos == std::string_view::npos) {
+                            return this->_str;
+                        }
+
+                        return std::string_view(this->_str.data(), this->_next_delimiter_pos);
                     }
 
                     constexpr bool operator ==(const iterator &rhs) const {
@@ -52,9 +56,7 @@ namespace advent {
                         return this->_str.data() == rhs._str.data();
                     }
 
-                    constexpr bool operator ==(const std::default_sentinel_t rhs) const {
-                        advent::discard(rhs);
-
+                    constexpr bool operator ==(std::default_sentinel_t) const {
                         return this->_str.empty();
                     }
             };
