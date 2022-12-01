@@ -21,6 +21,14 @@ constexpr std::size_t find_max_calories(Rng &&calorie_list) {
         current_item_calories += advent::to_integral<std::size_t>(item_calories);
     }
 
+    /*
+        The last inventory does not end with an empty string,
+        so we check again for a potential new maximum.
+    */
+    if (current_item_calories > current_max_calories) {
+        current_max_calories = current_item_calories;
+    }
+
     return current_max_calories;
 }
 
