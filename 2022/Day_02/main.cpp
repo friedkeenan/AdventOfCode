@@ -1,6 +1,6 @@
 #include <advent/advent.hpp>
 
-enum class Shape {
+enum class Shape : std::uint8_t {
     Rock,
     Paper,
     Scissors,
