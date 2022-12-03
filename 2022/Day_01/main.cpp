@@ -21,14 +21,6 @@ constexpr std::size_t find_max_calories(Rng &&calorie_list) {
         current_inventory_calories += advent::to_integral<std::size_t>(item_calories);
     }
 
-    /*
-        The last inventory does not end with an empty string,
-        so we check again for a potential new maximum.
-    */
-    if (current_inventory_calories > current_max_calories) {
-        current_max_calories = current_inventory_calories;
-    }
-
     return current_max_calories;
 }
 
@@ -58,20 +50,15 @@ constexpr std::size_t find_sum_of_max_calories(Rng &&calorie_list) {
 
     std::size_t current_inventory_calories = 0;
 
-    /* We store this as a lambda because we need to use it in two different places. */
-    const auto potential_new_maximum_work = [&]() {
-        /* We only need to replace the minimum of the current max calories. */
-
-        auto &min_of_maxes = find_min_element(current_max_calories);
-        if (current_inventory_calories > min_of_maxes) {
-            min_of_maxes = current_inventory_calories;
-        }
-    };
-
     for (const std::string_view item_calories : std::forward<Rng>(calorie_list)) {
         /* An empty string indicates the end of an inventory. */
         if (item_calories.empty()) {
-            potential_new_maximum_work();
+            /* We only need to replace the minimum of the current max calories. */
+
+            auto &min_of_maxes = find_min_element(current_max_calories);
+            if (current_inventory_calories > min_of_maxes) {
+                min_of_maxes = current_inventory_calories;
+            }
 
             current_inventory_calories = 0;
 
@@ -80,12 +67,6 @@ constexpr std::size_t find_sum_of_max_calories(Rng &&calorie_list) {
 
         current_inventory_calories += advent::to_integral<std::size_t>(item_calories);
     }
-
-    /*
-        The last inventory does not end in a blank line,
-        so we need to check if we have a new top contender.
-    */
-    potential_new_maximum_work();
 
     return std::accumulate(current_max_calories.begin(), current_max_calories.end(), 0uz);
 }
@@ -122,7 +103,7 @@ constexpr inline std::string_view example_data = (
     "\n"
 
     /* Total 10000. */
-    "10000"
+    "10000\n"
 );
 
 static_assert(find_max_calories_from_string_data(example_data) == 24000);

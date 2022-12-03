@@ -35,7 +35,7 @@ namespace advent {
                             this->_str.remove_prefix(this->_next_delimiter_pos + 1);
                             this->_next_delimiter_pos = this->_str.find_first_of(this->_delimiter);
                         } else {
-                            this->_str.remove_prefix(this->_str.size());
+                            this->_str = std::string_view();
                         }
 
                         return *this;
@@ -57,7 +57,7 @@ namespace advent {
                     }
 
                     constexpr bool operator ==(std::default_sentinel_t) const {
-                        return this->_str.empty();
+                        return this->_str.data() == nullptr;
                     }
             };
 

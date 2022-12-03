@@ -88,7 +88,10 @@ constexpr std::size_t find_player_total_score(Rng &&strategies) {
     std::size_t total_score = 0;
 
     for (const std::string_view strategy : std::forward<Rng>(strategies)) {
-        advent::assume(strategy.length() == 3);
+        /* Discard any lines that aren'the correct length, i.e. the last empty line. */
+        if (strategy.length() != 3) {
+            continue;
+        }
 
         const auto opponent = OpponentChoice(strategy[0]);
         const auto player   = PlayerChoice<Decoder>(opponent, strategy[2]);
@@ -130,7 +133,7 @@ constexpr std::size_t find_player_total_score_outcome_decoder(const std::string_
 constexpr inline std::string_view example_data = (
     "A Y\n"
     "B X\n"
-    "C Z"
+    "C Z\n"
 );
 
 static_assert(find_player_total_score_naive_decoder(example_data) == 15);
