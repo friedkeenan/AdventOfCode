@@ -10,7 +10,7 @@ class OpponentChoice {
     public:
         Shape shape;
 
-        constexpr OpponentChoice(const char code) : shape([&]() {
+        constexpr explicit OpponentChoice(const char code) : shape([&]() {
             switch (code) {
                 case 'A': return Shape::Rock;
                 case 'B': return Shape::Paper;
