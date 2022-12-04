@@ -11,6 +11,8 @@ class SectionInterval {
 
             this->start = advent::to_integral<std::size_t>(interval.substr(0, end_of_start));
             this->end   = advent::to_integral<std::size_t>(interval.substr(end_of_start + 1));
+
+            advent::assume(this->start <= this->end);
         }
 
         constexpr bool contains(const SectionInterval &other) const {
