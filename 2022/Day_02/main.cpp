@@ -88,8 +88,7 @@ constexpr std::size_t find_player_total_score(Rng &&strategies) {
     std::size_t total_score = 0;
 
     for (const std::string_view strategy : std::forward<Rng>(strategies)) {
-        /* Discard any lines that aren'the correct length, i.e. the last empty line. */
-        if (strategy.length() != 3) {
+        if (strategy.empty()) {
             continue;
         }
 

@@ -81,7 +81,7 @@ constexpr std::size_t illicit_item_type_priority_sum(Rng &&rucksacks) {
     std::size_t priority_sum = 0;
 
     for (const std::string_view encoding : std::forward<Rng>(rucksacks)) {
-        if (encoding.length() == 0) {
+        if (encoding.empty()) {
             continue;
         }
 
@@ -104,7 +104,7 @@ constexpr std::size_t badge_item_type_priority_sum(Rng &&rucksacks) {
     std::array<Rucksack, 3> group_rucksacks;
     std::uint8_t num_in_group = 0;
     for (const std::string_view encoding : std::forward<Rng>(rucksacks)) {
-        if (encoding.length() == 0) {
+        if (encoding.empty()) {
             continue;
         }
 
