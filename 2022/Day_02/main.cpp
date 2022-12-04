@@ -50,6 +50,16 @@ concept ShapeDecoder = requires(const ShapeDecoderT &decoder, const OpponentChoi
     { std::invoke(decoder, opponent, code) } -> std::convertible_to<Shape>;
 };
 
+/*
+    NOTE: We take in the decoder as a template parameter
+    as conceptually, to me, player choices using different
+    decoders are different things. This becomes more clear
+    to me when realizing that we would not want player choices
+    decoded using one decoder getting mixed up with player
+    choices from another decoder, e.g. getting put in the
+    same collection. Thus putting the decoder in a template
+    parameter enforces that within the type system.
+*/
 template<ShapeDecoder auto Decoder>
 struct PlayerChoice {
     public:

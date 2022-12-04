@@ -28,14 +28,14 @@ class SectionInterval {
         }
 };
 
-template<typename SectionsCheckerT>
-concept SectionsChecker = requires(const SectionsCheckerT &checker, const SectionInterval &sections) {
+template<typename Checker>
+concept SectionsChecker = requires(const Checker &checker, const SectionInterval &sections) {
     { std::invoke(checker, sections, sections) } -> std::convertible_to<bool>;
 };
 
-template<SectionsChecker auto Checker, std::ranges::input_range Rng>
+template<SectionsChecker Checker, std::ranges::input_range Rng>
 requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
-constexpr std::size_t count_section_pairs_with_checker(Rng &&rng) {
+constexpr std::size_t count_section_pairs_with_checker(const Checker &checker, Rng &&rng) {
     std::size_t num_passing_pairs = 0;
 
     for (const std::string_view intervals : std::forward<Rng>(rng)) {
@@ -47,7 +47,7 @@ constexpr std::size_t count_section_pairs_with_checker(Rng &&rng) {
         const auto first_sections = SectionInterval(intervals.substr(0, comma_pos));
         const auto second_sections = SectionInterval(intervals.substr(comma_pos + 1));
 
-        if (std::invoke(Checker, first_sections, second_sections)) {
+        if (std::invoke(checker, first_sections, second_sections)) {
             ++num_passing_pairs;
         }
     }
@@ -56,17 +56,21 @@ constexpr std::size_t count_section_pairs_with_checker(Rng &&rng) {
 }
 
 constexpr std::size_t count_wholly_overlapping_section_pairs_from_string_data(const std::string_view data) {
-    return count_section_pairs_with_checker<
+    return count_section_pairs_with_checker(
         [](const SectionInterval &first, const SectionInterval &second) {
             return first.contains(second) || second.contains(first);
-        }
-    >(advent::views::split_lines(data));
+        },
+
+        advent::views::split_lines(data)
+    );
 }
 
 constexpr std::size_t count_partially_overlapping_section_pairs_from_string_data(const std::string_view data) {
-    return count_section_pairs_with_checker<
-        &SectionInterval::overlaps
-    >(advent::views::split_lines(data));
+    return count_section_pairs_with_checker(
+        &SectionInterval::overlaps,
+
+        advent::views::split_lines(data)
+    );
 }
 
 constexpr inline std::string_view example_data = (
