@@ -23,9 +23,15 @@ class SectionInterval {
         }
 
         constexpr bool overlaps(const SectionInterval &other) const {
+            /*
+                If our start is <= other's end,
+                then we may overlap, but if our
+                end is also >= other's start,
+                then we must overlap.
+            */
             return (
-                (other.start >= this->start && other.start <= this->end) ||
-                (this->start >= other.start && this->start <= other.end)
+                this->start <= other.end   &&
+                this->end   >= other.start
             );
         }
 };
