@@ -43,10 +43,10 @@ concept SectionsChecker = requires(const Checker checker, const SectionInterval 
 
 template<SectionsChecker Checker, std::ranges::input_range Rng>
 requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
-constexpr std::size_t count_section_pairs_with_checker(const Checker checker, Rng &&rng) {
+constexpr std::size_t count_section_pairs_with_checker(const Checker checker, Rng &&pairs) {
     std::size_t num_passing_pairs = 0;
 
-    for (const std::string_view intervals : std::forward<Rng>(rng)) {
+    for (const std::string_view intervals : std::forward<Rng>(pairs)) {
         if (intervals.empty()) {
             continue;
         }

@@ -64,8 +64,8 @@ class ElfGroup {
         std::array<Rucksack, 3> rucksacks;
 
         constexpr char derive_badge_item() const {
-            for (const char item : rucksacks[0]) {
-                if (rucksacks[1].contains(item) && rucksacks[2].contains(item)) {
+            for (const char item : this->rucksacks[0]) {
+                if (this->rucksacks[1].contains(item) && this->rucksacks[2].contains(item)) {
                     return item;
                 }
             }
