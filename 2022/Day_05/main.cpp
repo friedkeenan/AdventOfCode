@@ -119,6 +119,7 @@ class Crates {
             auto crates = std::string(this->stacks.size(), ' ');
 
             for (const auto i : std::views::iota(0uz, this->stacks.size())) {
+                /* There must definitely be a crate in each stack. */
                 crates[i] = this->stacks[i].top();
             }
 
