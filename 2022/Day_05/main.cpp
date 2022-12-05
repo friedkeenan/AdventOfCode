@@ -80,12 +80,14 @@ class Crates {
             auto stacks = std::vector<Stack>(NumStacksFromLength(row.length()));
 
             while (true) {
+                /* If we reached the stack labels. */
                 if (row[1] == '1') {
                     ++it;
+
                     return Crates{stacks};
                 }
 
-                /* The crate letter are one after multiples of 4. */
+                /* The crate letters are one after multiples of 4. */
                 for (std::size_t i = 1; i < row.length(); i += 4) {
                     const auto crate = row[i];
                     if (crate == ' ') {
