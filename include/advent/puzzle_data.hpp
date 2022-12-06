@@ -79,14 +79,6 @@ namespace advent {
             (fmt::print(_solution_fmt_string<Indices>, std::invoke(std::forward<Solvers>(solvers), *data)), ...);
         }(std::make_index_sequence<sizeof...(Solvers)>{});
 
-        // if constexpr (sizeof...(Solvers) > 0) {
-        //     const auto part_one_solution = std::invoke(std::forward<PartOneSolver>(part_one_solver), *data);
-        //     const auto part_two_solution = std::invoke(std::forward<PartTwoSolver>(part_two_solver), *data);
-
-        //     fmt::print("Part one solution: {}\n", part_one_solution);
-        //     fmt::print("Part two solution: {}\n", part_two_solution);
-        // }
-
         return 0;
     }
 
