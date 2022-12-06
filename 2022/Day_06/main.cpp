@@ -1,30 +1,32 @@
 #include <advent/advent.hpp>
 
+constexpr std::size_t find_duplicate_character(const std::string_view potential_marker) {
+    for (const auto i : std::views::iota(0uz, potential_marker.length())) {
+        const auto found_pos = potential_marker.find_first_of(potential_marker[i], i + 1);
+
+        /* If we find a duplicate character. */
+        if (found_pos != std::string_view::npos) {
+            return i;
+        }
+    }
+
+    /* If we find no duplicate characters, return 'npos'. */
+    return std::string_view::npos;
+}
+
 constexpr std::size_t find_end_of_marker(const std::size_t marker_length, const std::string_view stream) {
     advent::assume(stream.length() >= marker_length);
 
     /* This variable gets reused. */
     auto potential_marker = std::string_view(stream.data(), marker_length);
     while (true) {
-        bool found_duplicate = false;
-
-        /* We don't need to check the last character if we know the previous ones aren't duplicated. */
-        for (const auto i : std::views::iota(0uz, marker_length - 1)) {
-            const auto found_pos = potential_marker.find_last_of(potential_marker[i]);
-
-            /* If the character we found is not the one we are currently checking, i.e. it is a duplicate. */
-            if (found_pos > i) {
-                /* Slide 'potential_marker' over past the duplicate character. */
-                potential_marker = std::string_view(potential_marker.data() + i + 1, marker_length);
-
-                found_duplicate = true;
-                break;
-            }
-        }
-
-        if (!found_duplicate) {
+        const auto duplicate_pos = find_duplicate_character(potential_marker);
+        if (duplicate_pos == std::string_view::npos) {
             return potential_marker.data() - stream.data() + marker_length;
         }
+
+        /* Slide 'potential_marker' over past the duplicate character. */
+        potential_marker = std::string_view(potential_marker.data() + duplicate_pos + 1, marker_length);
     }
 }
 
