@@ -15,6 +15,8 @@ constexpr std::size_t find_duplicate_character(const std::string_view potential_
 }
 
 constexpr std::size_t find_end_of_marker(const std::size_t marker_length, const std::string_view stream) {
+    /* NOTE: We could maybe do this differently if I had an implementation of 'std::views::slide'. */
+
     advent::assume(stream.length() >= marker_length);
 
     /* This variable gets reused. */
