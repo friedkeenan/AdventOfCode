@@ -94,16 +94,10 @@ static_assert(count_wholly_overlapping_section_pairs_from_string_data(example_da
 static_assert(count_partially_overlapping_section_pairs_from_string_data(example_data) == 4);
 
 int main(int argc, char **argv) {
-    const auto data = advent::puzzle_data(argc, argv);
-    if (!data.has_value()) {
-        fmt::print("Unable to read puzzle data!\n");
+    return advent::solve_puzzles(
+        argc, argv,
 
-        return 1;
-    }
-
-    const auto part_one_solution = count_wholly_overlapping_section_pairs_from_string_data(*data);
-    const auto part_two_solution = count_partially_overlapping_section_pairs_from_string_data(*data);
-
-    fmt::print("Part one solution: {}\n", part_one_solution);
-    fmt::print("Part two solution: {}\n", part_two_solution);
+        count_wholly_overlapping_section_pairs_from_string_data,
+        count_partially_overlapping_section_pairs_from_string_data
+    );
 }

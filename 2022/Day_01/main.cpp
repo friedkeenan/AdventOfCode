@@ -110,16 +110,10 @@ static_assert(find_max_calories_from_string_data(example_data) == 24000);
 static_assert(find_sum_of_max_calories_from_string_data(example_data) == 45000);
 
 int main(int argc, char **argv) {
-    const auto data = advent::puzzle_data(argc, argv);
-    if (!data.has_value()) {
-        fmt::print("Unable to read puzzle data!\n");
+    return advent::solve_puzzles(
+        argc, argv,
 
-        return 1;
-    }
-
-    const auto part_one_solution = find_max_calories_from_string_data(*data);
-    const auto part_two_solution = find_sum_of_max_calories_from_string_data(*data);
-
-    fmt::print("Part one solution: {}\n", part_one_solution);
-    fmt::print("Part two solution: {}\n", part_two_solution);
+        find_max_calories_from_string_data,
+        find_sum_of_max_calories_from_string_data
+    );
 }

@@ -146,16 +146,10 @@ static_assert(illicit_item_type_priority_sum_from_string_data(example_data) == 1
 static_assert(badge_item_type_priority_sum_from_string_data(example_data) == 70);
 
 int main(int argc, char **argv) {
-    const auto data = advent::puzzle_data(argc, argv);
-    if (!data.has_value()) {
-        fmt::print("Unable to read puzzle data!\n");
+    return advent::solve_puzzles(
+        argc, argv,
 
-        return 1;
-    }
-
-    const auto part_one_solution = illicit_item_type_priority_sum_from_string_data(*data);
-    const auto part_two_solution = badge_item_type_priority_sum_from_string_data(*data);
-
-    fmt::print("Part one solution: {}\n", part_one_solution);
-    fmt::print("Part two solution: {}\n", part_two_solution);
+        illicit_item_type_priority_sum_from_string_data,
+        badge_item_type_priority_sum_from_string_data
+    );
 }

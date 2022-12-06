@@ -147,6 +147,13 @@ static_assert(test_submarine<FaultySubmarine>(example_data) == 150);
 static_assert(test_submarine<ProperSubmarine>(example_data) == 900);
 
 int main(int argc, char **argv) {
+    return advent::solve_puzzles(
+        argc, argv,
+
+        test_submarine<FaultySubmarine>,
+        test_submarine<ProperSubmarine>
+    );
+
     const auto data = advent::puzzle_data(argc, argv);
     if (!data.has_value()) {
         fmt::print("Unable to read puzzle data!\n");

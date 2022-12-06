@@ -149,16 +149,10 @@ static_assert(find_player_total_score_naive_decoder(example_data) == 15);
 static_assert(find_player_total_score_outcome_decoder(example_data) == 12);
 
 int main(int argc, char **argv) {
-    const auto data = advent::puzzle_data(argc, argv);
-    if (!data.has_value()) {
-        fmt::print("Unable to read puzzle data!\n");
+    return advent::solve_puzzles(
+        argc, argv,
 
-        return 1;
-    }
-
-    const auto part_one_solution = find_player_total_score_naive_decoder(*data);
-    const auto part_two_solution = find_player_total_score_outcome_decoder(*data);
-
-    fmt::print("Part one solution: {}\n", part_one_solution);
-    fmt::print("Part two solution: {}\n", part_two_solution);
+        find_player_total_score_naive_decoder,
+        find_player_total_score_outcome_decoder
+    );
 }

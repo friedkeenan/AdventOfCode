@@ -84,16 +84,10 @@ static_assert(count_depth_increases_from_string_data(example_data) == 7);
 static_assert(count_chunked_depth_increases_from_string_data(example_data) == 5);
 
 int main(int argc, char **argv) {
-    const auto data = advent::puzzle_data(argc, argv);
-    if (!data.has_value()) {
-        fmt::print("Unable to read puzzle data!\n");
+    return advent::solve_puzzles(
+        argc, argv,
 
-        return 1;
-    }
-
-    const auto part_one_solution = count_depth_increases_from_string_data(*data);
-    const auto part_two_solution = count_chunked_depth_increases_from_string_data(*data);
-
-    fmt::print("Part one solution: {}\n", part_one_solution);
-    fmt::print("Part two solution: {}\n", part_two_solution);
+        count_depth_increases_from_string_data,
+        count_chunked_depth_increases_from_string_data
+    );
 }
