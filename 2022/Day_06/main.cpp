@@ -8,7 +8,8 @@ constexpr std::size_t find_end_of_marker(const std::size_t marker_length, const 
     while (true) {
         bool found_duplicate = false;
 
-        for (const auto i : std::views::iota(0uz, marker_length)) {
+        /* We don't need to check the last character if we know the previous ones aren't duplicated. */
+        for (const auto i : std::views::iota(0uz, marker_length - 1)) {
             const auto found_pos = potential_marker.find_last_of(potential_marker[i]);
 
             /* If the character we found is not the one we are currently checking, i.e. it is a duplicate. */
