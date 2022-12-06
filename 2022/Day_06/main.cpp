@@ -35,17 +35,17 @@ constexpr std::size_t find_start_of_message(const std::string_view stream) {
     return find_end_of_marker(14, stream);
 }
 
-static_assert(find_start_of_packet("mjqjpqmgbljsphdztnvjfqwrcgsmlb")    == 7);
-static_assert(find_start_of_packet("bvwbjplbgvbhsrlpgdmjqwftvncz")      == 5);
-static_assert(find_start_of_packet("nppdvjthqldpwncqszvftbrmjlhg")      == 6);
-static_assert(find_start_of_packet("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg") == 10);
-static_assert(find_start_of_packet("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw")  == 11);
+static_assert(find_start_of_packet("mjqjpqmgbljsphdztnvjfqwrcgsmlb\n")    == 7);
+static_assert(find_start_of_packet("bvwbjplbgvbhsrlpgdmjqwftvncz\n")      == 5);
+static_assert(find_start_of_packet("nppdvjthqldpwncqszvftbrmjlhg\n")      == 6);
+static_assert(find_start_of_packet("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg\n") == 10);
+static_assert(find_start_of_packet("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw\n")  == 11);
 
-static_assert(find_start_of_message("mjqjpqmgbljsphdztnvjfqwrcgsmlb")    == 19);
-static_assert(find_start_of_message("bvwbjplbgvbhsrlpgdmjqwftvncz")      == 23);
-static_assert(find_start_of_message("nppdvjthqldpwncqszvftbrmjlhg")      == 23);
-static_assert(find_start_of_message("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg") == 29);
-static_assert(find_start_of_message("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw")  == 26);
+static_assert(find_start_of_message("mjqjpqmgbljsphdztnvjfqwrcgsmlb\n")    == 19);
+static_assert(find_start_of_message("bvwbjplbgvbhsrlpgdmjqwftvncz\n")      == 23);
+static_assert(find_start_of_message("nppdvjthqldpwncqszvftbrmjlhg\n")      == 23);
+static_assert(find_start_of_message("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg\n") == 29);
+static_assert(find_start_of_message("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw\n")  == 26);
 
 int main(int argc, char **argv) {
     return advent::solve_puzzles(
