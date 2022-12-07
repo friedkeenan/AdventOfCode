@@ -42,7 +42,8 @@ class FileSystem {
                 std::string_view _name;
 
                 std::vector<Directory> _directories;
-                std::vector<File>      _files;
+
+                std::size_t _total_file_size = 0;
 
                 SizeCache _size_cache;
 
@@ -81,7 +82,7 @@ class FileSystem {
                 }
 
                 constexpr void add_file_with_size(const std::size_t file_size) {
-                    this->_files.emplace_back(file_size);
+                    this->_total_file_size += file_size;
                 }
 
                 /* NOTE: This cannot be const because it calls 'cached_size_with_limit' on child directories. */
@@ -100,12 +101,9 @@ class FileSystem {
                         }
                     }
 
-                    for (const auto &file : this->_files) {
-                        size += file.size;
-
-                        if (size > limit) {
-                            return InvalidSize;
-                        }
+                    size += this->_total_file_size;
+                    if (size > limit) {
+                        return InvalidSize;
                     }
 
                     return size;
@@ -124,8 +122,33 @@ class FileSystem {
                     return size;
                 }
 
+                /* NOTE: This cannot be const because it calls 'cached_size' on child directories. */
+                constexpr std::size_t uncached_size() {
+                    std::size_t size = 0;
+
+                    for (auto &child : this->_directories) {
+                        const auto child_size = child.cached_size();
+
+                        size += child_size;
+                    }
+
+                    size += this->_total_file_size;
+
+                    return size;
+                }
+
+                /* NOTE: This cannot be const because it stores the cache. */
                 constexpr std::size_t cached_size() {
-                    return cached_size_with_limit(InvalidSize);
+                    if (this->_size_cache.is_cached_for_limit(InvalidSize)) {
+                        return this->_size_cache.size();
+                    }
+
+                    const auto size = this->uncached_size();
+
+                    /* The total size with no limit is the same as having a limit of 'InvalidSize'. */
+                    this->_size_cache.store(InvalidSize, size);
+
+                    return size;
                 }
         };
 
