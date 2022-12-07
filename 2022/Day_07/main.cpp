@@ -185,6 +185,8 @@ class Terminal {
         }
 
         constexpr void consume_line(const std::string_view line) {
+            /* Thank you Eric Wastl for only having each directory entered and listed once. */
+
             if (line == LsCommand) {
                 /* We don't need to handle 'ls'. */
                 return;
