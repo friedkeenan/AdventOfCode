@@ -14,38 +14,13 @@ class FileSystem {
 
         class Directory {
             public:
-                class SizeCache {
-                    public:
-                        std::size_t _limit;
-                        std::optional<std::size_t> _storage;
-
-                        constexpr void clear() {
-                            this->_storage = std::nullopt;
-                        }
-
-                        constexpr void store(const std::size_t limit, const std::size_t size) {
-                            this->_limit   = limit;
-                            this->_storage = size;
-                        }
-
-                        constexpr bool is_cached_for_limit(const std::size_t limit) const {
-                            return this->_storage.has_value() && this->_limit == limit;
-                        }
-
-                        constexpr std::size_t size() const {
-                            return *this->_storage;
-                        }
-                };
-
                 Directory &parent;
 
                 std::string_view _name;
 
                 std::vector<Directory> _directories;
 
-                std::size_t _total_file_size = 0;
-
-                SizeCache _size_cache;
+                std::size_t size = 0;
 
                 /* Default construction creates a root directory. */
                 constexpr Directory() : parent(*this) { }
@@ -82,82 +57,21 @@ class FileSystem {
                 }
 
                 constexpr void add_file_with_size(const std::size_t file_size) {
-                    this->_total_file_size += file_size;
-                }
+                    this->size += file_size;
 
-                /* NOTE: This cannot be const because it calls 'cached_size_with_limit' on child directories. */
-                constexpr std::size_t uncached_size_with_limit(const std::size_t limit) {
-                    std::size_t size = 0;
-
-                    for (auto &child : this->_directories) {
-                        const auto child_size = child.cached_size_with_limit(limit);
-                        if (child_size == InvalidSize) {
-                            return InvalidSize;
-                        }
-
-                        size += child_size;
-                        if (size > limit) {
-                            return InvalidSize;
-                        }
+                    if (!this->is_root()) {
+                        /* Update our parent's sizes. */
+                        this->parent.add_file_with_size(file_size);
                     }
-
-                    size += this->_total_file_size;
-                    if (size > limit) {
-                        return InvalidSize;
-                    }
-
-                    return size;
-                }
-
-                /* NOTE: This cannot be const because it stores the cache. */
-                constexpr std::size_t cached_size_with_limit(const std::size_t limit) {
-                    if (this->_size_cache.is_cached_for_limit(limit)) {
-                        return this->_size_cache.size();
-                    }
-
-                    const auto size = this->uncached_size_with_limit(limit);
-
-                    this->_size_cache.store(limit, size);
-
-                    return size;
-                }
-
-                /* NOTE: This cannot be const because it calls 'cached_size' on child directories. */
-                constexpr std::size_t uncached_size() {
-                    std::size_t size = 0;
-
-                    for (auto &child : this->_directories) {
-                        const auto child_size = child.cached_size();
-
-                        size += child_size;
-                    }
-
-                    size += this->_total_file_size;
-
-                    return size;
-                }
-
-                /* NOTE: This cannot be const because it stores the cache. */
-                constexpr std::size_t cached_size() {
-                    if (this->_size_cache.is_cached_for_limit(InvalidSize)) {
-                        return this->_size_cache.size();
-                    }
-
-                    const auto size = this->uncached_size();
-
-                    /* The total size with no limit is the same as having a limit of 'InvalidSize'. */
-                    this->_size_cache.store(InvalidSize, size);
-
-                    return size;
                 }
         };
 
         Directory root;
 
         template<typename Consumer>
-        requires (std::invocable<const Consumer &, Directory &>)
-        static constexpr void _for_each_directory(const Consumer &consumer, Directory &directory) {
-            for (auto &child : directory._directories) {
+        requires (std::invocable<const Consumer &, const Directory &>)
+        static constexpr void _for_each_directory(const Consumer &consumer, const Directory &directory) {
+            for (const auto &child : directory._directories) {
                 _for_each_directory(consumer, child);
             }
 
@@ -165,8 +79,8 @@ class FileSystem {
         }
 
         template<typename Consumer>
-        requires (std::invocable<const Consumer &, Directory &>)
-        constexpr void for_each_directory(const Consumer consumer) {
+        requires (std::invocable<const Consumer &, const Directory &>)
+        constexpr void for_each_directory(const Consumer consumer) const {
             return _for_each_directory(consumer, this->root);
         }
 };
@@ -252,13 +166,12 @@ constexpr std::size_t sum_of_directory_sizes_with_limit(const std::size_t limit,
     }
 
     std::size_t limited_size = 0;
-    terminal.fs.for_each_directory([&](FileSystem::Directory &directory) {
-        const auto size = directory.cached_size_with_limit(limit);
-        if (size == FileSystem::InvalidSize) {
+    terminal.fs.for_each_directory([&](const FileSystem::Directory &directory) {
+        if (directory.size > limit) {
             return;
         }
 
-        limited_size += size;
+        limited_size += directory.size;
     });
 
     return limited_size;
@@ -277,14 +190,12 @@ constexpr std::size_t find_directory_to_delete(Rng &&terminal_lines) {
         terminal.consume_line(line);
     }
 
-    const auto free_space = FileSystem::TotalSpace - terminal.fs.root.cached_size();
+    const auto free_space = FileSystem::TotalSpace - terminal.fs.root.size;
 
     std::size_t minimum_sufficient_space = -1;
-    terminal.fs.for_each_directory([&](FileSystem::Directory &directory) {
-        const auto size = directory.cached_size();
-
-        if (size + free_space >= FileSystem::NeededSpace && size < minimum_sufficient_space) {
-            minimum_sufficient_space = size;
+    terminal.fs.for_each_directory([&](const FileSystem::Directory &directory) {
+        if (directory.size + free_space >= FileSystem::NeededSpace && directory.size < minimum_sufficient_space) {
+            minimum_sufficient_space = directory.size;
         }
     });
 
