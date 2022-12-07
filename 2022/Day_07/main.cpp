@@ -159,7 +159,13 @@ class Terminal {
 
         FileSystem fs;
 
-        /* NOTE: The first line will be "$ cd /" so this nullptr is not an issue. */
+        /*
+            NOTE: The first line will be "$ cd /" so this nullptr is not an issue.
+
+            Additionally, this pointer will not be invalidated while it's
+            being used, as when adding a directory or file to the current
+            directory, the parent of the current directory is not changing.
+        */
         FileSystem::Directory *current_directory = nullptr;
 
         constexpr void change_directory(const std::string_view new_directory) {
