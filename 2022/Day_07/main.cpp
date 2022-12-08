@@ -16,8 +16,6 @@ class FileSystem {
             public:
                 Directory &parent;
 
-                std::string_view _name;
-
                 std::vector<Directory> _directories;
 
                 std::size_t size = 0;
@@ -25,35 +23,15 @@ class FileSystem {
                 /* Default construction creates a root directory. */
                 constexpr Directory() : parent(*this) { }
 
-                constexpr Directory(Directory &parent, const std::string_view name) : parent(parent), _name(name) { }
+                /* Take in a pointer to not thrash with copy constructor. */
+                constexpr Directory(Directory *parent) : parent(*parent) { }
 
                 constexpr bool is_root() const {
                     return &this->parent == this;
                 }
 
-                /* NOTE: If we had an implementation of explicit object parameters, we could do this better. */
-                template<typename Self>
-                static constexpr auto &_directory_with_name(Self &self, const std::string_view name) {
-                    for (auto &child : self._directories) {
-                        if (child._name == name) {
-                            return child;
-                        }
-                    }
-
-                    /* There must be a child with the requested name. */
-                    std::unreachable();
-                }
-
-                constexpr Directory &directory_with_name(const std::string_view name) {
-                    return _directory_with_name(*this, name);
-                }
-
-                constexpr const Directory &directory_with_name(const std::string_view name) const {
-                    return _directory_with_name(*this, name);
-                }
-
-                constexpr void add_directory(const std::string_view name) {
-                    this->_directories.emplace_back(*this, name);
+                constexpr Directory &add_directory(/* const std::string_view name */) {
+                    return this->_directories.emplace_back(this);
                 }
 
                 constexpr void add_file_with_size(const std::size_t file_size) {
@@ -106,6 +84,14 @@ class Terminal {
         FileSystem::Directory *current_directory = nullptr;
 
         constexpr void change_directory(const std::string_view new_directory) {
+            /*
+                Theoretically we know what directory we should be changing to
+                without needing to parse it, it acts sorta-ish like a stack,
+                definitely calculable...
+
+                But I don't want to do that, probably wouldn't be better in any way.
+            */
+
             if (new_directory == "/") {
                 this->current_directory = &this->fs.root;
 
@@ -118,14 +104,8 @@ class Terminal {
                 return;
             }
 
-            /*
-                Theoretically we know what directory we should be changing to
-                without needing the name, it acts sorta-ish like a stack,
-                definitely calculable...
-
-                But I don't want to do that.
-            */
-            this->current_directory = &this->current_directory->directory_with_name(new_directory);
+            /* We only 'cd' into a directory once, so we can just add a nameless directory. */
+            this->current_directory = &this->current_directory->add_directory();
         }
 
         constexpr void consume_line(const std::string_view line) {
@@ -136,16 +116,15 @@ class Terminal {
                 return;
             }
 
-            if (line.starts_with(CdCommand)) {
-                const auto new_directory = line.substr(CdCommand.length());
-                this->change_directory(new_directory);
+            if (line.starts_with(DirPrefix)) {
+                /* We don't need to handle 'dir'. */
 
                 return;
             }
 
-            if (line.starts_with(DirPrefix)) {
-                const auto child_directory_name = line.substr(DirPrefix.length());
-                this->current_directory->add_directory(child_directory_name);
+            if (line.starts_with(CdCommand)) {
+                const auto new_directory = line.substr(CdCommand.length());
+                this->change_directory(new_directory);
 
                 return;
             }
