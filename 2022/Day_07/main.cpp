@@ -118,6 +118,13 @@ class Terminal {
                 return;
             }
 
+            /*
+                Theoretically we know what directory we should be changing to
+                without needing the name, it acts sorta-ish like a stack,
+                definitely calculable...
+
+                But I don't want to do that.
+            */
             this->current_directory = &this->current_directory->directory_with_name(new_directory);
         }
 
