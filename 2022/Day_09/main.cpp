@@ -29,7 +29,7 @@ class Motion {
 static_assert(Motion::Parse("R 45") == Motion{Direction::Right, 45});
 
 template<std::size_t Length>
-requires (Length > 1)
+requires (Length >= 1)
 class Rope {
     public:
         using Position = advent::vector_2d<advent::ssize_t>;
