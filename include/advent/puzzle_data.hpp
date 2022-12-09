@@ -2,6 +2,7 @@
 
 #include <advent/common.hpp>
 #include <advent/scope_guard.hpp>
+#include <advent/print.hpp>
 
 namespace advent {
 
@@ -67,16 +68,16 @@ namespace advent {
 
     template<PuzzleSolver... Solvers>
     requires (sizeof...(Solvers) <= 2)
-    int solve_puzzles(int argc, const char * const *argv, Solvers &&... solvers) {
+    constexpr int solve_puzzles(int argc, const char * const *argv, Solvers &&... solvers) {
         const auto data = advent::puzzle_data(argc, argv);
         if (!data.has_value()) {
-            fmt::print("Unable to read puzzle data!\n");
+            advent::print("Unable to read puzzle data!\n");
 
             return 1;
         }
 
         [&]<std::size_t... Indices>(std::index_sequence<Indices...>) {
-            (fmt::print(_solution_fmt_string<Indices>, std::invoke(std::forward<Solvers>(solvers), *data)), ...);
+            (advent::print(_solution_fmt_string<Indices>, std::invoke(std::forward<Solvers>(solvers), *data)), ...);
         }(std::make_index_sequence<sizeof...(Solvers)>{});
 
         return 0;

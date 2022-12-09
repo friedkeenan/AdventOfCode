@@ -36,4 +36,22 @@ namespace advent {
 
     constexpr inline auto pow = _pow_fn{};
 
+    struct _abs_fn {
+        template<advent::arithmetic T>
+        [[nodiscard]]
+        constexpr auto operator ()(const T num) const noexcept {
+            if constexpr (advent::unsigned_type<T>) {
+                return num;
+            } else {
+                if (num < 0) {
+                    return -num;
+                }
+
+                return num;
+            }
+        }
+    };
+
+    constexpr inline auto abs = _abs_fn{};
+
 }

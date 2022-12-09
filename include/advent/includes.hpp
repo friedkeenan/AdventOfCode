@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdio>
 
+#include <compare>
 #include <array>
 #include <span>
 #include <string_view>
@@ -15,6 +16,7 @@
 #include <numeric>
 #include <iterator>
 #include <ranges>
+#include <algorithm>
 #include <type_traits>
 #include <concepts>
 

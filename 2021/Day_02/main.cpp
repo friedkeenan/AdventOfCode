@@ -153,14 +153,4 @@ int main(int argc, char **argv) {
         test_submarine<FaultySubmarine>,
         test_submarine<ProperSubmarine>
     );
-
-    const auto data = advent::puzzle_data(argc, argv);
-    if (!data.has_value()) {
-        fmt::print("Unable to read puzzle data!\n");
-
-        return 1;
-    }
-
-    fmt::print("Part one solution: {}\n", test_submarine<FaultySubmarine>(*data));
-    fmt::print("Part two solution: {}\n", test_submarine<ProperSubmarine>(*data));
 }
