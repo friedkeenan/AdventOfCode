@@ -196,11 +196,11 @@ class CPU {
                 return true;
             }
 
-            if (this->X % Display::Width != 0 && this->X - 1 == x) {
+            if (this->X != 0 && this->X - 1 == x) {
                 return true;
             }
 
-            if ((this->X + 1) % Display::Width != 0 && this->X + 1 == x) {
+            if ((this->X + 1) != Display::Width && this->X + 1 == x) {
                 return true;
             }
 
@@ -259,6 +259,17 @@ constexpr std::int64_t sum_signal_strengths(Rng &&asm_lines) {
 template<std::ranges::input_range Rng>
 requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
 constexpr std::string render_display(Rng &&asm_lines) {
+    /*
+        NOTE: We return the rendered display, but part two
+        wants capital letters shown in the display. If I knew
+        what each letter looked like in the display, we could
+        parse them out, and that does feel *more* in the spirit
+        of Advent of Code, to go from an input to something you
+        can just paste in, but I don't know what each letter
+        looks like, and I think ultimately it's okay that we have
+        to make the user interpret the display.
+    */
+
     CPU cpu;
     Display display;
 
