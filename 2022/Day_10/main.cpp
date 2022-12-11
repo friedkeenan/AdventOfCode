@@ -93,7 +93,7 @@ class InstructionHandler<Head, Tail...> {
             advent::assume(cpu._cycle <= desired_cycle);
 
             if (Head::Compare(line)) {
-                if (cpu._cycle + Head::CycleDuration >= desired_cycle) {
+                if (cpu._cycle + Head::CycleDuration > desired_cycle) {
                     /*
                         If executing this instruction would advance the cycle
                         to our desired cycle or beyond, peek before the execution.
@@ -224,14 +224,15 @@ constexpr std::int64_t sum_signal_strengths(Rng &&asm_lines) {
 
     std::int64_t signal_strength_sum = 0;
 
-    auto desired_cycle = CycleStart;
+    /* 'CycleStart' is 1-indexed. */
+    auto desired_cycle = CycleStart - 1;
     for (const std::string_view line : std::forward<Rng>(asm_lines)) {
         if (line.empty()) {
             continue;
         }
 
         cpu.execute_with_cycle_peeker(line, desired_cycle, [&](const CPU &cpu) {
-            signal_strength_sum += cpu.X * desired_cycle;
+            signal_strength_sum += cpu.X * (desired_cycle + 1);
 
             desired_cycle += CycleStep;
         });
