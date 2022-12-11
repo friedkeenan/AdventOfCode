@@ -207,22 +207,6 @@ class CPU {
             return false;
         }
 
-        constexpr bool sprite_collides_with_pixel_pos(const std::int64_t pos) const {
-            /* I hope the sprite wraps across to the next row. */
-
-            for (const auto sprite_pixel : {this->X - 1, this->X, this->X + 1}) {
-                if (sprite_pixel == pos) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        constexpr std::int64_t signal_strength() const {
-            return this->X * this->_cycle;
-        }
-
         template<std::invocable<const CPU &> Peeker>
         constexpr void execute_with_cycle_peeker(const std::string_view line, const std::int64_t desired_cycle, Peeker &&peeker) {
             this->_cycle += Handler::ExecuteWithCyclePeeker(*this, line, desired_cycle, std::forward<Peeker>(peeker));
