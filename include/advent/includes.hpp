@@ -10,6 +10,7 @@
 #include <string_view>
 #include <string>
 #include <vector>
+#include <variant>
 #include <optional>
 #include <utility>
 #include <functional>
