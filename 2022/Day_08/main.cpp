@@ -37,8 +37,9 @@ class TreeGrid {
         template<std::ranges::input_range Rng>
         requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
         constexpr explicit TreeGrid(Rng &&tree_rows) {
-            const auto first_row = *std::ranges::begin(tree_rows);
-            this->_grid_width    = first_row.length();
+            const std::string_view first_row = *std::ranges::begin(tree_rows);
+
+            this->_grid_width = first_row.length();
 
             for (const std::string_view row : tree_rows) {
                 if (row.empty()) {
