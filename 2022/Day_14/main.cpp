@@ -196,7 +196,10 @@ class Cave {
                     continue;
                 }
 
-                /* TODO: Are our checks sufficient for diagonal blockage? */
+                /*
+                    NOTE: With our logic, sand can clip between diagonal rocks.
+                    It doesn't seem to be an issue.
+                */
 
                 const auto under_left = under - Coord{1, 0};
                 if (this->local_outside_grid(under_left)) {
