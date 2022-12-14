@@ -43,4 +43,12 @@ namespace advent {
         )
     );
 
+    template<typename T>
+    concept class_type = requires {
+        typename std::type_identity<int T::*>;
+    };
+
+    template<typename T>
+    concept inheritable = class_type<T> && !std::is_union_v<T>;
+
 }
