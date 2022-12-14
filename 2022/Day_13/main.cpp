@@ -212,40 +212,37 @@ constexpr std::size_t sum_correct_indices(Rng &&packet_representations) {
 constexpr inline auto Divider2 = Packet::Parse("[[2]]");
 constexpr inline auto Divider6 = Packet::Parse("[[6]]");
 
+static_assert(Divider2.correct_order(Divider6));
+
 template<std::ranges::input_range Rng>
 requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
 constexpr std::size_t decoder_key(Rng &&packet_representations) {
-    auto packets = std::vector{Divider2, Divider6};
+
+    /* Indices are 1-indexed, and 'Divider6' goes after 'Divider2'. */
+    std::size_t divider_2_index = 1;
+    std::size_t divider_6_index = 1 + 1;
 
     for (const std::string_view representation : std::forward<Rng>(packet_representations)) {
         if (representation.empty()) {
             continue;
         }
 
-        packets.push_back(Packet::Parse(representation));
-    }
+        const auto packet = Packet::Parse(representation);
 
-    std::ranges::sort(packets, &Packet::correct_order);
-
-    std::size_t divider_2_index = 0;
-    std::size_t divider_6_index = 0;
-
-    for (const auto i : std::views::iota(0uz, packets.size())) {
-        const auto &packet = packets[i];
-
-        /* The indices are 1-indexed. */
-        if (packet == Divider2) {
-            divider_2_index = i + 1;
-        } else if (packet == Divider6) {
-            divider_6_index = i + 1;
-        }
-
-        if (divider_2_index != 0 && divider_6_index != 0) {
-            return divider_2_index * divider_6_index;
+        /*
+            Instead of sorting, we just count the number of
+            packets that would be before each divider.
+        */
+        if (packet.correct_order(Divider2)) {
+            /* 'Divider6' is definitely after 'Divider2'. */
+            ++divider_2_index;
+            ++divider_6_index;
+        } else if (packet.correct_order(Divider6)) {
+            ++divider_6_index;
         }
     }
 
-    std::unreachable();
+    return divider_2_index * divider_6_index;
 }
 
 constexpr std::size_t sum_correct_indices_from_string_data(const std::string_view data) {
