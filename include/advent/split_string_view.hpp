@@ -96,11 +96,11 @@ namespace advent {
 
     template<typename Callback>
     requires (std::invocable<Callback &, std::string_view>)
-    constexpr void split_with_callback(std::string_view str, const char delim, Callback &&callback) {
+    constexpr void split_with_callback(std::string_view str, const std::string_view delim, Callback &&callback) {
         /* Used for cases where we just need to simply loop over each substring. */
 
         while (true) {
-            const auto split_pos = str.find_first_of(delim);
+            const auto split_pos = str.find(delim);
             if (split_pos == std::string_view::npos) {
                 std::invoke(callback, std::move(str));
 
@@ -109,8 +109,14 @@ namespace advent {
 
             std::invoke(callback, std::string_view(str.data(), split_pos));
 
-            str.remove_prefix(split_pos + 1);
+            str.remove_prefix(split_pos + delim.length());
         }
+    }
+
+    template<typename Callback>
+    requires (std::invocable<Callback &, std::string_view>)
+    constexpr void split_with_callback(std::string_view str, const char delim, Callback &&callback) {
+        return split_with_callback(str, std::string_view(&delim, 1), std::forward<Callback>(callback));
     }
 
 }
