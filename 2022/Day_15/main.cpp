@@ -119,7 +119,7 @@ constexpr std::size_t num_non_beacons_in_row(Rng &&sensors) {
         ranges.push_back(*maybe_slice);
     }
 
-    /* combine and count range distances. */
+    /* Combine and count range distances. */
     std::size_t num_spaces_in_slice = 0;
     while (!ranges.empty()) {
         auto range = ranges.back();
