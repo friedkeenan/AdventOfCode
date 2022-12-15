@@ -8,43 +8,43 @@ class Cave {
             Sand,
         };
 
-        using Coord = advent::vector_2d<std::int64_t>;
+        using Position = advent::vector_2d<std::int64_t>;
 
         class Path {
             public:
-                static constexpr bool LineIsVertical(const Coord start, const Coord end) {
+                static constexpr bool LineIsVertical(const Position start, const Position end) {
                     return start.y() != end.y();
                 }
 
-                std::vector<Coord> coords;
+                std::vector<Position> positions;
 
                 constexpr explicit Path(const std::string_view path) {
-                    advent::split_with_callback(path, " -> ", [&](std::string_view coord) {
-                        const auto comma_pos = coord.find_first_of(',');
+                    advent::split_with_callback(path, " -> ", [&](std::string_view pos) {
+                        const auto comma_pos = pos.find_first_of(',');
                         advent::assume(comma_pos != std::string_view::npos);
 
-                        const auto x = advent::to_integral<std::int64_t>(std::string_view(coord.data(), comma_pos));
-                        coord.remove_prefix(comma_pos + 1);
+                        const auto x = advent::to_integral<std::int64_t>(std::string_view(pos.data(), comma_pos));
+                        pos.remove_prefix(comma_pos + 1);
 
-                        const auto y = advent::to_integral<std::int64_t>(coord);
+                        const auto y = advent::to_integral<std::int64_t>(pos);
 
                         /* It doesn't like us using 'emplace_back'. */
-                        this->coords.push_back(Coord{x, y});
+                        this->positions.push_back(Position{x, y});
                     });
                 }
 
                 template<typename Consumer>
-                requires (std::invocable<const Consumer &, const Coord &, const Coord &>)
+                requires (std::invocable<const Consumer &, const Position &, const Position &>)
                 constexpr void for_each_line(const Consumer consumer) const {
-                    for (const auto i : std::views::iota(1uz, this->coords.size())) {
-                        std::invoke(consumer, this->coords[i - 1], this->coords[i]);
+                    for (const auto i : std::views::iota(1uz, this->positions.size())) {
+                        std::invoke(consumer, this->positions[i - 1], this->positions[i]);
                     }
                 }
         };
 
-        static constexpr Coord SandSource = {500, 0};
+        static constexpr Position SandSource = {500, 0};
 
-        Coord _grid_origin;
+        Position _grid_origin;
         std::size_t _grid_width;
         std::vector<Tile> _grid;
 
@@ -54,8 +54,8 @@ class Cave {
             std::vector<Path> paths;
 
             /* The sand source must be included in the grid. */
-            Coord min = SandSource;
-            Coord max = SandSource;
+            Position min = SandSource;
+            Position max = SandSource;
             for (const std::string_view description : std::forward<Rng>(rock_paths)) {
                 if (description.empty()) {
                     continue;
@@ -63,21 +63,21 @@ class Cave {
 
                 const auto &path = paths.emplace_back(description);
 
-                for (const auto &coord : path.coords) {
-                    if (coord.x() < min.x()) {
-                        min.x() = coord.x();
+                for (const auto &pos : path.positions) {
+                    if (pos.x() < min.x()) {
+                        min.x() = pos.x();
                     }
 
-                    if (coord.y() < min.y()) {
-                        min.y() = coord.y();
+                    if (pos.y() < min.y()) {
+                        min.y() = pos.y();
                     }
 
-                    if (coord.x() > max.x()) {
-                        max.x() = coord.x();
+                    if (pos.x() > max.x()) {
+                        max.x() = pos.x();
                     }
 
-                    if (coord.y() > max.y()) {
-                        max.y() = coord.y();
+                    if (pos.y() > max.y()) {
+                        max.y() = pos.y();
                     }
                 }
             }
@@ -92,41 +92,41 @@ class Cave {
 
             this->_grid_origin = min;
 
-            const auto dimensions = max - min + Coord{1, 1};
+            const auto dimensions = max - min + Position{1, 1};
             this->_grid_width = dimensions.x();
             this->_grid.resize(dimensions.x() * dimensions.y(), Tile::Air);
 
             if (has_floor) {
                 /* Build the floor. */
-                for (auto coord = max; coord.x() >= min.x(); --coord.x()) {
-                    this->_at_local(this->to_local(coord)) = Tile::Rock;
+                for (auto pos = max; pos.x() >= min.x(); --pos.x()) {
+                    this->_at_local(this->to_local(pos)) = Tile::Rock;
                 }
             }
 
             /* Draw the rock lines. */
             for (const auto &path : paths) {
-                path.for_each_line([&](const Coord start, const Coord end) {
+                path.for_each_line([&](const Position start, const Position end) {
                     const auto local_start = this->to_local(start);
                     const auto local_end   = this->to_local(end);
 
                     if (Path::LineIsVertical(local_start, local_end)) {
                         if (local_start.y() <= local_end.y()) {
-                            for (auto coord = local_start; coord.y() <= local_end.y(); ++coord.y()) {
-                                this->_at_local(coord) = Tile::Rock;
+                            for (auto pos = local_start; pos.y() <= local_end.y(); ++pos.y()) {
+                                this->_at_local(pos) = Tile::Rock;
                             }
                         } else {
-                            for (auto coord = local_start; coord.y() >= local_end.y(); --coord.y()) {
-                                this->_at_local(coord) = Tile::Rock;
+                            for (auto pos = local_start; pos.y() >= local_end.y(); --pos.y()) {
+                                this->_at_local(pos) = Tile::Rock;
                             }
                         }
                     } else {
                         if (local_start.x() <= local_end.x()) {
-                            for (auto coord = local_start; coord.x() <= local_end.x(); ++coord.x()) {
-                                this->_at_local(coord) = Tile::Rock;
+                            for (auto pos = local_start; pos.x() <= local_end.x(); ++pos.x()) {
+                                this->_at_local(pos) = Tile::Rock;
                             }
                         } else {
-                            for (auto coord = local_start; coord.x() >= local_end.x(); --coord.x()) {
-                                this->_at_local(coord) = Tile::Rock;
+                            for (auto pos = local_start; pos.x() >= local_end.x(); --pos.x()) {
+                                this->_at_local(pos) = Tile::Rock;
                             }
                         }
                     }
@@ -142,11 +142,11 @@ class Cave {
             return y - this->_grid_origin.y();
         }
 
-        constexpr Coord to_local(const Coord absolute) const {
+        constexpr Position to_local(const Position absolute) const {
             return absolute - this->_grid_origin;
         }
 
-        constexpr Coord local_sand_source() const {
+        constexpr Position local_sand_source() const {
             return this->to_local(SandSource);
         }
 
@@ -166,18 +166,18 @@ class Cave {
             return this->_grid[y * this->grid_width() + x];
         }
 
-        constexpr Tile &_at_local(const Coord coord) {
-            return this->_at_local(coord.x(), coord.y());
+        constexpr Tile &_at_local(const Position pos) {
+            return this->_at_local(pos.x(), pos.y());
         }
 
-        constexpr const Tile &_at_local(const Coord coord) const {
-            return this->_at_local(coord.x(), coord.y());
+        constexpr const Tile &_at_local(const Position pos) const {
+            return this->_at_local(pos.x(), pos.y());
         }
 
-        constexpr bool local_outside_grid(const Coord coord) const {
+        constexpr bool local_outside_grid(const Position pos) const {
             return (
-                (coord.x() < 0 || std::cmp_greater_equal(coord.x(), this->grid_width()))  ||
-                (coord.y() < 0 || std::cmp_greater_equal(coord.y(), this->grid_height()))
+                (pos.x() < 0 || std::cmp_greater_equal(pos.x(), this->grid_width()))  ||
+                (pos.y() < 0 || std::cmp_greater_equal(pos.y(), this->grid_height()))
             );
         }
 
@@ -185,7 +185,7 @@ class Cave {
             auto sand = this->local_sand_source();
 
             while (true) {
-                const auto under = sand + Coord{0, 1};
+                const auto under = sand + Position{0, 1};
                 if (this->local_outside_grid(under)) {
                     return false;
                 }
@@ -201,7 +201,7 @@ class Cave {
                     It doesn't seem to be an issue.
                 */
 
-                const auto under_left = under - Coord{1, 0};
+                const auto under_left = under - Position{1, 0};
                 if (this->local_outside_grid(under_left)) {
                     return false;
                 }
@@ -213,7 +213,7 @@ class Cave {
                     continue;
                 }
 
-                const auto under_right = under + Coord{1, 0};
+                const auto under_right = under + Position{1, 0};
                 if (this->local_outside_grid(under_right)) {
                     return false;
                 }

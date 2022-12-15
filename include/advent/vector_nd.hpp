@@ -1,6 +1,7 @@
 #pragma once
 
 #include <advent/common.hpp>
+#include <advent/math.hpp>
 #include <advent/concepts.hpp>
 
 namespace advent {
@@ -74,6 +75,19 @@ namespace advent {
                     const auto distance_1d = this->_at(i) - other[i];
 
                     result += distance_1d * distance_1d;
+                }
+
+                return result;
+            }
+
+            template<typename Other>
+            constexpr auto manhattan_distance(const vector_nd<Other, Size> &other) const {
+                using Result = decltype(advent::abs(std::declval<T>() - std::declval<Other>()));
+
+                Result result = 0;
+
+                for (const auto i : std::views::iota(0uz, Size)) {
+                    result += advent::abs(this->_at(i) - other[i]);
                 }
 
                 return result;

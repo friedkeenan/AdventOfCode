@@ -5,6 +5,7 @@
 #include <cstdio>
 
 #include <compare>
+#include <limits>
 #include <array>
 #include <span>
 #include <string_view>

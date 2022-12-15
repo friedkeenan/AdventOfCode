@@ -13,7 +13,9 @@ sanitizers = [
     # '-fsanitize=undefined',
 ]
 
-link_args = ['-s']
+link_args = [
+    '-s',
+]
 
 cpp_args  = [
     '-std=gnu++2b',
