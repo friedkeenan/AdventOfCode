@@ -45,7 +45,7 @@ class SensorRegion {
         Position sensor;
         Position beacon;
 
-        constexpr SensorRegion(std::string_view description) {
+        constexpr explicit SensorRegion(std::string_view description) {
             description.remove_prefix(SensorPositionPrefix.length());
 
             const auto parse_pos = [&]() {

@@ -8,10 +8,10 @@ namespace advent {
     concept arithmetic = std::integral<T> || std::floating_point<T>;
 
     template<typename T>
-    concept singed_type = arithmetic<T> && (T{-1} < T{0});
+    concept signed_type = arithmetic<T> && (T{-1} < T{0});
 
     template<typename T>
-    concept unsigned_type = arithmetic<T> && !singed_type<T>;
+    concept unsigned_type = arithmetic<T> && !signed_type<T>;
 
     template<typename T>
     concept array_type = std::is_array_v<std::remove_reference_t<T>>;
