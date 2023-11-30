@@ -68,7 +68,7 @@ constexpr std::size_t find_sum_of_max_calories(Rng &&calorie_list) {
         current_inventory_calories += advent::to_integral<std::size_t>(item_calories);
     }
 
-    return std::accumulate(current_max_calories.begin(), current_max_calories.end(), 0uz);
+    return std::ranges::fold_left(current_max_calories, 0uz, std::plus{});
 }
 
 constexpr std::size_t find_max_calories_from_string_data(const std::string_view data) {
