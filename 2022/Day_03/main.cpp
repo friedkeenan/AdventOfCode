@@ -97,7 +97,10 @@ requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_v
 constexpr std::size_t badge_item_type_priority_sum(Rng &&rucksacks) {
     std::size_t priority_sum = 0;
 
-    /* NOTE: We could do this differently if I had an implementation of 'std::views::chunk'. */
+    /*
+        NOTE: We could do this differently using 'std::views::chunk',
+        however it ultimately results in less clean code.
+    */
 
     std::array<Rucksack, 3> group_rucksacks;
     std::uint8_t num_in_group = 0;

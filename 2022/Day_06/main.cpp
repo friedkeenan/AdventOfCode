@@ -15,7 +15,10 @@ constexpr std::size_t find_duplicate_character(const std::string_view potential_
 }
 
 constexpr std::size_t find_end_of_marker(const std::size_t marker_length, const std::string_view stream) {
-    /* NOTE: We could maybe do this differently if I had an implementation of 'std::views::slide'. */
+    /*
+        NOTE: We could maybe do this differently with 'std::views::slide', but
+        I don't think it'd be worth it and could very well result in worse code.
+    */
 
     [[assume(stream.length() >= marker_length)]];
 
