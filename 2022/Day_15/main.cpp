@@ -50,7 +50,7 @@ class SensorRegion {
 
             const auto parse_pos = [&]() {
                 const auto comma_pos = description.find_first_of(',');
-                advent::assume(comma_pos != std::string_view::npos);
+                [[assume(comma_pos != std::string_view::npos)]];
 
                 const auto x = advent::to_integral<Coord>(std::string_view(description.data(), comma_pos));
                 description.remove_prefix(comma_pos + YCoordPrefix.length());
@@ -261,7 +261,7 @@ constexpr std::size_t find_tuning_frequency(Rng &&sensors) {
 
             auto separated = others.front();
             for (const auto i : std::views::iota(1uz, others.size())) {
-                advent::assume(separated.combinable(others[i]));
+                [[assume(separated.combinable(others[i]))]];
 
                 separated = separated.combine(others[i]);
             }

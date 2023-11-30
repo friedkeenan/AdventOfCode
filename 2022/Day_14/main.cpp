@@ -21,7 +21,7 @@ class Cave {
                 constexpr explicit Path(const std::string_view path) {
                     advent::split_with_callback(path, " -> ", [&](std::string_view pos) {
                         const auto comma_pos = pos.find_first_of(',');
-                        advent::assume(comma_pos != std::string_view::npos);
+                        [[assume(comma_pos != std::string_view::npos)]];
 
                         const auto x = advent::to_integral<std::int64_t>(std::string_view(pos.data(), comma_pos));
                         pos.remove_prefix(comma_pos + 1);

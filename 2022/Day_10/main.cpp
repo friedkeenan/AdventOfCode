@@ -90,7 +90,7 @@ class InstructionHandler<Head, Tail...> {
         /* We avoid directly naming 'CPU' because it is still incomplete. */
         template<std::invocable<const CPU &> Peeker>
         static constexpr std::int64_t ExecuteWithCyclePeeker(std::same_as<CPU> auto &cpu, const std::string_view line, const std::int64_t desired_cycle, Peeker &&peeker) {
-            advent::assume(cpu._cycle <= desired_cycle);
+            [[assume(cpu._cycle <= desired_cycle)]];
 
             if (Head::Compare(line)) {
                 if (cpu._cycle + Head::CycleDuration > desired_cycle) {
@@ -173,7 +173,7 @@ struct AddX {
     /* This is a template because 'CPU' is still incomplete. */
     static constexpr void Execute(std::same_as<CPU> auto &cpu, std::string_view line) {
         const auto space_pos = line.find_first_of(' ');
-        advent::assume(space_pos != std::string_view::npos);
+        [[assume(space_pos != std::string_view::npos)]];
 
         line.remove_prefix(space_pos + 1);
 

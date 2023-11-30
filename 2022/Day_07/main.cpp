@@ -131,7 +131,7 @@ class Terminal {
 
             /* We have a file. */
             const auto end_of_num = line.find_first_of(' ');
-            advent::assume(end_of_num != std::string_view::npos);
+            [[assume(end_of_num != std::string_view::npos)]];
 
             const auto file_size = advent::to_integral<std::size_t>(line.substr(0, end_of_num));
             this->current_directory->add_file_with_size(file_size);

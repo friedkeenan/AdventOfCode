@@ -11,7 +11,7 @@ namespace advent {
         constexpr Base operator ()(Base base, Exponent exponent) const {
             /* This is a binary pow implementation. */
 
-            advent::assume(exponent >= 0);
+            [[assume(exponent >= 0)]];
 
             if (exponent == 0) {
                 return 1;

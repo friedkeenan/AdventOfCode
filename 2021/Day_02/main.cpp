@@ -33,7 +33,7 @@ class Command {
             const auto space_separator = command.find(' ');
 
             /* There must be a separator. */
-            advent::assume(space_separator != std::string_view::npos);
+            [[assume(space_separator != std::string_view::npos)]];
 
             const auto direction = Command::ParseDirection(command.substr(0, space_separator));
             const auto value     = advent::to_integral<Value>(command.substr(space_separator + 1));

@@ -105,7 +105,7 @@ class HeightGrid {
                     continue;
                 }
 
-                advent::assume(row.length() == this->_grid_width);
+                [[assume(row.length() == this->_grid_width)]];
 
                 this->_heights.insert(this->_heights.end(), row.begin(), row.end());
             }
@@ -143,7 +143,7 @@ class HeightGrid {
 
         constexpr std::size_t _index_with_raw_height(const char height) const {
             const auto it = std::ranges::find(this->_heights, height);
-            advent::assume(it >= this->_heights.begin());
+            [[assume(it >= this->_heights.begin())]];
 
             return static_cast<std::size_t>(it - this->_heights.begin());
         }

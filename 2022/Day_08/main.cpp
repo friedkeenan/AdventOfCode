@@ -46,7 +46,7 @@ class TreeGrid {
                     continue;
                 }
 
-                advent::assume(row.length() == this->grid_width());
+                [[assume(row.length() == this->grid_width())]];
 
                 this->_tree_storage.insert(this->_tree_storage.end(), row.begin(), row.end());
             }
@@ -121,15 +121,15 @@ class TreeGrid {
         }
 
         constexpr Tree &_at(const std::size_t column_index, const std::size_t row_index) {
-            advent::assume(column_index < this->grid_width());
-            advent::assume(row_index    < this->grid_height());
+            [[assume(column_index < this->grid_width())]];
+            [[assume(row_index    < this->grid_height())]];
 
             return this->_tree_storage[column_index * this->grid_width() + row_index];
         }
 
         constexpr const Tree &_at(const std::size_t column_index, const std::size_t row_index) const {
-            advent::assume(column_index < this->grid_width());
-            advent::assume(row_index    < this->grid_height());
+            [[assume(column_index < this->grid_width())]];
+            [[assume(row_index    < this->grid_height())]];
 
             return this->_tree_storage[row_index * this->grid_width() + column_index];
         }

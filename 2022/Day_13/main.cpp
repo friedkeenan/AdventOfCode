@@ -8,7 +8,7 @@ class Packet {
 
         /* Don't make this the constructor so we can construct a packet with a pre-trimmed representation. */
         static constexpr Packet Parse(std::string_view representation) {
-            advent::assume(representation.length() >= 2);
+            [[assume(representation.length() >= 2)]];
 
             /* Remove enclosing brackets. */
             representation.remove_prefix(1);

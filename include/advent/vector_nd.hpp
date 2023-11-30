@@ -12,13 +12,13 @@ namespace advent {
             std::array<T, Size> _storage;
 
             constexpr T &_at(const std::size_t index) {
-                advent::assume(index < Size);
+                [[assume(index < Size)]];
 
                 return this->_storage[index];
             }
 
             constexpr const T &_at(const std::size_t index) const {
-                advent::assume(index < Size);
+                [[assume(index < Size)]];
 
                 return this->_storage[index];
             }

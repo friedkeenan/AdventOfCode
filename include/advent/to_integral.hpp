@@ -95,13 +95,13 @@ namespace advent {
             ToConvert converted = 0;
             for (const auto digit : std::move(rng)) {
                 if (base <= 10) {
-                    advent::assume(digit >= '0' && digit < (static_cast<char>('0' + base)));
+                    [[assume(digit >= '0' && digit < (static_cast<char>('0' + base)))]];
                 } else {
-                    advent::assume(
+                    [[assume(
                         (digit >= '0' && digit <= '9') ||
                         (digit >= 'a' && digit <= 'f') ||
                         (digit >= 'A' && digit <= 'F')
-                    );
+                    )]];
                 }
 
                 if (digit >= '0' && digit <= '9') {
