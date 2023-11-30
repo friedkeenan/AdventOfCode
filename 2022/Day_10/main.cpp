@@ -271,11 +271,11 @@ constexpr std::string render_display(Rng &&asm_lines) {
 
 template<std::int64_t CycleStart, std::int64_t CycleStep>
 constexpr std::int64_t sum_signal_strengths_from_string_data(const std::string_view data) {
-    return sum_signal_strengths<CycleStart, CycleStep>(advent::views::split_lines(data));
+    return sum_signal_strengths<CycleStart, CycleStep>(data | advent::views::split_lines);
 }
 
 constexpr std::string render_display_from_string_data(const std::string_view data) {
-    return render_display(advent::views::split_lines(data));
+    return render_display(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

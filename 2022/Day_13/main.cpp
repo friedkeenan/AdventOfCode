@@ -246,11 +246,11 @@ constexpr std::size_t decoder_key(Rng &&packet_representations) {
 }
 
 constexpr std::size_t sum_correct_indices_from_string_data(const std::string_view data) {
-    return sum_correct_indices(advent::views::split_lines(data));
+    return sum_correct_indices(data | advent::views::split_lines);
 }
 
 constexpr std::size_t decoder_key_from_string_data(const std::string_view data) {
-    return decoder_key(advent::views::split_lines(data));
+    return decoder_key(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

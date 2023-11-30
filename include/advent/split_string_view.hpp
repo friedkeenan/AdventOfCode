@@ -83,24 +83,54 @@ namespace advent {
 
     namespace views {
 
-        /* TODO: Make this a range adaptor when I receive an implementation of user-defined range adaptors. */
-        constexpr inline auto split_string = [](const std::string_view str, const char delimiter) {
-            return advent::split_string_view(str, delimiter);
-        };
+        namespace impl {
 
-        constexpr inline auto split_lines = [](const std::string_view str) {
-            return advent::views::split_string(str, '\n');
-        };
+            /* NOTE: We don't do any fancy generic stuff because we don't need it. */
+
+            class split_range_adaptor {
+                public:
+                    class closure : public std::ranges::range_adaptor_closure<closure> {
+                        public:
+                            char _delimiter;
+
+                            constexpr closure(const char delimiter) : std::ranges::range_adaptor_closure<closure>(), _delimiter(delimiter) { }
+
+                            constexpr auto operator ()(const std::string_view str) const {
+                                return advent::split_string_view(str, this->_delimiter);
+                            }
+                    };
+
+                    constexpr auto operator ()(const std::string_view str, const char delimiter) const {
+                        return advent::split_string_view(str, delimiter);
+                    }
+
+                    constexpr auto operator ()(const char delimiter) const {
+                        return closure{delimiter};
+                    }
+            };
+
+            class split_lines_adaptor_closure : public std::ranges::range_adaptor_closure<split_lines_adaptor_closure> {
+                public:
+                    constexpr auto operator ()(const std::string_view str) const {
+                        return advent::split_string_view(str, '\n');
+                    }
+            };
+
+        }
+
+        constexpr inline auto split_string = impl::split_range_adaptor{};
+
+        constexpr inline auto split_lines = impl::split_lines_adaptor_closure{};
 
     }
 
     template<typename Callback>
     requires (std::invocable<Callback &, std::string_view>)
-    constexpr void split_with_callback(std::string_view str, const std::string_view delim, Callback &&callback) {
+    constexpr void split_with_callback(std::string_view str, const std::string_view delimiter, Callback &&callback) {
         /* Used for cases where we just need to simply loop over each substring. */
 
         while (true) {
-            const auto split_pos = str.find(delim);
+            const auto split_pos = str.find(delimiter);
             if (split_pos == std::string_view::npos) {
                 std::invoke(callback, std::move(str));
 
@@ -109,14 +139,14 @@ namespace advent {
 
             std::invoke(callback, std::string_view(str.data(), split_pos));
 
-            str.remove_prefix(split_pos + delim.length());
+            str.remove_prefix(split_pos + delimiter.length());
         }
     }
 
     template<typename Callback>
     requires (std::invocable<Callback &, std::string_view>)
-    constexpr void split_with_callback(std::string_view str, const char delim, Callback &&callback) {
-        return split_with_callback(str, std::string_view(&delim, 1), std::forward<Callback>(callback));
+    constexpr void split_with_callback(std::string_view str, const char delimiter, Callback &&callback) {
+        return split_with_callback(str, std::string_view(&delimiter, 1), std::forward<Callback>(callback));
     }
 
 }

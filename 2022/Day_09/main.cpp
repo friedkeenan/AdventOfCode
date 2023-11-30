@@ -144,7 +144,7 @@ constexpr std::size_t count_unique_end_positions(Rng &&motion_descriptions) {
 
 template<std::size_t Length>
 constexpr std::size_t count_unique_end_positions_from_string_data(const std::string_view data) {
-    return count_unique_end_positions<Length>(advent::views::split_lines(data));
+    return count_unique_end_positions<Length>(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

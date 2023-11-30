@@ -37,7 +37,7 @@ constexpr std::size_t count_chunked_depth_increases(R &&rng) {
 }
 
 constexpr auto parse_string_data(const std::string_view str) {
-    return advent::views::split_lines(str) | std::views::transform(advent::to_integral<std::uint16_t>);
+    return str | advent::views::split_lines | std::views::transform(advent::to_integral<std::uint16_t>);
 }
 
 constexpr std::size_t count_depth_increases_from_string_data(const std::string_view data) {

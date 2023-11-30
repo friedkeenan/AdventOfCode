@@ -152,11 +152,11 @@ constexpr std::string top_crates_after_moving(const Executer executer, Rng &&cra
 }
 
 constexpr std::string top_crates_after_moving_individuals_from_string_data(const std::string_view data) {
-    return top_crates_after_moving(&Crates::move_individual_crates, advent::views::split_lines(data));
+    return top_crates_after_moving(&Crates::move_individual_crates, data | advent::views::split_lines);
 }
 
 constexpr std::string top_crates_after_moving_several_from_string_data(const std::string_view data) {
-    return top_crates_after_moving(&Crates::move_several_crates, advent::views::split_lines(data));
+    return top_crates_after_moving(&Crates::move_several_crates, data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

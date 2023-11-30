@@ -122,7 +122,7 @@ constexpr std::size_t find_player_total_score_naive_decoder(const std::string_vi
                 default: std::unreachable();
             }
         }
-    >(advent::views::split_lines(data));
+    >(data | advent::views::split_lines);
 }
 
 constexpr std::size_t find_player_total_score_outcome_decoder(const std::string_view data) {
@@ -136,7 +136,7 @@ constexpr std::size_t find_player_total_score_outcome_decoder(const std::string_
                 default: std::unreachable();
             }
         }
-    >(advent::views::split_lines(data));
+    >(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

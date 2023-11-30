@@ -289,13 +289,13 @@ constexpr std::size_t find_tuning_frequency(Rng &&sensors) {
 
 template<Coord Row>
 constexpr std::size_t num_non_beacons_in_row_from_string_data(const std::string_view data) {
-    return num_non_beacons_in_row<Row>(advent::views::split_lines(data));
+    return num_non_beacons_in_row<Row>(data | advent::views::split_lines);
 }
 
 template<Coord Max>
 requires (Max > 0)
 constexpr std::size_t find_tuning_frequency_from_string_data(const std::string_view data) {
-    return find_tuning_frequency<Max>(advent::views::split_lines(data));
+    return find_tuning_frequency<Max>(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

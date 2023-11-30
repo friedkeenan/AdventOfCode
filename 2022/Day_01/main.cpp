@@ -72,12 +72,12 @@ constexpr std::size_t find_sum_of_max_calories(Rng &&calorie_list) {
 }
 
 constexpr std::size_t find_max_calories_from_string_data(const std::string_view data) {
-    return find_max_calories(advent::views::split_lines(data));
+    return find_max_calories(data | advent::views::split_lines);
 }
 
 template<std::size_t NumMaximums = 3>
 constexpr std::size_t find_sum_of_max_calories_from_string_data(const std::string_view data) {
-    return find_sum_of_max_calories<NumMaximums>(advent::views::split_lines(data));
+    return find_sum_of_max_calories<NumMaximums>(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

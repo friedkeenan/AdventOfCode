@@ -360,11 +360,11 @@ constexpr std::size_t max_scenic_score(Rng &&tree_rows) {
 }
 
 constexpr std::size_t num_visible_trees_from_string_data(const std::string_view data) {
-    return num_visible_trees(advent::views::split_lines(data));
+    return num_visible_trees(data | advent::views::split_lines);
 }
 
 constexpr std::size_t max_scenic_score_from_string_data(const std::string_view data) {
-    return max_scenic_score(advent::views::split_lines(data));
+    return max_scenic_score(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

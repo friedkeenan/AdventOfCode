@@ -228,11 +228,11 @@ constexpr std::size_t find_monkey_business(const bool decrease_worry_for_boredom
 }
 
 constexpr std::size_t find_monkey_business_with_worry_decrease_from_string_data(const std::string_view data) {
-    return find_monkey_business<20>(true, advent::views::split_lines(data));
+    return find_monkey_business<20>(true, data | advent::views::split_lines);
 }
 
 constexpr std::size_t find_monkey_business_without_worry_decrease_from_string_data(const std::string_view data) {
-    return find_monkey_business<10'000>(false, advent::views::split_lines(data));
+    return find_monkey_business<10'000>(false, data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

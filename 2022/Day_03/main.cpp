@@ -126,11 +126,11 @@ constexpr std::size_t badge_item_type_priority_sum(Rng &&rucksacks) {
 }
 
 constexpr std::size_t illicit_item_type_priority_sum_from_string_data(const std::string_view data) {
-    return illicit_item_type_priority_sum(advent::views::split_lines(data));
+    return illicit_item_type_priority_sum(data | advent::views::split_lines);
 }
 
 constexpr std::size_t badge_item_type_priority_sum_from_string_data(const std::string_view data) {
-    return badge_item_type_priority_sum(advent::views::split_lines(data));
+    return badge_item_type_priority_sum(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

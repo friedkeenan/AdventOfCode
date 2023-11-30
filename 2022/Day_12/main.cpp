@@ -243,11 +243,11 @@ constexpr std::size_t shortest_distance_from_lowest_to_end(Rng &&height_rows) {
 }
 
 constexpr std::size_t shortest_distance_to_end_from_string_data(const std::string_view data) {
-    return shortest_distance_to_end(advent::views::split_lines(data));
+    return shortest_distance_to_end(data | advent::views::split_lines);
 }
 
 constexpr std::size_t shortest_distance_from_lowest_to_end_from_string_data(const std::string_view data) {
-    return shortest_distance_from_lowest_to_end(advent::views::split_lines(data));
+    return shortest_distance_from_lowest_to_end(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

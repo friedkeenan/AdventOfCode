@@ -69,7 +69,7 @@ constexpr std::size_t count_wholly_overlapping_section_pairs_from_string_data(co
             return first.contains(second) || second.contains(first);
         },
 
-        advent::views::split_lines(data)
+        data | advent::views::split_lines
     );
 }
 
@@ -77,7 +77,7 @@ constexpr std::size_t count_partially_overlapping_section_pairs_from_string_data
     return count_section_pairs_with_checker(
         &SectionInterval::overlaps,
 
-        advent::views::split_lines(data)
+        data | advent::views::split_lines
     );
 }
 

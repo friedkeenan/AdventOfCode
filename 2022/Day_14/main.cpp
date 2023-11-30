@@ -295,11 +295,11 @@ constexpr std::size_t max_sand_units_with_floor(Rng &&rock_paths) {
 }
 
 constexpr std::size_t num_resting_sand_units_no_floor_from_string_data(const std::string_view data) {
-    return num_resting_sand_units_no_floor(advent::views::split_lines(data));
+    return num_resting_sand_units_no_floor(data | advent::views::split_lines);
 }
 
 constexpr std::size_t max_sand_units_with_floor_from_string_data(const std::string_view data) {
-    return max_sand_units_with_floor(advent::views::split_lines(data));
+    return max_sand_units_with_floor(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (

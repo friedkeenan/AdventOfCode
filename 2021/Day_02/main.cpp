@@ -66,7 +66,9 @@ class SubmarineImpl {
 
         constexpr void perform_commands(const std::string_view commands_data) {
             auto parsed_commands =
-                advent::views::split_lines(commands_data) |
+                commands_data |
+
+                advent::views::split_lines |
 
                 std::views::filter([](const std::string_view command) {
                     return command.length() > 0;

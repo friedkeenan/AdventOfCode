@@ -189,11 +189,11 @@ constexpr std::size_t find_directory_to_delete(Rng &&terminal_lines) {
 }
 
 constexpr std::size_t sum_of_directory_sizes_with_limit_from_string_data(const std::string_view data) {
-    return sum_of_directory_sizes_with_limit(10'0000, advent::views::split_lines(data));
+    return sum_of_directory_sizes_with_limit(10'0000, data | advent::views::split_lines);
 }
 
 constexpr std::size_t find_directory_to_delete_from_string_data(const std::string_view data) {
-    return find_directory_to_delete(advent::views::split_lines(data));
+    return find_directory_to_delete(data | advent::views::split_lines);
 }
 
 constexpr inline std::string_view example_data = (
