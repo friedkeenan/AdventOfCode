@@ -18,7 +18,7 @@ link_args = [
 ]
 
 cpp_args  = [
-    '-std=gnu++2b',
+    '-std=gnu++23',
 
     '-Wall',
     '-Wextra',
