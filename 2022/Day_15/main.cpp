@@ -3,93 +3,91 @@
 using Coord    = std::int64_t;
 using Position = advent::vector_2d<Coord>;
 
-class CoordRange {
-    public:
-        Coord start;
-        Coord end;
+struct CoordRange {
+    Coord start;
+    Coord end;
 
-        constexpr Coord distance() const {
-            return end - start + 1;
-        }
+    constexpr Coord distance() const {
+        return end - start + 1;
+    }
 
-        constexpr CoordRange clamp(const Coord start, const Coord end) const {
-            return CoordRange{
-                std::max(start, this->start),
-                std::min(end,   this->end)
-            };
-        }
+    constexpr CoordRange clamp(const Coord start, const Coord end) const {
+        return CoordRange{
+            std::max(start, this->start),
+            std::min(end,   this->end)
+        };
+    }
 
-        constexpr bool combinable(const CoordRange other) const {
-            return (
-                (this->start - 1) <= other.end   &&
-                (this->end   + 1) >= other.start
-            );
-        }
+    constexpr bool combinable(const CoordRange other) const {
+        return (
+            (this->start - 1) <= other.end   &&
+            (this->end   + 1) >= other.start
+        );
+    }
 
-        constexpr CoordRange combine(const CoordRange other) const {
-            return CoordRange{
-                std::min(this->start, other.start),
-                std::max(this->end,   other.end)
-            };
-        }
+    constexpr CoordRange combine(const CoordRange other) const {
+        return CoordRange{
+            std::min(this->start, other.start),
+            std::max(this->end,   other.end)
+        };
+    }
 };
 
 static_assert(CoordRange{4, 5}.combinable(CoordRange{5, 6}));
 
-class SensorRegion {
-    public:
-        static constexpr std::string_view SensorPositionPrefix = "Sensor at x=";
-        static constexpr std::string_view YCoordPrefix         = ", y=";
-        static constexpr std::string_view BeaconPositionPrefix = ": closest beacon is at x=";
+struct SensorRegion {
+    static constexpr std::string_view SensorPositionPrefix = "Sensor at x=";
+    static constexpr std::string_view YCoordPrefix         = ", y=";
+    static constexpr std::string_view BeaconPositionPrefix = ": closest beacon is at x=";
 
-        Position sensor;
-        Position beacon;
+    Position sensor;
+    Position beacon;
 
-        constexpr explicit SensorRegion(std::string_view description) {
-            description.remove_prefix(SensorPositionPrefix.length());
+    constexpr explicit SensorRegion(std::string_view description) {
+        description.remove_prefix(SensorPositionPrefix.length());
 
-            const auto parse_pos = [&]() {
-                const auto comma_pos = description.find_first_of(',');
-                [[assume(comma_pos != std::string_view::npos)]];
+        const auto parse_pos = [&]() {
+            const auto comma_pos = description.find_first_of(',');
+            [[assume(comma_pos != std::string_view::npos)]];
 
-                const auto x = advent::to_integral<Coord>(std::string_view(description.data(), comma_pos));
-                description.remove_prefix(comma_pos + YCoordPrefix.length());
+            const auto x = advent::to_integral<Coord>(std::string_view(description.data(), comma_pos));
+            description.remove_prefix(comma_pos + YCoordPrefix.length());
 
-                const auto colon_pos = description.find_first_of(':');
-                if (colon_pos == std::string_view::npos) {
-                    return Position{x, advent::to_integral<Coord>(description)};
-                }
-
-                const auto y = advent::to_integral<Coord>(std::string_view(description.data(), colon_pos));
-                description.remove_prefix(colon_pos + BeaconPositionPrefix.length());
-
-                return Position{x, y};
-            };
-
-            this->sensor = parse_pos();
-            this->beacon = parse_pos();
-        }
-
-        constexpr Coord radius() const {
-            return this->beacon.manhattan_distance(this->sensor);
-        }
-
-        constexpr std::optional<CoordRange> row_slice(const Coord row) const {
-            const auto radius = this->radius();
-
-            if (advent::abs(row - this->sensor.y()) > radius) {
-                /* If the row is not within our region, do nothing. */
-
-                return std::nullopt;
+            const auto colon_pos = description.find_first_of(':');
+            if (colon_pos == std::string_view::npos) {
+                return Position{x, advent::to_integral<Coord>(description)};
             }
 
-            const auto half_width = radius - advent::abs(row - this->sensor.y());
+            const auto y = advent::to_integral<Coord>(std::string_view(description.data(), colon_pos));
+            description.remove_prefix(colon_pos + BeaconPositionPrefix.length());
 
-            return CoordRange{
-                this->sensor.x() - half_width,
-                this->sensor.x() + half_width
-            };
+            return Position{x, y};
+        };
+
+        this->sensor = parse_pos();
+        this->beacon = parse_pos();
+    }
+
+    constexpr Coord radius() const {
+        return this->beacon.manhattan_distance(this->sensor);
+    }
+
+    constexpr std::optional<CoordRange> row_slice(const Coord row) const {
+        const auto radius = this->radius();
+
+        if (advent::abs(row - this->sensor.y()) > radius) {
+            /* If the row is not within our region, do nothing. */
+
+            return std::nullopt;
         }
+
+        const auto half_width = radius - advent::abs(row - this->sensor.y());
+
+        return CoordRange{
+            this->sensor.x() - half_width,
+            this->sensor.x() + half_width
+        };
+    }
 };
 
 template<Coord Row, std::ranges::input_range Rng>
@@ -106,8 +104,7 @@ constexpr std::size_t num_non_beacons_in_row(Rng &&sensors) {
 
         const auto region = SensorRegion(description);
 
-        /* We do not have an implementation of 'std::ranges::contains'. */
-        if (region.beacon.y() == Row && std::ranges::find(beacons_in_row, region.beacon.x()) == beacons_in_row.end()) {
+        if (region.beacon.y() == Row && !std::ranges::contains(beacons_in_row, region.beacon.x())) {
             beacons_in_row.push_back(region.beacon.x());
         }
 

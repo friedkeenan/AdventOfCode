@@ -6,125 +6,121 @@ enum class Direction : std::uint8_t {
     Up,
 };
 
-class Command {
-    public:
-        using Value = std::int64_t;
+struct Command {
+    using Value = std::int64_t;
 
-        Direction direction;
-        Value     value;
+    Direction direction;
+    Value     value;
 
-        static constexpr Direction ParseDirection(const std::string_view str) {
-            if (str == "forward") {
-                return Direction::Forward;
-            }
-
-            if (str == "down") {
-                return Direction::Down;
-            }
-
-            if (str == "up") {
-                return Direction::Up;
-            }
-
-            std::unreachable();
+    static constexpr Direction ParseDirection(const std::string_view str) {
+        if (str == "forward") {
+            return Direction::Forward;
         }
 
-        static constexpr Command Parse(const std::string_view command) {
-            const auto space_separator = command.find(' ');
-
-            /* There must be a separator. */
-            [[assume(space_separator != std::string_view::npos)]];
-
-            const auto direction = Command::ParseDirection(command.substr(0, space_separator));
-            const auto value     = advent::to_integral<Value>(command.substr(space_separator + 1));
-
-            return Command{direction, value};
+        if (str == "down") {
+            return Direction::Down;
         }
 
-        constexpr bool operator ==(const Command &) const = default;
+        if (str == "up") {
+            return Direction::Up;
+        }
+
+        std::unreachable();
+    }
+
+    static constexpr Command Parse(const std::string_view command) {
+        const auto space_separator = command.find(' ');
+
+        /* There must be a separator. */
+        [[assume(space_separator != std::string_view::npos)]];
+
+        const auto direction = Command::ParseDirection(command.substr(0, space_separator));
+        const auto value     = advent::to_integral<Value>(command.substr(space_separator + 1));
+
+        return Command{direction, value};
+    }
+
+    constexpr bool operator ==(const Command &) const = default;
 };
 
 static_assert(Command::Parse("forward 5") == Command{Direction::Forward, 5});
 
 template<typename Child>
-class SubmarineImpl {
-    public:
-        Command::Value horizontal_distance = 0;
-        Command::Value depth               = 0;
+struct SubmarineImpl {
+    Command::Value horizontal_distance = 0;
+    Command::Value depth               = 0;
 
-        constexpr Child &_child() {
-            static_assert(std::derived_from<Child, SubmarineImpl>);
+    constexpr Child &_child() {
+        static_assert(std::derived_from<Child, SubmarineImpl>);
 
-            return static_cast<Child &>(*this);
+        return static_cast<Child &>(*this);
+    }
+
+    constexpr const Child &_child() const {
+        static_assert(std::derived_from<Child, SubmarineImpl>);
+
+        return static_cast<const Child &>(*this);
+    }
+
+    constexpr void perform_commands(const std::string_view commands_data) {
+        auto parsed_commands =
+            commands_data |
+
+            advent::views::split_lines |
+
+            std::views::filter([](const std::string_view command) {
+                return command.length() > 0;
+            }) |
+
+            std::views::transform(Command::Parse);
+
+        for (const auto command : parsed_commands) {
+            this->_child().perform_single_command(command);
         }
-
-        constexpr const Child &_child() const {
-            static_assert(std::derived_from<Child, SubmarineImpl>);
-
-            return static_cast<const Child &>(*this);
-        }
-
-        constexpr void perform_commands(const std::string_view commands_data) {
-            auto parsed_commands =
-                commands_data |
-
-                advent::views::split_lines |
-
-                std::views::filter([](const std::string_view command) {
-                    return command.length() > 0;
-                }) |
-
-                std::views::transform(Command::Parse);
-
-            for (const auto command : parsed_commands) {
-                this->_child().perform_single_command(command);
-            }
-        }
+    }
 };
 
-class FaultySubmarine : public SubmarineImpl<FaultySubmarine> {
-    public:
-        constexpr void perform_single_command(const Command command) {
-            switch (command.direction) {
-                case Direction::Forward: {
-                    this->horizontal_distance += command.value;
-                } break;
+struct FaultySubmarine : SubmarineImpl<FaultySubmarine> {
+    constexpr void perform_single_command(const Command command) {
+        switch (command.direction) {
+            case Direction::Forward: {
+                this->horizontal_distance += command.value;
+            } break;
 
-                case Direction::Down: {
-                    this->depth += command.value;
-                } break;
+            case Direction::Down: {
+                this->depth += command.value;
+            } break;
 
-                case Direction::Up: {
-                    this->depth -= command.value;
-                } break;
+            case Direction::Up: {
+                this->depth -= command.value;
+            } break;
 
-                default: std::unreachable();
-            }
+            default: std::unreachable();
         }
+    }
 };
 
-class ProperSubmarine : public SubmarineImpl<ProperSubmarine> {
-    public:
-        Command::Value aim = 0;
+struct ProperSubmarine : SubmarineImpl<ProperSubmarine> {
+    Command::Value aim = 0;
 
-        constexpr void perform_single_command(const Command command) {
-            switch (command.direction) {
-                case Direction::Forward: {
-                    this->horizontal_distance += command.value;
-                    this->depth               += command.value * this->aim;
-                } break;
+    constexpr void perform_single_command(const Command command) {
+        switch (command.direction) {
+            case Direction::Forward: {
+                this->horizontal_distance += command.value;
+                this->depth               += command.value * this->aim;
+            } break;
 
-                case Direction::Down: {
-                    this->aim += command.value;
-                } break;
+            case Direction::Down: {
+                this->aim += command.value;
+            } break;
 
-                case Direction::Up: {
-                    this->aim -= command.value;
-                } break;
+            case Direction::Up: {
+                this->aim -= command.value;
+            } break;
 
-                default: std::unreachable();
-            }
+            default: std::unreachable();
         }
+    }
 };
 
 template<typename Submarine>

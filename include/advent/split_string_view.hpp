@@ -9,73 +9,71 @@ namespace advent {
 
         I hope 'reconstructed_range' stuff gets in at some point.
     */
-    class split_string_view : public std::ranges::view_interface<split_string_view> {
-        public:
-            class iterator {
-                public:
-                    using iterator_category = std::forward_iterator_tag;
-                    using iterator_concept  = std::forward_iterator_tag;
+    struct split_string_view : public std::ranges::view_interface<split_string_view> {
+        struct iterator {
+            using iterator_category = std::forward_iterator_tag;
+            using iterator_concept  = std::forward_iterator_tag;
 
-                    using difference_type = std::ptrdiff_t;
+            using difference_type = std::ptrdiff_t;
 
-                    using value_type = std::string_view;
-                    using reference  = std::string_view;
+            using value_type = std::string_view;
+            using reference  = std::string_view;
 
-                    std::string_view _str = {};
-                    char             _delimiter = '\0';
-                    std::size_t      _next_delimiter_pos = std::string_view::npos;
-
-                    constexpr iterator() = default;
-
-                    constexpr iterator(const std::string_view str, const char delimiter)
-                        : _str(str), _delimiter(delimiter), _next_delimiter_pos(str.find_first_of(delimiter)) { }
-
-                    constexpr iterator &operator ++() {
-                        if (this->_next_delimiter_pos != std::string_view::npos) {
-                            this->_str.remove_prefix(this->_next_delimiter_pos + 1);
-                            this->_next_delimiter_pos = this->_str.find_first_of(this->_delimiter);
-                        } else {
-                            this->_str = std::string_view();
-                        }
-
-                        return *this;
-                    }
-
-                    constexpr ADVENT_RIGHT_UNARY_OP_FROM_LEFT(iterator, ++)
-
-                    constexpr reference operator *() const {
-                        if (this->_next_delimiter_pos == std::string_view::npos) {
-                            return this->_str;
-                        }
-
-                        return std::string_view(this->_str.data(), this->_next_delimiter_pos);
-                    }
-
-                    constexpr bool operator ==(const iterator &rhs) const {
-                        /* Whether each iterator is looking at the same position of the string. */
-                        return this->_str.data() == rhs._str.data();
-                    }
-
-                    constexpr bool operator ==(std::default_sentinel_t) const {
-                        return this->_str.data() == nullptr;
-                    }
-            };
-
-            std::string_view _str;
+            std::string_view _str = {};
             char             _delimiter = '\0';
+            std::size_t      _next_delimiter_pos = std::string_view::npos;
 
-            constexpr split_string_view() = default;
+            constexpr iterator() = default;
 
-            constexpr split_string_view(const std::string_view str, const char delimiter)
-                : view_interface<split_string_view>(), _str(str), _delimiter(delimiter) { }
+            constexpr iterator(const std::string_view str, const char delimiter)
+                : _str(str), _delimiter(delimiter), _next_delimiter_pos(str.find_first_of(delimiter)) { }
 
-            constexpr iterator begin() const {
-                return iterator(this->_str, this->_delimiter);
+            constexpr iterator &operator ++() {
+                if (this->_next_delimiter_pos != std::string_view::npos) {
+                    this->_str.remove_prefix(this->_next_delimiter_pos + 1);
+                    this->_next_delimiter_pos = this->_str.find_first_of(this->_delimiter);
+                } else {
+                    this->_str = std::string_view();
+                }
+
+                return *this;
             }
 
-            constexpr std::default_sentinel_t end() const {
-                return std::default_sentinel;
+            constexpr ADVENT_RIGHT_UNARY_OP_FROM_LEFT(iterator, ++)
+
+            constexpr reference operator *() const {
+                if (this->_next_delimiter_pos == std::string_view::npos) {
+                    return this->_str;
+                }
+
+                return std::string_view(this->_str.data(), this->_next_delimiter_pos);
             }
+
+            constexpr bool operator ==(const iterator &rhs) const {
+                /* Whether each iterator is looking at the same position of the string. */
+                return this->_str.data() == rhs._str.data();
+            }
+
+            constexpr bool operator ==(std::default_sentinel_t) const {
+                return this->_str.data() == nullptr;
+            }
+        };
+
+        std::string_view _str;
+        char             _delimiter = '\0';
+
+        constexpr split_string_view() = default;
+
+        constexpr split_string_view(const std::string_view str, const char delimiter)
+            : view_interface<split_string_view>(), _str(str), _delimiter(delimiter) { }
+
+        constexpr iterator begin() const {
+            return iterator(this->_str, this->_delimiter);
+        }
+
+        constexpr std::default_sentinel_t end() const {
+            return std::default_sentinel;
+        }
     };
 
     static_assert(std::ranges::forward_range<split_string_view>);
@@ -87,33 +85,36 @@ namespace advent {
 
             /* NOTE: We don't do any fancy generic stuff because we don't need it. */
 
-            class split_range_adaptor {
-                public:
-                    class closure : public std::ranges::range_adaptor_closure<closure> {
-                        public:
-                            char _delimiter;
+            struct split_range_adaptor {
+                struct closure : std::ranges::range_adaptor_closure<closure> {
+                    char _delimiter;
 
-                            constexpr closure(const char delimiter) : std::ranges::range_adaptor_closure<closure>(), _delimiter(delimiter) { }
+                    /*
+                        NOTE: We need a constructor because of our base class,
+                        which I think is a libstdc++ implementation bug.
 
-                            constexpr auto operator ()(const std::string_view str) const {
-                                return advent::split_string_view(str, this->_delimiter);
-                            }
-                    };
+                        TODO: Remove.
+                    */
+                    constexpr explicit closure(const char delimiter) : _delimiter(delimiter) { }
 
-                    constexpr auto operator ()(const std::string_view str, const char delimiter) const {
-                        return advent::split_string_view(str, delimiter);
+                    constexpr auto operator ()(const std::string_view str) const {
+                        return advent::split_string_view(str, this->_delimiter);
                     }
+                };
 
-                    constexpr auto operator ()(const char delimiter) const {
-                        return closure{delimiter};
-                    }
+                constexpr auto operator ()(const std::string_view str, const char delimiter) const {
+                    return advent::split_string_view(str, delimiter);
+                }
+
+                constexpr auto operator ()(const char delimiter) const {
+                    return closure{delimiter};
+                }
             };
 
-            class split_lines_adaptor_closure : public std::ranges::range_adaptor_closure<split_lines_adaptor_closure> {
-                public:
-                    constexpr auto operator ()(const std::string_view str) const {
-                        return advent::split_string_view(str, '\n');
-                    }
+            struct split_lines_adaptor_closure : std::ranges::range_adaptor_closure<split_lines_adaptor_closure> {
+                constexpr auto operator ()(const std::string_view str) const {
+                    return advent::split_string_view(str, '\n');
+                }
             };
 
         }

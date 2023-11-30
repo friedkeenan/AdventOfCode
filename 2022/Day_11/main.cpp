@@ -1,50 +1,49 @@
 #include <advent/advent.hpp>
 
-class WorryIncreaser {
-    public:
-        static constexpr std::string_view Prefix = "  Operation: new = old ";
+struct WorryIncreaser {
+    static constexpr std::string_view Prefix = "  Operation: new = old ";
 
-        struct _old_tag { };
+    struct _old_tag { };
 
-        using Operand   = std::variant<_old_tag, std::size_t>;
-        using Operation = std::variant<std::plus<>, std::multiplies<>>;
+    using Operand   = std::variant<_old_tag, std::size_t>;
+    using Operation = std::variant<std::plus<>, std::multiplies<>>;
 
-        Operation _op;
-        Operand   _right_operand;
+    Operation _op;
+    Operand   _right_operand;
 
-        constexpr WorryIncreaser(std::string_view descriptor) {
-            descriptor.remove_prefix(Prefix.length());
+    constexpr WorryIncreaser(std::string_view descriptor) {
+        descriptor.remove_prefix(Prefix.length());
 
-            this->_op = [&]() {
-                switch (descriptor[0]) {
-                    case '+': return Operation{std::plus{}};
-                    case '*': return Operation{std::multiplies{}};
+        this->_op = [&]() {
+            switch (descriptor[0]) {
+                case '+': return Operation{std::plus{}};
+                case '*': return Operation{std::multiplies{}};
 
-                    default: std::unreachable();
-                }
-            }();
+                default: std::unreachable();
+            }
+        }();
 
-            /* Remove operation and following space. */
-            descriptor.remove_prefix(1 + 1);
+        /* Remove operation and following space. */
+        descriptor.remove_prefix(1 + 1);
 
-            this->_right_operand = [&]() {
-                if (descriptor == "old") {
-                    return Operand{_old_tag{}};
-                }
+        this->_right_operand = [&]() {
+            if (descriptor == "old") {
+                return Operand{_old_tag{}};
+            }
 
-                return Operand{advent::to_integral<std::size_t>(descriptor)};
-            }();
-        }
+            return Operand{advent::to_integral<std::size_t>(descriptor)};
+        }();
+    }
 
-        constexpr std::size_t operator ()(const std::size_t old) const {
-            return std::visit([&](auto op, auto right_operand) {
-                if constexpr (std::same_as<decltype(right_operand), _old_tag>) {
-                    return op(old, old);
-                } else {
-                    return op(old, right_operand);
-                }
-            }, this->_op, this->_right_operand);
-        }
+    constexpr std::size_t operator ()(const std::size_t old) const {
+        return std::visit([&](auto op, auto right_operand) {
+            if constexpr (std::same_as<decltype(right_operand), _old_tag>) {
+                return op(old, old);
+            } else {
+                return op(old, right_operand);
+            }
+        }, this->_op, this->_right_operand);
+    }
 };
 
 static_assert(WorryIncreaser("  Operation: new = old * old")(5) == 25);
@@ -53,157 +52,154 @@ static_assert(WorryIncreaser("  Operation: new = old + old")(5) == 10);
 static_assert(WorryIncreaser("  Operation: new = old + 100")(5) == 105);
 
 /* Forward declare. */
-class MonkeyGroup;
+struct MonkeyGroup;
 
-class WorryTest {
-    public:
-        static constexpr std::string_view DivisorPrefix = "  Test: divisible by ";
-        static constexpr std::string_view SuccessPrefix = "    If true: throw to monkey ";
-        static constexpr std::string_view FailurePrefix = "    If false: throw to monkey ";
+struct WorryTest {
+    static constexpr std::string_view DivisorPrefix = "  Test: divisible by ";
+    static constexpr std::string_view SuccessPrefix = "    If true: throw to monkey ";
+    static constexpr std::string_view FailurePrefix = "    If false: throw to monkey ";
 
-        std::size_t _divisor;
-        std::size_t _success_index;
-        std::size_t _failure_index;
+    std::size_t _divisor;
+    std::size_t _success_index;
+    std::size_t _failure_index;
 
-        template<std::input_iterator It>
-        requires (std::convertible_to<std::iter_reference_t<It>, std::string_view>)
-        static constexpr WorryTest ParseFromAndAdvanceIterator(It &it) {
-            std::string_view line = *it;
-            line.remove_prefix(DivisorPrefix.length());
-            const auto divisor = advent::to_integral<std::size_t>(line);
+    template<std::input_iterator It>
+    requires (std::convertible_to<std::iter_reference_t<It>, std::string_view>)
+    static constexpr WorryTest ParseFromAndAdvanceIterator(It &it) {
+        std::string_view line = *it;
+        line.remove_prefix(DivisorPrefix.length());
+        const auto divisor = advent::to_integral<std::size_t>(line);
 
-            ++it;
-            line = *it;
-            line.remove_prefix(SuccessPrefix.length());
-            const auto success_index = advent::to_integral<std::size_t>(line);
+        ++it;
+        line = *it;
+        line.remove_prefix(SuccessPrefix.length());
+        const auto success_index = advent::to_integral<std::size_t>(line);
 
-            ++it;
-            line = *it;
-            line.remove_prefix(FailurePrefix.length());
-            const auto failure_index = advent::to_integral<std::size_t>(line);
+        ++it;
+        line = *it;
+        line.remove_prefix(FailurePrefix.length());
+        const auto failure_index = advent::to_integral<std::size_t>(line);
 
-            /* Advance past the failure line. */
-            ++it;
+        /* Advance past the failure line. */
+        ++it;
 
-            return WorryTest{divisor, success_index, failure_index};
+        return WorryTest{divisor, success_index, failure_index};
+    }
+
+    /* We avoid directly naming 'MonkeyGroup' since it is still incomplete at this point. */
+    constexpr auto &test(std::same_as<MonkeyGroup> auto &group, const std::size_t worry) const {
+        if (worry % this->_divisor == 0) {
+            return group[this->_success_index];
         }
 
-        /* We avoid directly naming 'MonkeyGroup' since it is still incomplete at this point. */
-        constexpr auto &test(std::same_as<MonkeyGroup> auto &group, const std::size_t worry) const {
-            if (worry % this->_divisor == 0) {
-                return group[this->_success_index];
-            }
-
-            return group[this->_failure_index];
-        }
+        return group[this->_failure_index];
+    }
 };
 
-class Monkey {
-    public:
-        static constexpr std::string_view ItemsPrefix = "  Starting items:";
+struct Monkey {
+    static constexpr std::string_view ItemsPrefix = "  Starting items:";
 
-        std::vector<std::size_t> _item_worries;
-        WorryIncreaser           _worry_increaser;
-        WorryTest                _tester;
+    std::vector<std::size_t> _item_worries;
+    WorryIncreaser           _worry_increaser;
+    WorryTest                _tester;
 
-        template<std::input_iterator It>
-        requires (std::convertible_to<std::iter_reference_t<It>, std::string_view>)
-        static constexpr Monkey ParseFromAndAdvanceIterator(It &it) {
-            /* Advance past the "Monkey 0:" lines. */
-            ++it;
+    template<std::input_iterator It>
+    requires (std::convertible_to<std::iter_reference_t<It>, std::string_view>)
+    static constexpr Monkey ParseFromAndAdvanceIterator(It &it) {
+        /* Advance past the "Monkey 0:" lines. */
+        ++it;
 
-            auto starting_line = *it;
-            starting_line.remove_prefix(ItemsPrefix.length());
+        auto starting_line = *it;
+        starting_line.remove_prefix(ItemsPrefix.length());
 
-            std::vector<std::size_t> item_worries;
-            advent::split_with_callback(starting_line, ',', [&](auto worry_str) {
-                /* Remove leading space. */
-                worry_str.remove_prefix(1);
+        std::vector<std::size_t> item_worries;
+        advent::split_with_callback(starting_line, ',', [&](auto worry_str) {
+            /* Remove leading space. */
+            worry_str.remove_prefix(1);
 
-                item_worries.push_back(advent::to_integral<std::size_t>(worry_str));
-            });
+            item_worries.push_back(advent::to_integral<std::size_t>(worry_str));
+        });
 
-            ++it;
-            const auto worry_increaser = WorryIncreaser(*it);
+        ++it;
+        const auto worry_increaser = WorryIncreaser(*it);
 
-            ++it;
-            const auto tester = WorryTest::ParseFromAndAdvanceIterator(it);
+        ++it;
+        const auto tester = WorryTest::ParseFromAndAdvanceIterator(it);
 
-            /* Advance past the separating newline. */
-            ++it;
+        /* Advance past the separating newline. */
+        ++it;
 
-            return Monkey{item_worries, worry_increaser, tester};
-        }
+        return Monkey{item_worries, worry_increaser, tester};
+    }
 
-        constexpr std::size_t divisor() const {
-            return this->_tester._divisor;
-        }
+    constexpr std::size_t divisor() const {
+        return this->_tester._divisor;
+    }
 
-        constexpr void add_item(const std::size_t worry) {
-            this->_item_worries.push_back(worry);
-        }
+    constexpr void add_item(const std::size_t worry) {
+        this->_item_worries.push_back(worry);
+    }
 
-        constexpr std::size_t num_items() const {
-            return this->_item_worries.size();
-        }
+    constexpr std::size_t num_items() const {
+        return this->_item_worries.size();
+    }
 
-        /* We avoid directly naming 'MonkeyGroup' since it is still incomplete at this point. */
-        constexpr void throw_items(std::same_as<MonkeyGroup> auto &group, const bool decrease_worry_for_boredom) {
-            for (const auto item_worry : this->_item_worries) {
-                const auto new_worry = [&]() {
-                    if (decrease_worry_for_boredom) {
-                        /* Increase worry and become bored in the same line. */
-                        return this->_worry_increaser(item_worry) / 3;
-                    } else {
-                        return this->_worry_increaser(item_worry);
-                    }
-                }();
-
-                auto &new_monkey = this->_tester.test(group, new_worry);
-
+    /* We avoid directly naming 'MonkeyGroup' since it is still incomplete at this point. */
+    constexpr void throw_items(std::same_as<MonkeyGroup> auto &group, const bool decrease_worry_for_boredom) {
+        for (const auto item_worry : this->_item_worries) {
+            const auto new_worry = [&]() {
                 if (decrease_worry_for_boredom) {
-                    /* It'd be nice to use the same logic for this, but I don't want to add that. */
-                    new_monkey.add_item(new_worry);
+                    /* Increase worry and become bored in the same line. */
+                    return this->_worry_increaser(item_worry) / 3;
                 } else {
-                    new_monkey.add_item(new_worry % group.lowest_common_divisor);
+                    return this->_worry_increaser(item_worry);
                 }
-            }
+            }();
 
-            this->_item_worries.clear();
+            auto &new_monkey = this->_tester.test(group, new_worry);
+
+            if (decrease_worry_for_boredom) {
+                /* It'd be nice to use the same logic for this, but I don't want to add that. */
+                new_monkey.add_item(new_worry);
+            } else {
+                new_monkey.add_item(new_worry % group.lowest_common_divisor);
+            }
         }
+
+        this->_item_worries.clear();
+    }
 };
 
-class MonkeyGroup {
-    public:
-        std::vector<Monkey> _monkeys;
-        std::size_t lowest_common_divisor;
+struct MonkeyGroup {
+    std::vector<Monkey> _monkeys;
+    std::size_t lowest_common_divisor;
 
-        template<std::ranges::input_range Rng>
-        requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
-        constexpr MonkeyGroup(Rng &&monkeys) {
-            auto it = std::ranges::begin(monkeys);
+    template<std::ranges::input_range Rng>
+    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    constexpr MonkeyGroup(Rng &&monkeys) {
+        auto it = std::ranges::begin(monkeys);
 
-            this->lowest_common_divisor = 1;
-            while (it != std::ranges::end(monkeys)) {
-                auto monkey = Monkey::ParseFromAndAdvanceIterator(it);
+        this->lowest_common_divisor = 1;
+        while (it != std::ranges::end(monkeys)) {
+            auto monkey = Monkey::ParseFromAndAdvanceIterator(it);
 
-                this->lowest_common_divisor = advent::lcm(this->lowest_common_divisor, monkey.divisor());
+            this->lowest_common_divisor = advent::lcm(this->lowest_common_divisor, monkey.divisor());
 
-                this->_monkeys.push_back(std::move(monkey));
-            }
+            this->_monkeys.push_back(std::move(monkey));
         }
+    }
 
-        constexpr std::size_t num_monkeys() const {
-            return this->_monkeys.size();
-        }
+    constexpr std::size_t num_monkeys() const {
+        return this->_monkeys.size();
+    }
 
-        constexpr Monkey &operator [](const std::size_t index) {
-            return this->_monkeys[index];
-        }
+    constexpr Monkey &operator [](const std::size_t index) {
+        return this->_monkeys[index];
+    }
 
-        constexpr const Monkey &operator [](const std::size_t index) const {
-            return this->_monkeys[index];
-        }
+    constexpr const Monkey &operator [](const std::size_t index) const {
+        return this->_monkeys[index];
+    }
 };
 
 template<std::size_t NumRounds, std::ranges::input_range Rng>

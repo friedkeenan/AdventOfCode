@@ -6,43 +6,42 @@ enum class Shape : std::uint8_t {
     Scissors,
 };
 
-class OpponentChoice {
-    public:
-        Shape shape;
+struct OpponentChoice {
+    Shape shape;
 
-        constexpr explicit OpponentChoice(const char code) : shape([&]() {
-            switch (code) {
-                case 'A': return Shape::Rock;
-                case 'B': return Shape::Paper;
-                case 'C': return Shape::Scissors;
+    constexpr explicit OpponentChoice(const char code) : shape([&]() {
+        switch (code) {
+            case 'A': return Shape::Rock;
+            case 'B': return Shape::Paper;
+            case 'C': return Shape::Scissors;
 
-                default: std::unreachable();
-            }
-        }()) { }
-
-        constexpr Shape shape_for_loss() const {
-            switch (this->shape) {
-                case Shape::Rock:     return Shape::Scissors;
-                case Shape::Paper:    return Shape::Rock;
-                case Shape::Scissors: return Shape::Paper;
-
-                default: std::unreachable();
-            }
+            default: std::unreachable();
         }
+    }()) { }
 
-        constexpr Shape shape_for_draw() const {
-            return this->shape;
+    constexpr Shape shape_for_loss() const {
+        switch (this->shape) {
+            case Shape::Rock:     return Shape::Scissors;
+            case Shape::Paper:    return Shape::Rock;
+            case Shape::Scissors: return Shape::Paper;
+
+            default: std::unreachable();
         }
+    }
 
-        constexpr Shape shape_for_win() const {
-            switch (this->shape) {
-                case Shape::Rock:     return Shape::Paper;
-                case Shape::Paper:    return Shape::Scissors;
-                case Shape::Scissors: return Shape::Rock;
+    constexpr Shape shape_for_draw() const {
+        return this->shape;
+    }
 
-                default: std::unreachable();
-            }
+    constexpr Shape shape_for_win() const {
+        switch (this->shape) {
+            case Shape::Rock:     return Shape::Paper;
+            case Shape::Paper:    return Shape::Scissors;
+            case Shape::Scissors: return Shape::Rock;
+
+            default: std::unreachable();
         }
+    }
 };
 
 template<typename ShapeDecoderT>
@@ -62,34 +61,33 @@ concept ShapeDecoder = requires(const ShapeDecoderT &decoder, const OpponentChoi
 */
 template<ShapeDecoder auto Decoder>
 struct PlayerChoice {
-    public:
-        OpponentChoice opponent;
-        Shape shape;
+    OpponentChoice opponent;
+    Shape shape;
 
-        constexpr PlayerChoice(const OpponentChoice opponent, const char code)
-            : opponent(opponent), shape(std::invoke(Decoder, opponent, code)) { }
+    constexpr PlayerChoice(const OpponentChoice opponent, const char code)
+        : opponent(opponent), shape(std::invoke(Decoder, opponent, code)) { }
 
-        constexpr std::size_t points_for_outcome() const {
-            if (this->shape == this->opponent.shape_for_draw()) {
-                return 3;
-            }
-
-            if (this->shape == this->opponent.shape_for_win()) {
-                return 6;
-            }
-
-            return 0;
+    constexpr std::size_t points_for_outcome() const {
+        if (this->shape == this->opponent.shape_for_draw()) {
+            return 3;
         }
 
-        constexpr std::size_t points_for_shape() const {
-            switch (this->shape) {
-                case Shape::Rock:     return 1;
-                case Shape::Paper:    return 2;
-                case Shape::Scissors: return 3;
-
-                default: std::unreachable();
-            }
+        if (this->shape == this->opponent.shape_for_win()) {
+            return 6;
         }
+
+        return 0;
+    }
+
+    constexpr std::size_t points_for_shape() const {
+        switch (this->shape) {
+            case Shape::Rock:     return 1;
+            case Shape::Paper:    return 2;
+            case Shape::Scissors: return 3;
+
+            default: std::unreachable();
+        }
+    }
 };
 
 template<ShapeDecoder auto Decoder, std::ranges::input_range Rng>

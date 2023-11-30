@@ -1,39 +1,38 @@
 #include <advent/advent.hpp>
 
-class SectionInterval {
-    public:
-        /* Range from [start, end]. */
-        std::size_t start;
-        std::size_t end;
+struct SectionInterval {
+    /* Range from [start, end]. */
+    std::size_t start;
+    std::size_t end;
 
-        constexpr explicit SectionInterval(const std::string_view interval) {
-            const auto end_of_start = interval.find_first_of('-');
+    constexpr explicit SectionInterval(const std::string_view interval) {
+        const auto end_of_start = interval.find_first_of('-');
 
-            this->start = advent::to_integral<std::size_t>(interval.substr(0, end_of_start));
-            this->end   = advent::to_integral<std::size_t>(interval.substr(end_of_start + 1));
+        this->start = advent::to_integral<std::size_t>(interval.substr(0, end_of_start));
+        this->end   = advent::to_integral<std::size_t>(interval.substr(end_of_start + 1));
 
-            [[assume(this->start <= this->end)]];
-        }
+        [[assume(this->start <= this->end)]];
+    }
 
-        constexpr bool contains(const SectionInterval &other) const {
-            return (
-                other.start >= this->start &&
-                other.end   <= this->end
-            );
-        }
+    constexpr bool contains(const SectionInterval &other) const {
+        return (
+            other.start >= this->start &&
+            other.end   <= this->end
+        );
+    }
 
-        constexpr bool overlaps(const SectionInterval &other) const {
-            /*
-                If our start is <= other's end,
-                then we may overlap, but if our
-                end is also >= other's start,
-                then we must overlap.
-            */
-            return (
-                this->start <= other.end   &&
-                this->end   >= other.start
-            );
-        }
+    constexpr bool overlaps(const SectionInterval &other) const {
+        /*
+            If our start is <= other's end,
+            then we may overlap, but if our
+            end is also >= other's start,
+            then we must overlap.
+        */
+        return (
+            this->start <= other.end   &&
+            this->end   >= other.start
+        );
+    }
 };
 
 template<typename Checker>

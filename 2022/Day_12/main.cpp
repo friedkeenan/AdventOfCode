@@ -7,158 +7,154 @@ enum class Side : std::uint8_t {
     Right,
 };
 
-class HeightGrid {
-    public:
-        static constexpr char StartSignifier = 'S';
-        static constexpr char EndSignifier   = 'E';
+struct HeightGrid {
+    static constexpr char StartSignifier = 'S';
+    static constexpr char EndSignifier   = 'E';
 
-        class Node {
-            public:
-                /* Use a pointer so we can be default constructible and easily assignable. */
-                const HeightGrid &_grid;
+    struct Node {
+        const HeightGrid &_grid;
 
-                std::size_t index;
+        std::size_t index;
 
-                constexpr char height() const {
-                    return this->_grid.height_at(this->index);
-                }
+        constexpr char height() const {
+            return this->_grid.height_at(this->index);
+        }
 
-                constexpr bool is_end() const {
-                    return this->_grid.raw_height_at(this->index) == EndSignifier;
-                }
+        constexpr bool is_end() const {
+            return this->_grid.raw_height_at(this->index) == EndSignifier;
+        }
 
-                template<Side Edge>
-                constexpr bool at_edge() const {
-                    if constexpr (Edge == Side::Top) {
-                        return this->index < this->_grid.grid_width();
-                    } else if constexpr (Edge == Side::Bottom) {
-                        return this->index >= (this->_grid.size() - this->_grid.grid_width());
-                    } else if constexpr (Edge == Side::Left) {
-                        return this->index % this->_grid.grid_width() == 0;
-                    } else {
-                        /* Right. */
+        template<Side Edge>
+        constexpr bool at_edge() const {
+            if constexpr (Edge == Side::Top) {
+                return this->index < this->_grid.grid_width();
+            } else if constexpr (Edge == Side::Bottom) {
+                return this->index >= (this->_grid.size() - this->_grid.grid_width());
+            } else if constexpr (Edge == Side::Left) {
+                return this->index % this->_grid.grid_width() == 0;
+            } else {
+                /* Right. */
 
-                        return (this->index + 1) % this->_grid.grid_width() == 0;
-                    }
-                }
-
-                template<Side Neighbor>
-                constexpr bool has_neighbor() const {
-                    return !this->at_edge<Neighbor>();
-                }
-
-                template<Side Neighbor>
-                constexpr std::size_t neighbor_index() const {
-                    if constexpr (Neighbor == Side::Top) {
-                        return this->index - this->_grid.grid_width();
-                    } else if constexpr (Neighbor == Side::Bottom) {
-                        return this->index + this->_grid.grid_width();
-                    } else if constexpr (Neighbor == Side::Left) {
-                        return this->index - 1;
-                    } else {
-                        /* Right. */
-
-                        return this->index + 1;
-                    }
-                }
-
-                template<Side Neighbor>
-                constexpr void _maybe_consume_neighbor(const auto &consumer) const {
-                    if (!this->has_neighbor<Neighbor>()) {
-                        return;
-                    }
-
-                    const auto neighbor_index  = this->neighbor_index<Neighbor>();
-                    const auto neighbor_height = this->_grid.height_at(neighbor_index);
-
-                    if (this->height() < neighbor_height - 1) {
-                        return;
-                    }
-
-                    std::invoke(consumer, Node{this->_grid, neighbor_index});
-                }
-
-                template<typename Consumer>
-                requires (std::invocable<const Consumer &, Node>)
-                constexpr void for_each_traversable_neighbor(const Consumer consumer) const {
-                    this->_maybe_consume_neighbor<Side::Top>   (consumer);
-                    this->_maybe_consume_neighbor<Side::Bottom>(consumer);
-                    this->_maybe_consume_neighbor<Side::Left>  (consumer);
-                    this->_maybe_consume_neighbor<Side::Right> (consumer);
-                }
-        };
-
-        /* We don't need to convert the characters to numbers. */
-        std::vector<char> _heights;
-
-        std::size_t _grid_width;
-
-        template<std::ranges::input_range Rng>
-        requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
-        constexpr HeightGrid(Rng &&height_rows) {
-            const std::string_view first_row = *std::ranges::begin(height_rows);
-
-            this->_grid_width = first_row.length();
-
-            for (const std::string_view row : height_rows) {
-                if (row.empty()) {
-                    continue;
-                }
-
-                [[assume(row.length() == this->_grid_width)]];
-
-                this->_heights.insert(this->_heights.end(), row.begin(), row.end());
+                return (this->index + 1) % this->_grid.grid_width() == 0;
             }
         }
 
-        constexpr std::size_t size() const {
-            return this->_heights.size();
+        template<Side Neighbor>
+        constexpr bool has_neighbor() const {
+            return !this->at_edge<Neighbor>();
         }
 
-        constexpr std::size_t grid_width() const {
-            return this->_grid_width;
+        template<Side Neighbor>
+        constexpr std::size_t neighbor_index() const {
+            if constexpr (Neighbor == Side::Top) {
+                return this->index - this->_grid.grid_width();
+            } else if constexpr (Neighbor == Side::Bottom) {
+                return this->index + this->_grid.grid_width();
+            } else if constexpr (Neighbor == Side::Left) {
+                return this->index - 1;
+            } else {
+                /* Right. */
+
+                return this->index + 1;
+            }
         }
 
-        constexpr char raw_height_at(const std::size_t index) const {
-            return this->_heights[index];
-        }
-
-        constexpr char height_at(const std::size_t index) const {
-            const auto raw_height = this->raw_height_at(index);
-
-            if (raw_height == StartSignifier) {
-                return 'a';
+        template<Side Neighbor>
+        constexpr void _maybe_consume_neighbor(const auto &consumer) const {
+            if (!this->has_neighbor<Neighbor>()) {
+                return;
             }
 
-            if (raw_height == EndSignifier) {
-                return 'z';
+            const auto neighbor_index  = this->neighbor_index<Neighbor>();
+            const auto neighbor_height = this->_grid.height_at(neighbor_index);
+
+            if (this->height() < neighbor_height - 1) {
+                return;
             }
 
-            return raw_height;
+            std::invoke(consumer, Node{this->_grid, neighbor_index});
         }
 
-        constexpr Node node_at(const std::size_t index) const {
-            return Node{*this, index};
+        template<typename Consumer>
+        requires (std::invocable<const Consumer &, Node>)
+        constexpr void for_each_traversable_neighbor(const Consumer consumer) const {
+            this->_maybe_consume_neighbor<Side::Top>   (consumer);
+            this->_maybe_consume_neighbor<Side::Bottom>(consumer);
+            this->_maybe_consume_neighbor<Side::Left>  (consumer);
+            this->_maybe_consume_neighbor<Side::Right> (consumer);
+        }
+    };
+
+    /* We don't need to convert the characters to numbers. */
+    std::vector<char> _heights;
+
+    std::size_t _grid_width;
+
+    template<std::ranges::input_range Rng>
+    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    constexpr HeightGrid(Rng &&height_rows) {
+        const std::string_view first_row = *std::ranges::begin(height_rows);
+
+        this->_grid_width = first_row.length();
+
+        for (const std::string_view row : height_rows) {
+            if (row.empty()) {
+                continue;
+            }
+
+            [[assume(row.length() == this->_grid_width)]];
+
+            this->_heights.insert(this->_heights.end(), row.begin(), row.end());
+        }
+    }
+
+    constexpr std::size_t size() const {
+        return this->_heights.size();
+    }
+
+    constexpr std::size_t grid_width() const {
+        return this->_grid_width;
+    }
+
+    constexpr char raw_height_at(const std::size_t index) const {
+        return this->_heights[index];
+    }
+
+    constexpr char height_at(const std::size_t index) const {
+        const auto raw_height = this->raw_height_at(index);
+
+        if (raw_height == StartSignifier) {
+            return 'a';
         }
 
-        constexpr std::size_t _index_with_raw_height(const char height) const {
-            const auto it = std::ranges::find(this->_heights, height);
-            [[assume(it >= this->_heights.begin())]];
-
-            return static_cast<std::size_t>(it - this->_heights.begin());
+        if (raw_height == EndSignifier) {
+            return 'z';
         }
 
-        constexpr std::size_t start_index() const {
-            return this->_index_with_raw_height(StartSignifier);
-        }
+        return raw_height;
+    }
+
+    constexpr Node node_at(const std::size_t index) const {
+        return Node{*this, index};
+    }
+
+    constexpr std::size_t _index_with_raw_height(const char height) const {
+        const auto it = std::ranges::find(this->_heights, height);
+        [[assume(it >= this->_heights.begin())]];
+
+        return static_cast<std::size_t>(it - this->_heights.begin());
+    }
+
+    constexpr std::size_t start_index() const {
+        return this->_index_with_raw_height(StartSignifier);
+    }
 };
 
 constexpr inline std::size_t infinite_distance = -1;
 
-class DijkstraNode {
-    public:
-        std::size_t distance_from_start = infinite_distance;
-        bool        visited             = false;
+struct DijkstraNode {
+    std::size_t distance_from_start = infinite_distance;
+    bool        visited             = false;
 };
 
 constexpr std::size_t shortest_distance_to_end_from_index(const HeightGrid &grid, const std::size_t start_index) {

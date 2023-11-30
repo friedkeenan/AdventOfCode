@@ -1,53 +1,52 @@
 #include <advent/advent.hpp>
 
-class Display {
-    public:
-        static constexpr std::int64_t Width  = 40;
-        static constexpr std::int64_t Height = 6;
+struct Display {
+    static constexpr std::int64_t Width  = 40;
+    static constexpr std::int64_t Height = 6;
 
-        static_assert(Width <= 64);
+    static_assert(Width <= 64);
 
-        static constexpr std::array<std::int64_t, 2> PosToCoords(const std::int64_t pos) {
-            return {
-                pos % Width,
-                pos / Width
-            };
-        }
+    static constexpr std::array<std::int64_t, 2> PosToCoords(const std::int64_t pos) {
+        return {
+            pos % Width,
+            pos / Width
+        };
+    }
 
-        std::array<std::uint64_t, Height> _pixel_storage = {};
+    std::array<std::uint64_t, Height> _pixel_storage = {};
 
-        static constexpr std::uint64_t _x_bit(const std::int64_t x) {
-            return std::uint64_t{1} << x;
-        }
+    static constexpr std::uint64_t _x_bit(const std::int64_t x) {
+        return std::uint64_t{1} << x;
+    }
 
-        constexpr void turn_on(const std::int64_t x, const std::int64_t y) {
-            this->_pixel_storage[y] |= _x_bit(x);
-        }
+    constexpr void turn_on(const std::int64_t x, const std::int64_t y) {
+        this->_pixel_storage[y] |= _x_bit(x);
+    }
 
-        static constexpr bool _on_in_row(const std::uint64_t row, const std::int64_t x) {
-            return (row & _x_bit(x)) != 0;
-        }
+    static constexpr bool _on_in_row(const std::uint64_t row, const std::int64_t x) {
+        return (row & _x_bit(x)) != 0;
+    }
 
-        constexpr std::string render() const {
-            std::string result;
+    constexpr std::string render() const {
+        std::string result;
 
-            /* A character for each pixel, plus newlines for each row. */
-            result.reserve(Width * Height + Height);
+        /* A character for each pixel, plus newlines for each row. */
+        result.reserve(Width * Height + Height);
 
-            for (const auto row : this->_pixel_storage) {
-                for (const auto x : std::views::iota(std::int64_t{}, Width)) {
-                    if (_on_in_row(row, x)) {
-                        result += '#';
-                    } else {
-                        result += '.';
-                    }
+        for (const auto row : this->_pixel_storage) {
+            for (const auto x : std::views::iota(std::int64_t{}, Width)) {
+                if (_on_in_row(row, x)) {
+                    result += '#';
+                } else {
+                    result += '.';
                 }
-
-                result += '\n';
             }
 
-            return result;
+            result += '\n';
         }
+
+        return result;
+    }
 };
 
 static_assert(Display::PosToCoords(1) == std::array<std::int64_t, 2>{1, 0});
@@ -72,7 +71,7 @@ consteval bool test_display() {
 static_assert(test_display());
 
 /* Forward declare. */
-class CPU;
+struct CPU;
 
 template<typename T>
 concept Instruction = requires(CPU &cpu, const std::string_view line) {
@@ -82,66 +81,64 @@ concept Instruction = requires(CPU &cpu, const std::string_view line) {
 };
 
 template<Instruction... Instructions>
-class InstructionHandler;
+struct InstructionHandler;
 
 template<typename Head, typename... Tail>
-class InstructionHandler<Head, Tail...> {
-    public:
-        /* We avoid directly naming 'CPU' because it is still incomplete. */
-        template<std::invocable<const CPU &> Peeker>
-        static constexpr std::int64_t ExecuteWithCyclePeeker(std::same_as<CPU> auto &cpu, const std::string_view line, const std::int64_t desired_cycle, Peeker &&peeker) {
-            [[assume(cpu._cycle <= desired_cycle)]];
+struct InstructionHandler<Head, Tail...> {
+    /* We avoid directly naming 'CPU' because it is still incomplete. */
+    template<std::invocable<const CPU &> Peeker>
+    static constexpr std::int64_t ExecuteWithCyclePeeker(std::same_as<CPU> auto &cpu, const std::string_view line, const std::int64_t desired_cycle, Peeker &&peeker) {
+        [[assume(cpu._cycle <= desired_cycle)]];
 
-            if (Head::Compare(line)) {
-                if (cpu._cycle + Head::CycleDuration > desired_cycle) {
-                    /*
-                        If executing this instruction would advance the cycle
-                        to our desired cycle or beyond, peek before the execution.
-                    */
-                    std::invoke(std::forward<Peeker>(peeker), std::as_const(cpu));
-                }
-
-                Head::Execute(cpu, line);
-
-                return Head::CycleDuration;
+        if (Head::Compare(line)) {
+            if (cpu._cycle + Head::CycleDuration > desired_cycle) {
+                /*
+                    If executing this instruction would advance the cycle
+                    to our desired cycle or beyond, peek before the execution.
+                */
+                std::invoke(std::forward<Peeker>(peeker), std::as_const(cpu));
             }
 
-            return InstructionHandler<Tail...>::ExecuteWithCyclePeeker(cpu, line, desired_cycle, std::forward<Peeker>(peeker));
+            Head::Execute(cpu, line);
+
+            return Head::CycleDuration;
         }
 
-        static constexpr std::int64_t ExecuteWithDisplay(std::same_as<CPU> auto &cpu, Display &display, const std::string_view line) {
-            if (Head::Compare(line)) {
-                for (const auto pos : std::views::iota(cpu._cycle, cpu._cycle + Head::CycleDuration)) {
-                    const auto [x, y] = Display::PosToCoords(pos);
+        return InstructionHandler<Tail...>::ExecuteWithCyclePeeker(cpu, line, desired_cycle, std::forward<Peeker>(peeker));
+    }
 
-                    if (cpu.sprite_on_pixel(x)) {
-                        display.turn_on(x, y);
-                    }
+    static constexpr std::int64_t ExecuteWithDisplay(std::same_as<CPU> auto &cpu, Display &display, const std::string_view line) {
+        if (Head::Compare(line)) {
+            for (const auto pos : std::views::iota(cpu._cycle, cpu._cycle + Head::CycleDuration)) {
+                const auto [x, y] = Display::PosToCoords(pos);
+
+                if (cpu.sprite_on_pixel(x)) {
+                    display.turn_on(x, y);
                 }
-
-                Head::Execute(cpu, line);
-
-                return Head::CycleDuration;
             }
 
-            return InstructionHandler<Tail...>::ExecuteWithDisplay(cpu, display, line);
+            Head::Execute(cpu, line);
+
+            return Head::CycleDuration;
         }
+
+        return InstructionHandler<Tail...>::ExecuteWithDisplay(cpu, display, line);
+    }
 };
 
 template<>
-class InstructionHandler<> {
-    public:
-        static constexpr std::int64_t ExecuteWithCyclePeeker(CPU &, const std::string_view, const std::int64_t, auto &&) {
-            /* Stub implementation. */
+struct InstructionHandler<> {
+    static constexpr std::int64_t ExecuteWithCyclePeeker(CPU &, const std::string_view, const std::int64_t, auto &&) {
+        /* Stub implementation. */
 
-            return 0;
-        }
+        return 0;
+    }
 
-        static constexpr std::int64_t ExecuteWithDisplay(CPU &, Display &, const std::string_view) {
-            /* Stub implementation. */
+    static constexpr std::int64_t ExecuteWithDisplay(CPU &, Display &, const std::string_view) {
+        /* Stub implementation. */
 
-            return 0;
-        }
+        return 0;
+    }
 };
 
 struct NoOp {
@@ -184,37 +181,36 @@ struct AddX {
 
 static_assert(Instruction<AddX>);
 
-class CPU {
-    public:
-        using Handler = InstructionHandler<NoOp, AddX>;
+struct CPU {
+    using Handler = InstructionHandler<NoOp, AddX>;
 
-        std::int64_t _cycle = 0;
-        std::int64_t X      = 1;
+    std::int64_t _cycle = 0;
+    std::int64_t X      = 1;
 
-        constexpr bool sprite_on_pixel(const std::int64_t x) const {
-            if (this->X == x) {
-                return true;
-            }
-
-            if (this->X != 0 && this->X - 1 == x) {
-                return true;
-            }
-
-            if ((this->X + 1) != Display::Width && this->X + 1 == x) {
-                return true;
-            }
-
-            return false;
+    constexpr bool sprite_on_pixel(const std::int64_t x) const {
+        if (this->X == x) {
+            return true;
         }
 
-        template<std::invocable<const CPU &> Peeker>
-        constexpr void execute_with_cycle_peeker(const std::string_view line, const std::int64_t desired_cycle, Peeker &&peeker) {
-            this->_cycle += Handler::ExecuteWithCyclePeeker(*this, line, desired_cycle, std::forward<Peeker>(peeker));
+        if (this->X != 0 && this->X - 1 == x) {
+            return true;
         }
 
-        constexpr void execute_with_display(Display &display, const std::string_view line) {
-            this->_cycle += Handler::ExecuteWithDisplay(*this, display, line);
+        if ((this->X + 1) != Display::Width && this->X + 1 == x) {
+            return true;
         }
+
+        return false;
+    }
+
+    template<std::invocable<const CPU &> Peeker>
+    constexpr void execute_with_cycle_peeker(const std::string_view line, const std::int64_t desired_cycle, Peeker &&peeker) {
+        this->_cycle += Handler::ExecuteWithCyclePeeker(*this, line, desired_cycle, std::forward<Peeker>(peeker));
+    }
+
+    constexpr void execute_with_display(Display &display, const std::string_view line) {
+        this->_cycle += Handler::ExecuteWithDisplay(*this, display, line);
+    }
 };
 
 template<std::int64_t CycleStart, std::int64_t CycleStep, std::ranges::input_range Rng>
