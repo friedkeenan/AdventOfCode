@@ -3,19 +3,12 @@
 template<std::ranges::input_range R>
 requires (advent::arithmetic<std::ranges::range_value_t<R>>)
 constexpr std::size_t count_depth_increases(R &&rng) {
-    auto it = std::ranges::begin(rng);
-
-    /* TODO: Use 'std::views::pairwise' when implemented. */
-    auto prev_depth = *it;
-    ++it;
-
     std::size_t depth_increases = 0;
-    for (const auto depth : std::ranges::subrange(it, std::ranges::end(rng))) {
-        if (depth > prev_depth) {
-            depth_increases++;
-        }
 
-        prev_depth = depth;
+    for (const auto &[prev_depth, depth] : std::forward<R>(rng) | std::views::pairwise) {
+        if (depth > prev_depth) {
+            ++depth_increases;
+        }
     }
 
     return depth_increases;
@@ -24,29 +17,18 @@ constexpr std::size_t count_depth_increases(R &&rng) {
 template<std::ranges::input_range R>
 requires (advent::arithmetic<std::ranges::range_value_t<R>>)
 constexpr std::size_t count_chunked_depth_increases(R &&rng) {
-    /* TODO: Use 'std::views::adjacent' when implemented. */
-    auto it = std::ranges::begin(rng);
-
-    const auto first_depth = *it;
-    ++it;
-    const auto second_depth = *it;
-    ++it;
-    const auto third_depth = *it;
-    ++it;
-
-    auto prev_depths = std::array{second_depth, third_depth};
-    auto prev_sum    = first_depth + second_depth + third_depth;
-
     std::size_t depth_increases = 0;
-    for (const auto depth : std::ranges::subrange(it, std::ranges::end(rng))) {
-        const auto new_sum = prev_depths[0] + prev_depths[1] + depth;
 
-        if (new_sum > prev_sum) {
+    advent::addition_result<std::ranges::range_reference_t<R>> prev_sum = 0;
+    for (const auto [i, depths] : std::forward<R>(rng) | std::views::adjacent<3> | std::views::enumerate) {
+        const auto new_sum = std::apply([](auto &... depths) {
+            return (depths + ...);
+        }, depths);
+
+        /* NOTE: We can't increment 'depth_increases' on our first iteration. */
+        if (new_sum > prev_sum && i > 0) {
             ++depth_increases;
         }
-
-        prev_depths[0] = prev_depths[1];
-        prev_depths[1] = depth;
 
         prev_sum = new_sum;
     }
@@ -54,9 +36,9 @@ constexpr std::size_t count_chunked_depth_increases(R &&rng) {
     return depth_increases;
 }
 
-constexpr inline auto parse_string_data = [](const std::string_view str) {
+constexpr auto parse_string_data(const std::string_view str) {
     return advent::views::split_lines(str) | std::views::transform(advent::to_integral<std::uint16_t>);
-};
+}
 
 constexpr std::size_t count_depth_increases_from_string_data(const std::string_view data) {
     return count_depth_increases(parse_string_data(data));

@@ -51,4 +51,9 @@ namespace advent {
     template<typename T>
     concept inheritable = class_type<T> && !std::is_union_v<T>;
 
+    template<typename T, typename U>
+    concept addable_with = requires(T &&t, U &&u) {
+        std::forward<T>(t) + std::forward<U>(u);
+    };
+
 }
