@@ -6,6 +6,20 @@
 
 namespace advent {
 
+    constexpr bool is_digit(char c, const std::integral auto base) {
+        [[assume(base <= 10 || base == 16)]];
+
+        if (base <= 10) {
+            return c >= '0' && c < (static_cast<char>('0' + base));
+        }
+
+        return (
+            (c >= '0' && c <= '9') ||
+            (c >= 'a' && c <= 'f') ||
+            (c >= 'A' && c <= 'F')
+        );
+    }
+
     template<std::integral ToConvert, ToConvert Base>
     struct _to_integral_fn {
         template<std::ranges::input_range R>
@@ -94,15 +108,7 @@ namespace advent {
 
             ToConvert converted = 0;
             for (const auto digit : std::move(rng)) {
-                if (base <= 10) {
-                    [[assume(digit >= '0' && digit < (static_cast<char>('0' + base)))]];
-                } else {
-                    [[assume(
-                        (digit >= '0' && digit <= '9') ||
-                        (digit >= 'a' && digit <= 'f') ||
-                        (digit >= 'A' && digit <= 'F')
-                    )]];
-                }
+                [[assume(advent::is_digit(digit, base))]];
 
                 if (digit >= '0' && digit <= '9') {
                     converted += static_cast<ToConvert>(advent::pow(base, digit_place) * (digit - '0' + 0));
@@ -122,6 +128,12 @@ namespace advent {
         [[nodiscard]]
         constexpr ToConvert operator ()(const char (&str)[N]) const {
             return (*this)(std::string_view(str));
+        }
+
+        constexpr ToConvert operator ()(const char digit) const {
+            [[assume(advent::is_digit(digit, 10))]];
+
+            return static_cast<ToConvert>(digit - '0');
         }
     };
 

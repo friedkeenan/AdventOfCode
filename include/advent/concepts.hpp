@@ -43,6 +43,11 @@ namespace advent {
         )
     );
 
+    template<typename Invocable, typename Return, typename... Args>
+    concept invocable_r = std::invocable<Invocable, Args...> && requires {
+        { std::invoke(std::declval<Invocable>(), std::declval<Args>()...) } -> std::same_as<Return>;
+    };
+
     template<typename T>
     concept class_type = requires {
         typename std::type_identity<int T::*>;
