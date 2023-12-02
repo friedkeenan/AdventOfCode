@@ -3,10 +3,10 @@
 struct Game {
     /*
         NOTE: We don't need to track each set separately
-        for either part (we could just track the total of
-        each color for part one, and then the maximum of
-        each color for part two), but I find this abstraction
-        pleasing and more readable, even if it's not as "clever".
+        for either part (we could just track the maximum
+        of each color for both parts), but I find this
+        abstraction pleasing and more readable, even if
+        it's not as "clever".
     */
     struct CubeSet {
         std::size_t red   = 0;
