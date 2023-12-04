@@ -56,12 +56,14 @@ struct Card {
     }
 
     constexpr std::size_t points() const {
-        const auto num_matches = this->count_matches();
-        if (num_matches <= 0) {
-            return 0;
-        }
+        /*
+            2**(n - 1) if n > 0 else 0.
 
-        return advent::pow(2uz, num_matches - 1);
+            NOTE: Using bitshifting seems
+            to result in better codegen.
+        */
+
+        return (1uz << this->count_matches()) >> 1uz;
     }
 };
 
