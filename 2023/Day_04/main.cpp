@@ -56,7 +56,12 @@ struct Card {
     }
 
     constexpr std::size_t points() const {
-        return advent::pow(2uz, this->count_matches() - 1);
+        const auto num_matches = this->count_matches();
+        if (num_matches <= 0) {
+            return 0;
+        }
+
+        return advent::pow(2uz, num_matches - 1);
     }
 };
 
