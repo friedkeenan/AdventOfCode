@@ -8,7 +8,7 @@ namespace advent {
     struct _pow_fn {
         template<std::integral Base, std::integral Exponent>
         [[nodiscard]]
-        constexpr Base operator ()(Base base, Exponent exponent) const {
+        constexpr Base operator ()(Base base, Exponent exponent) const noexcept {
             /* This is a binary pow implementation. */
 
             [[assume(exponent >= 0)]];
@@ -37,6 +37,90 @@ namespace advent {
 
     constexpr inline auto pow = _pow_fn{};
 
+    struct _floor_sqrt_fn {
+        template<std::integral T>
+        [[nodiscard]]
+        constexpr T operator ()(const T num) const noexcept {
+            [[assume(num >= 0)]];
+
+            /* NOTE: We use binary search to find the floored square root. */
+
+            T low  = 0;
+            T high = num;
+
+            while (true) {
+                const auto midpoint = std::midpoint(low, high);
+
+                const auto squared = midpoint * midpoint;
+                if (squared == num) {
+                    return midpoint;
+                }
+
+                if (squared < num) {
+                    const auto next_squared = (midpoint + 1) * (midpoint + 1);
+
+                    if (next_squared > num) {
+                        return midpoint;
+                    }
+
+                    low = midpoint + 1;
+                } else {
+                    high = midpoint - 1;
+                }
+            }
+        }
+    };
+
+    constexpr inline auto floor_sqrt = _floor_sqrt_fn{};
+
+    static_assert(advent::floor_sqrt(0)  == 0);
+    static_assert(advent::floor_sqrt(1)  == 1);
+    static_assert(advent::floor_sqrt(2)  == 1);
+    static_assert(advent::floor_sqrt(25) == 5);
+    static_assert(advent::floor_sqrt(30) == 5);
+
+    struct _ceil_sqrt_fn {
+        template<std::integral T>
+        [[nodiscard]]
+        constexpr T operator ()(const T num) const noexcept {
+            [[assume(num >= 0)]];
+
+            /* NOTE: We use binary search to find the ceiled square root. */
+
+            T low  = 0;
+            T high = num;
+
+            while (true) {
+                const auto midpoint = std::midpoint(low, high);
+
+                const auto squared = midpoint * midpoint;
+                if (squared == num) {
+                    return midpoint;
+                }
+
+                if (squared < num) {
+                    low = midpoint + 1;
+                } else {
+                    const auto last_squared = (midpoint - 1) * (midpoint - 1);
+
+                    if (last_squared < num) {
+                        return midpoint;
+                    }
+
+                    high = midpoint - 1;
+                }
+            }
+        }
+    };
+
+    constexpr inline auto ceil_sqrt = _ceil_sqrt_fn{};
+
+    static_assert(advent::ceil_sqrt(0)  == 0);
+    static_assert(advent::ceil_sqrt(1)  == 1);
+    static_assert(advent::ceil_sqrt(2)  == 2);
+    static_assert(advent::ceil_sqrt(25) == 5);
+    static_assert(advent::ceil_sqrt(30) == 6);
+
     struct _abs_fn {
         template<advent::arithmetic T>
         [[nodiscard]]
@@ -58,7 +142,7 @@ namespace advent {
     struct _gcd_fn {
         template<std::integral A, std::integral B>
         [[nodiscard]]
-        constexpr auto operator ()(A a, B b) const {
+        constexpr auto operator ()(A a, B b) const noexcept {
             using Common = std::common_type_t<A, B>;
 
             while (true) {
@@ -85,7 +169,7 @@ namespace advent {
     struct _lcm_fn {
         template<std::integral A, std::integral B>
         [[nodiscard]]
-        constexpr auto operator ()(A a, B b) const {
+        constexpr auto operator ()(const A a, const B b) const noexcept {
             const auto gcd = advent::gcd(a, b);
 
             using Common = decltype(gcd);
