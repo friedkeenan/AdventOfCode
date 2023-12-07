@@ -139,34 +139,15 @@ struct JokerBehavior {
     struct CardCounter {
         std::array<std::uint8_t, NumCardValues> counts = {};
 
-        constexpr static std::size_t IndexForCard(const Card card) {
+        constexpr std::uint8_t &count_for_card(const Card card) {
             const std::size_t index = std::to_underlying(card) - std::to_underlying(Card::Joker);
             [[assume(index < NumCardValues)]];
 
-            return index;
-        }
-
-        constexpr std::uint8_t &count_for_card(const Card card) {
-            return this->counts[IndexForCard(card)];
+            return this->counts[index];
         }
 
         constexpr void count_card(const Card card) {
             ++this->count_for_card(card);
-        }
-
-        constexpr std::uint8_t &max_non_joker_count() {
-            static_assert(IndexForCard(Card::Joker) == 0);
-            static_assert(NumCardValues >= 2);
-
-            auto max_count_ptr = &this->counts[1];
-            for (const auto i : std::views::iota(2uz, NumCardValues)) {
-                auto &count = this->counts[i];
-                if (count > *max_count_ptr) {
-                    max_count_ptr = &count;
-                }
-            }
-
-            return *max_count_ptr;
         }
 
         constexpr CountStorage digest() {
@@ -175,17 +156,9 @@ struct JokerBehavior {
                 the max count and set the joker count to 0.
 
                 This always gives us the optimal joker usage.
-
-                We could maybe optimize this to only
-                do one loop over the card counts but
-                I don't think it's worth the effort.
             */
-            auto &joker_count = this->count_for_card(Card::Joker);
-            if (joker_count < HandSize) {
-                auto &max_real_count = this->max_non_joker_count();
 
-                max_real_count += std::exchange(joker_count, 0);
-            }
+            const auto joker_count = std::exchange(this->count_for_card(Card::Joker), 0);
 
             CountStorage digested = {};
 
@@ -204,6 +177,7 @@ struct JokerBehavior {
             }
 
             std::ranges::sort(digested, std::greater{});
+            digested[0] += joker_count;
 
             return digested;
         }
