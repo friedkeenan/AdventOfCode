@@ -26,6 +26,7 @@ cpp_args  = [
     '-Wconversion',
     '-Werror',
 
+    '-fconcepts-diagnostics-depth=3',
     '-fconstexpr-ops-limit=9999999999999999',
 ]
 
