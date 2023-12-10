@@ -166,6 +166,9 @@ namespace advent {
     static_assert(advent::gcd(12, 6) == 6);
     static_assert(advent::gcd(12, 9) == 3);
 
+    static_assert(advent::gcd(0, 9) == 9);
+    static_assert(advent::gcd(0, 0) == 0);
+
     struct _lcm_fn {
         template<std::integral A, std::integral B>
         [[nodiscard]]
@@ -186,6 +189,9 @@ namespace advent {
 
     static_assert(advent::lcm(12, 6) == 12);
     static_assert(advent::lcm(12, 9) == 36);
+
+    static_assert(advent::lcm(0, 9) == 0);
+    static_assert(advent::lcm(0, 0) == 0);
 
     template<std::size_t NumMaxes, std::ranges::input_range Rng>
     requires (advent::arithmetic<std::ranges::range_value_t<Rng>>)
