@@ -33,7 +33,7 @@ namespace advent {
             std::same_as<std::ranges::range_value_t<R>, char>
         )
         [[nodiscard]]
-        constexpr ToConvert operator ()(R &&str) const {
+        static constexpr ToConvert operator ()(R &&str) {
             auto it = std::ranges::begin(str);
             const auto sign = [&]() {
                 if constexpr (std::unsigned_integral<ToConvert>) {
@@ -126,11 +126,11 @@ namespace advent {
 
         template<std::size_t N>
         [[nodiscard]]
-        constexpr ToConvert operator ()(const char (&str)[N]) const {
-            return (*this)(std::string_view(str));
+        static constexpr ToConvert operator ()(const char (&str)[N]) {
+            return _to_integral_fn::operator ()(std::string_view(str));
         }
 
-        constexpr ToConvert operator ()(const char digit) const {
+        static constexpr ToConvert operator ()(const char digit) {
             [[assume(advent::is_digit(digit, 10))]];
 
             return static_cast<ToConvert>(digit - '0');

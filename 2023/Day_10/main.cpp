@@ -28,38 +28,35 @@ enum class Pipe : char {
 };
 
 struct Pipes {
-    /* TODO: At this point we should probably just make a 2D vector helper. */
-    std::vector<Pipe> grid;
-    std::size_t       width = 0;
+    advent::grid<Pipe> grid;
 
-    std::size_t start_pos = 0;
+    Pipe *start_ptr = nullptr;
 
     template<std::ranges::input_range Rng>
     requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
     constexpr explicit Pipes(Rng &&rng) {
-        for (const std::string_view line : std::forward<Rng>(rng)) {
-            if (line.empty()) {
-                continue;
-            }
+        advent::vector_2d<std::size_t> start_coords = {};
 
-            if (this->width <= 0) {
-                this->width = line.size();
-            }
-
-            [[assume(line.size() == this->width)]];
-
-            for (const char &c : line) {
-                const auto pipe = Pipe{c};
-
-                if (pipe == Pipe::Start) {
-                    this->start_pos = this->grid.size();
+        this->grid = advent::grid<Pipe>::build([&](auto &builder) {
+            for (const std::string_view line : std::forward<Rng>(rng)) {
+                if (line.empty()) {
+                    continue;
                 }
 
-                this->grid.push_back(pipe);
-            }
-        }
+                builder.push_row(line.size(), [&](const auto row) {
+                    for (const auto [row_elem, character] : std::views::zip(row, line)) {
+                        row_elem = Pipe{character};
 
-        this->grid[this->start_pos] = this->real_start_pipe();
+                        if (row_elem == Pipe::Start) {
+                            start_coords = builder.coords_of(&row_elem);
+                        }
+                    }
+                });
+            }
+        });
+
+        this->start_ptr  = &this->grid[start_coords.x(), start_coords.y()];
+        *this->start_ptr = this->real_start_pipe();
     }
 
     static constexpr bool CanMoveNorth(const Pipe pipe) {
@@ -111,23 +108,23 @@ struct Pipes {
     }
 
     constexpr const Pipe &start() const {
-        return this->grid[this->start_pos];
+        return *this->start_ptr;
     }
 
     constexpr bool start_connects_north() const {
-        return this->pos_can_go_north(this->start_pos) && CanMoveSouth(this->north_of(this->start()));
+        return this->can_go_north(this->start()) && CanMoveSouth(this->north_of(this->start()));
     }
 
     constexpr bool start_connects_south() const {
-        return this->pos_can_go_south(this->start_pos) && CanMoveNorth(this->south_of(this->start()));
+        return this->can_go_south(this->start()) && CanMoveNorth(this->south_of(this->start()));
     }
 
     constexpr bool start_connects_east() const {
-        return this->pos_can_go_east(this->start_pos) && CanMoveWest(this->east_of(this->start()));
+        return this->can_go_east(this->start()) && CanMoveWest(this->east_of(this->start()));
     }
 
     constexpr bool start_connects_west() const {
-        return this->pos_can_go_west(this->start_pos) && CanMoveEast(this->west_of(this->start()));
+        return this->can_go_west(this->start()) && CanMoveEast(this->west_of(this->start()));
     }
 
     constexpr Pipe real_start_pipe() const {
@@ -162,58 +159,44 @@ struct Pipes {
         return Pipe::EastWest;
     }
 
-    constexpr std::size_t pos_for(const Pipe &pipe) const {
-        [[assume(&pipe >= this->grid.data() && &pipe < this->grid.data() + this->grid.size())]];
-
-        return &pipe - this->grid.data();
+    constexpr bool can_go_north(const Pipe &pipe) const {
+        return this->grid.has_above_neighbor(&pipe);
     }
 
-    constexpr bool pos_can_go_north(const std::size_t pos) const {
-        return pos >= this->width;
+    constexpr bool can_go_south(const Pipe &pipe) const {
+        return this->grid.has_below_neighbor(&pipe);
     }
 
-    constexpr bool pos_can_go_south(const std::size_t pos) const {
-        return pos < this->grid.size() - this->width;
+    constexpr bool can_go_east(const Pipe &pipe) const {
+        return this->grid.has_right_neighbor(&pipe);
     }
 
-    constexpr bool pos_can_go_east(const std::size_t pos) const {
-        return (pos + 1) % this->width > 0;
-    }
-
-    constexpr bool pos_can_go_west(const std::size_t pos) const {
-        return pos % this->width > 0;
+    constexpr bool can_go_west(const Pipe &pipe) const {
+        return this->grid.has_left_neighbor(&pipe);
     }
 
     constexpr const Pipe &north_of(const Pipe &pipe) const {
-        const auto pos = this->pos_for(pipe);
+        [[assume(this->can_go_north(pipe))]];
 
-        [[assume(this->pos_can_go_north(pos))]];
-
-        return this->grid[pos - this->width];
+        return *this->grid.above_neighbor(&pipe);
     }
 
     constexpr const Pipe &south_of(const Pipe &pipe) const {
-        const auto pos = this->pos_for(pipe);
+        [[assume(this->can_go_south(pipe))]];
 
-        [[assume(this->pos_can_go_south(pos))]];
-
-        return this->grid[pos + this->width];
+        return *this->grid.below_neighbor(&pipe);
     }
 
     constexpr const Pipe &east_of(const Pipe &pipe) const {
-        const auto pos = this->pos_for(pipe);
+        [[assume(this->can_go_east(pipe))]];
 
-        [[assume(this->pos_can_go_east(pos))]];
-
-        return this->grid[pos + 1];
+        return *this->grid.right_neighbor(&pipe);
     }
 
     constexpr const Pipe &west_of(const Pipe &pipe) const {
-        const auto pos = this->pos_for(pipe);
+        [[assume(this->can_go_west(pipe))]];
 
-        [[assume(this->pos_can_go_west(pos))]];
-
-        return this->grid[pos - 1];
+        return *this->grid.left_neighbor(&pipe);
     }
 
     template<Direction MoveDirection>
@@ -221,7 +204,7 @@ struct Pipes {
     constexpr std::pair<const Pipe &, Direction> move_through(const Pipe &pipe) const {
         if constexpr (MoveDirection == Direction::North) {
             return {this->north_of(pipe), Direction::South};
-        } else if constexpr(MoveDirection == Direction::South) {
+        } else if constexpr (MoveDirection == Direction::South) {
             return {this->south_of(pipe), Direction::North};
         } else if constexpr (MoveDirection == Direction::East) {
             return {this->east_of(pipe), Direction::West};

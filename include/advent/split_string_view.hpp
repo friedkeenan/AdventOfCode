@@ -102,17 +102,17 @@ namespace advent {
                     }
                 };
 
-                constexpr auto operator ()(const std::string_view str, const char delimiter) const {
+                static constexpr auto operator ()(const std::string_view str, const char delimiter) {
                     return advent::split_string_view(str, delimiter);
                 }
 
-                constexpr auto operator ()(const char delimiter) const {
+                static constexpr auto operator ()(const char delimiter) {
                     return closure{delimiter};
                 }
             };
 
             struct split_lines_adaptor_closure : std::ranges::range_adaptor_closure<split_lines_adaptor_closure> {
-                constexpr auto operator ()(const std::string_view str) const {
+                static constexpr auto operator ()(const std::string_view str) {
                     return advent::split_string_view(str, '\n');
                 }
             };

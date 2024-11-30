@@ -18,7 +18,7 @@ link_args = [
 ]
 
 cpp_args  = [
-    '-std=gnu++23',
+    '-std=gnu++2c',
 
     '-Wall',
     '-Wextra',
@@ -33,7 +33,11 @@ cpp_args  = [
 link_args += sanitizers
 cpp_args  += sanitizers
 
-advent_years = ['2021', '2022', '2023']
+advent_years = [
+    '2021',
+    '2022',
+    '2023',
+]
 
 foreach year : advent_years
 

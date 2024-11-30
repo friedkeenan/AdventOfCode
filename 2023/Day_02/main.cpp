@@ -59,12 +59,18 @@ struct Game {
 
                 cube_description.remove_prefix(count_end + 1);
 
-                if (cube_description.starts_with("red")) {
+                /*
+                    NOTE: We used to just check 'cube_description.starts_with'
+                    instead of using equality, but GCC claimed the `_M_len` member
+                    of 'std::string_view("red")' was uninitialized, which seems... wrong.
+                    But checking equality is better anyways I think.
+                */
+                if (cube_description == "red") {
                     cube_set.red = count;
-                } else if (cube_description.starts_with("green")) {
+                } else if (cube_description == "green") {
                     cube_set.green = count;
                 } else {
-                    [[assume(cube_description.starts_with("blue"))]];
+                    [[assume(cube_description == "blue")]];
 
                     cube_set.blue = count;
                 }

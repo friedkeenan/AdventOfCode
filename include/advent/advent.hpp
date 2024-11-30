@@ -8,6 +8,7 @@
 #include <advent/to_integral.hpp>
 #include <advent/split_string_view.hpp>
 #include <advent/vector_nd.hpp>
+#include <advent/grid.hpp>
 #include <advent/functional.hpp>
 #include <advent/puzzle_data.hpp>
 #include <advent/type_traits.hpp>

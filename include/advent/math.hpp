@@ -8,7 +8,7 @@ namespace advent {
     struct _pow_fn {
         template<std::integral Base, std::integral Exponent>
         [[nodiscard]]
-        constexpr Base operator ()(Base base, Exponent exponent) const noexcept {
+        static constexpr Base operator ()(Base base, Exponent exponent) noexcept {
             /* This is a binary pow implementation. */
 
             [[assume(exponent >= 0)]];
@@ -40,7 +40,7 @@ namespace advent {
     struct _floor_sqrt_fn {
         template<std::integral T>
         [[nodiscard]]
-        constexpr T operator ()(const T num) const noexcept {
+        static constexpr T operator ()(const T num) noexcept {
             [[assume(num >= 0)]];
 
             /* NOTE: We use binary search to find the floored square root. */
@@ -82,7 +82,7 @@ namespace advent {
     struct _ceil_sqrt_fn {
         template<std::integral T>
         [[nodiscard]]
-        constexpr T operator ()(const T num) const noexcept {
+        static constexpr T operator ()(const T num) noexcept {
             [[assume(num >= 0)]];
 
             /* NOTE: We use binary search to find the ceiled square root. */
@@ -124,7 +124,7 @@ namespace advent {
     struct _abs_fn {
         template<advent::arithmetic T>
         [[nodiscard]]
-        constexpr auto operator ()(const T num) const noexcept {
+        static constexpr auto operator ()(const T num) noexcept {
             if constexpr (advent::unsigned_type<T>) {
                 return num;
             } else {
@@ -139,10 +139,17 @@ namespace advent {
 
     constexpr inline auto abs = _abs_fn{};
 
+    static_assert(advent::abs(-1) == 1);
+    static_assert(advent::abs(1)  == 1);
+    static_assert(advent::abs(0)  == 0);
+
+    static_assert(advent::abs(1u) == 1u);
+    static_assert(advent::abs(0u) == 0u);
+
     struct _gcd_fn {
         template<std::integral A, std::integral B>
         [[nodiscard]]
-        constexpr auto operator ()(A a, B b) const noexcept {
+        static constexpr auto operator ()(A a, B b) noexcept {
             using Common = std::common_type_t<A, B>;
 
             while (true) {
@@ -172,7 +179,7 @@ namespace advent {
     struct _lcm_fn {
         template<std::integral A, std::integral B>
         [[nodiscard]]
-        constexpr auto operator ()(const A a, const B b) const noexcept {
+        static constexpr auto operator ()(const A a, const B b) noexcept {
             const auto gcd = advent::gcd(a, b);
 
             using Common = decltype(gcd);
