@@ -61,4 +61,11 @@ namespace advent {
         std::forward<T>(t) + std::forward<U>(u);
     };
 
+    template<typename Rng>
+    concept string_viewable_range = (
+        std::ranges::input_range<Rng> &&
+
+        std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>
+    );
+
 }

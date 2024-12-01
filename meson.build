@@ -37,6 +37,7 @@ advent_years = [
     '2021',
     '2022',
     '2023',
+    '2024',
 ]
 
 foreach year : advent_years
