@@ -37,6 +37,8 @@ namespace advent {
             auto it = std::ranges::begin(str);
             const auto sign = [&]() {
                 if constexpr (std::unsigned_integral<ToConvert>) {
+                    [[assume(*it != '-')]];
+
                     return ToConvert{1};
                 } else {
                     if (*it == '-') {

@@ -44,11 +44,11 @@ struct Pipes {
                 }
 
                 builder.push_row(line.size(), [&](const auto row) {
-                    for (const auto [row_elem, character] : std::views::zip(row, line)) {
-                        row_elem = Pipe{character};
+                    for (const auto [pipe, character] : std::views::zip(row, line)) {
+                        pipe = Pipe{character};
 
-                        if (row_elem == Pipe::Start) {
-                            start_coords = builder.coords_of(&row_elem);
+                        if (pipe == Pipe::Start) {
+                            start_coords = builder.coords_of(&pipe);
                         }
                     }
                 });

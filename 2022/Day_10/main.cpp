@@ -449,6 +449,6 @@ int main(int argc, char **argv) {
     const auto part_one_solution = sum_signal_strengths_from_string_data<20, 40>(*data);
     const auto part_two_solution = render_display_from_string_data(*data);
 
-    fmt::print("Part one solution: {}\n", part_one_solution);
-    fmt::print("Part two solution:\n{}", part_two_solution);
+    advent::print("Part one solution: {}\n", part_one_solution);
+    advent::print("Part two solution:\n{}", part_two_solution);
 }
