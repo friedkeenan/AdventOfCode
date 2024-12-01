@@ -90,8 +90,7 @@ struct SensorRegion {
     }
 };
 
-template<Coord Row, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<Coord Row, advent::string_viewable_range Rng>
 constexpr std::size_t num_non_beacons_in_row(Rng &&sensors) {
     std::vector<CoordRange> ranges;
 
@@ -144,8 +143,8 @@ constexpr std::size_t tuning_frequency(const Position pos) {
     return 4'000'000 * static_cast<std::size_t>(pos.x()) + pos.y();
 }
 
-template<Coord Max, std::ranges::input_range Rng>
-requires (Max > 0 && std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<Coord Max, advent::string_viewable_range Rng>
+requires (Max > 0)
 constexpr std::size_t find_tuning_frequency(Rng &&sensors) {
     /* Dear god forgive me for this code. */
 

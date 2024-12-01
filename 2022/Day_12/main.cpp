@@ -90,8 +90,7 @@ struct HeightGrid {
 
     std::size_t _grid_width;
 
-    template<std::ranges::input_range Rng>
-    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    template<advent::string_viewable_range Rng>
     constexpr HeightGrid(Rng &&height_rows) {
         const std::string_view first_row = *std::ranges::begin(height_rows);
 
@@ -208,16 +207,14 @@ constexpr std::size_t shortest_distance_to_end_from_index(const HeightGrid &grid
     return infinite_distance;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t shortest_distance_to_end(Rng &&height_rows) {
     const auto grid = HeightGrid(std::forward<Rng>(height_rows));
 
     return shortest_distance_to_end_from_index(grid, grid.start_index());
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t shortest_distance_from_lowest_to_end(Rng &&height_rows) {
     const auto grid = HeightGrid(std::forward<Rng>(height_rows));
 

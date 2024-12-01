@@ -90,8 +90,7 @@ struct PlayerChoice {
     }
 };
 
-template<ShapeDecoder auto Decoder, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<ShapeDecoder auto Decoder, advent::string_viewable_range Rng>
 constexpr std::size_t find_player_total_score(Rng &&strategies) {
     std::size_t total_score = 0;
 

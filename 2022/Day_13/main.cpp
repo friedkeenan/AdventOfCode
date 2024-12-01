@@ -173,8 +173,7 @@ struct Packet {
     constexpr bool operator ==(const Packet &) const = default;
 };
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t sum_correct_indices(Rng &&packet_representations) {
     std::size_t index_sum = 0;
 
@@ -213,8 +212,7 @@ constexpr inline auto Divider6 = Packet::Parse("[[6]]");
 
 static_assert(Divider2.correct_order(Divider6));
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t decoder_key(Rng &&packet_representations) {
 
     /* Indices are 1-indexed, and 'Divider6' goes after 'Divider2'. */

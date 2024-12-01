@@ -88,8 +88,7 @@ struct Map {
         return *static_cast<Derived *>(this);
     }
 
-    template<std::ranges::input_range Rng>
-    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    template<advent::string_viewable_range Rng>
     constexpr explicit Map(Rng &&rng) {
         static constexpr std::size_t NameLength = 3;
         static constexpr std::size_t LeftStart  = NameLength + 4;
@@ -227,8 +226,7 @@ struct GhostMap : Map<GhostMap, std::vector<std::size_t>> {
     }
 };
 
-template<typename Map, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<typename Map, advent::string_viewable_range Rng>
 constexpr std::size_t count_steps_until_end(Rng &&rng) {
     auto it = std::ranges::begin(rng);
 

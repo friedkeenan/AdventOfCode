@@ -73,8 +73,7 @@ struct ElfGroup {
     }
 };
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t illicit_item_type_priority_sum(Rng &&rucksacks) {
     std::size_t priority_sum = 0;
 
@@ -92,8 +91,7 @@ constexpr std::size_t illicit_item_type_priority_sum(Rng &&rucksacks) {
     return priority_sum;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t badge_item_type_priority_sum(Rng &&rucksacks) {
     std::size_t priority_sum = 0;
 

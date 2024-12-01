@@ -63,8 +63,7 @@ static_assert(find_next_element<true>("0 3 6 9 12 15")     == -3);
 static_assert(find_next_element<true>("1 3 6 10 15 21")    == 0);
 static_assert(find_next_element<true>("10 13 16 21 30 45") == 5);
 
-template<bool Behind, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<bool Behind, advent::string_viewable_range Rng>
 constexpr std::int64_t sum_next_elements(Rng &&rng) {
     std::int64_t sum = 0;
 

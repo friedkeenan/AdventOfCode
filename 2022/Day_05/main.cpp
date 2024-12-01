@@ -68,8 +68,7 @@ struct Crates {
         return (length + 1) / 4;
     }
 
-    template<std::input_iterator It>
-    requires (std::convertible_to<std::iter_reference_t<It>, std::string_view>)
+    template<advent::string_viewable_iterator It>
     static constexpr Crates ParseFromAndAdvanceIterator(It &it) {
         /* This variable is reused. */
         std::string_view row = *it;
@@ -127,8 +126,7 @@ struct Crates {
 template<typename Executer>
 concept InstructionExecuter = std::invocable<const Executer &, Crates &, const Crates::InstructionInfo &>;
 
-template<InstructionExecuter Executer, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<InstructionExecuter Executer, advent::string_viewable_range Rng>
 constexpr std::string top_crates_after_moving(const Executer executer, Rng &&crate_info) {
     auto it     = std::ranges::begin(crate_info);
     auto crates = Crates::ParseFromAndAdvanceIterator(it);

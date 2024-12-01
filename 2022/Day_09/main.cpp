@@ -109,8 +109,7 @@ struct Rope {
     }
 };
 
-template<std::size_t Length, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<std::size_t Length, advent::string_viewable_range Rng>
 constexpr std::size_t count_unique_end_positions(Rng &&motion_descriptions) {
     Rope<Length> rope;
 

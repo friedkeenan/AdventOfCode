@@ -32,8 +32,7 @@ struct Pipes {
 
     Pipe *start_ptr = nullptr;
 
-    template<std::ranges::input_range Rng>
-    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    template<advent::string_viewable_range Rng>
     constexpr explicit Pipes(Rng &&rng) {
         advent::vector_2d<std::size_t> start_coords = {};
 
@@ -297,8 +296,7 @@ struct Pipes {
     }
 };
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t steps_to_get_furthest_from_start(Rng &&rng) {
     const auto pipes = Pipes(std::forward<Rng>(rng));
 

@@ -32,8 +32,7 @@ struct TreeGrid {
 
     std::size_t _grid_width = 0;
 
-    template<std::ranges::input_range Rng>
-    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    template<advent::string_viewable_range Rng>
     constexpr explicit TreeGrid(Rng &&tree_rows) {
         const std::string_view first_row = *std::ranges::begin(tree_rows);
 
@@ -291,8 +290,7 @@ struct TreeGrid {
 
 static_assert(std::ranges::contiguous_range<TreeGrid> && std::ranges::sized_range<TreeGrid>);
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t num_visible_trees(Rng &&tree_rows) {
     auto trees = TreeGrid(std::forward<Rng>(tree_rows));
 
@@ -332,8 +330,7 @@ constexpr std::size_t num_visible_trees(Rng &&tree_rows) {
     return visible_trees;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t max_scenic_score(Rng &&tree_rows) {
     const auto trees = TreeGrid(std::forward<Rng>(tree_rows));
 

@@ -213,8 +213,7 @@ struct CPU {
     }
 };
 
-template<std::int64_t CycleStart, std::int64_t CycleStep, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<std::int64_t CycleStart, std::int64_t CycleStep, advent::string_viewable_range Rng>
 constexpr std::int64_t sum_signal_strengths(Rng &&asm_lines) {
     CPU cpu;
 
@@ -237,8 +236,7 @@ constexpr std::int64_t sum_signal_strengths(Rng &&asm_lines) {
     return signal_strength_sum;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::string render_display(Rng &&asm_lines) {
     /*
         NOTE: We return the rendered display, but part two

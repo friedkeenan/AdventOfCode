@@ -68,4 +68,11 @@ namespace advent {
         std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>
     );
 
+    template<typename Iter>
+    concept string_viewable_iterator = (
+        std::input_iterator<Iter> &&
+
+        std::convertible_to<std::iter_reference_t<Iter>, std::string_view>
+    );
+
 }

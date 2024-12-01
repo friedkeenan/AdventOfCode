@@ -40,8 +40,7 @@ concept SectionsChecker = requires(const Checker checker, const SectionInterval 
     { std::invoke(checker, sections, sections) } -> std::convertible_to<bool>;
 };
 
-template<SectionsChecker Checker, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<SectionsChecker Checker, advent::string_viewable_range Rng>
 constexpr std::size_t count_section_pairs_with_checker(const Checker checker, Rng &&pairs) {
     std::size_t num_passing_pairs = 0;
 

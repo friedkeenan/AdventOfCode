@@ -32,8 +32,7 @@ struct Map {
 
     std::vector<KeyRange> ranges;
 
-    template<std::input_iterator It>
-    requires (std::convertible_to<std::iter_reference_t<It>, std::string_view>)
+    template<advent::string_viewable_iterator It>
     static constexpr Map ParseAndAdvanceIterator(It &it) {
         /* We ignore the map's category line. */
         ++it;
@@ -81,8 +80,7 @@ struct Map {
 
 constexpr inline std::string_view SeedsPrefix = "seeds: ";
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t minimum_location_of_seeds(Rng &&rng) {
     auto it = std::ranges::begin(rng);
 
@@ -109,8 +107,7 @@ constexpr std::size_t minimum_location_of_seeds(Rng &&rng) {
     return std::ranges::min(sources);
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t minimum_location_of_seed_ranges(Rng &&rng) {
     auto it = std::ranges::begin(rng);
 

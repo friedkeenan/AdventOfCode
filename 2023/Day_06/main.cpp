@@ -41,8 +41,7 @@ static_assert(RaceInfo{71530, 940200}.num_ways_to_break_record() == 71503);
 constexpr inline std::string_view TimePrefix     = "Time:     ";
 constexpr inline std::string_view DistancePrefix = "Distance: ";
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::vector<RaceInfo> parse_separated_races(Rng &&rng) {
     std::vector<RaceInfo> races;
 
@@ -83,8 +82,7 @@ constexpr std::vector<RaceInfo> parse_separated_races(Rng &&rng) {
     return races;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t number_of_ways_to_beat_separated_races(Rng &&rng) {
     const auto races = parse_separated_races(std::forward<Rng>(rng));
 
@@ -97,8 +95,7 @@ constexpr std::size_t number_of_ways_to_beat_separated_races(Rng &&rng) {
     return num_ways;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr RaceInfo parse_single_race(Rng &&rng) {
     static constexpr auto is_digit_filter = std::views::filter([](char c) {
         return advent::is_digit(c, 10);
@@ -125,8 +122,7 @@ constexpr RaceInfo parse_single_race(Rng &&rng) {
     return RaceInfo{time, record_distance};
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t number_of_ways_to_beat_single_race(Rng &&rng) {
     const auto race = parse_single_race(std::forward<Rng>(rng));
 

@@ -337,8 +337,7 @@ struct Bet {
     }
 };
 
-template<HandBehavior Behavior, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<HandBehavior Behavior, advent::string_viewable_range Rng>
 constexpr std::size_t find_total_winnings(Rng &&rng) {
     std::vector<Bet<Behavior>> bets;
 

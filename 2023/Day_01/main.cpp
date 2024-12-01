@@ -29,8 +29,7 @@ constexpr std::size_t find_last_digit(std::string_view line, DigitMatcher auto &
     }
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t find_sum_of_calibration_values(Rng &&rng, DigitMatcher auto first_matcher, DigitMatcher auto last_matcher) {
     std::size_t sum = 0;
 

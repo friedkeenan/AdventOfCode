@@ -4,8 +4,7 @@ struct Engine {
     std::vector<char> _schematic;
     std::size_t       _width = 0;
 
-    template<std::ranges::input_range Rng>
-    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    template<advent::string_viewable_range Rng>
     constexpr explicit Engine(Rng &&rng) {
         for (const std::string_view line : std::forward<Rng>(rng)) {
             if (line.empty()) {
@@ -394,8 +393,7 @@ struct Engine {
     }
 };
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t sum_engine_part_numbers(Rng &&rng) {
     const auto engine = Engine(std::forward<Rng>(rng));
 
@@ -408,8 +406,7 @@ constexpr std::size_t sum_engine_part_numbers(Rng &&rng) {
     return sum;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t sum_gear_ratios(Rng &&rng) {
     const auto engine = Engine(std::forward<Rng>(rng));
 

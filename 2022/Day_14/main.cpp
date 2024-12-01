@@ -46,8 +46,7 @@ struct Cave {
     std::size_t _grid_width;
     std::vector<Tile> _grid;
 
-    template<std::ranges::input_range Rng>
-    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    template<advent::string_viewable_range Rng>
     constexpr explicit Cave(const bool has_floor, Rng &&rock_paths) {
         std::vector<Path> paths;
 
@@ -260,8 +259,7 @@ struct Cave {
     }
 };
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t num_resting_sand_units_no_floor(Rng &&rock_paths) {
     auto cave = Cave(false, std::forward<Rng>(rock_paths));
 
@@ -276,8 +274,7 @@ constexpr std::size_t num_resting_sand_units_no_floor(Rng &&rock_paths) {
     }
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t max_sand_units_with_floor(Rng &&rock_paths) {
     auto cave = Cave(true, std::forward<Rng>(rock_paths));
 

@@ -109,8 +109,7 @@ struct Game {
     }
 };
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t sum_possible_game_ids(Rng &&rng) {
     std::size_t sum = 0;
 
@@ -129,8 +128,7 @@ constexpr std::size_t sum_possible_game_ids(Rng &&rng) {
     return sum;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t sum_minimum_needed_set_powers(Rng &&rng) {
     std::size_t sum = 0;
 

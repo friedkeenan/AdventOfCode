@@ -63,8 +63,7 @@ struct WorryTest {
     std::size_t _success_index;
     std::size_t _failure_index;
 
-    template<std::input_iterator It>
-    requires (std::convertible_to<std::iter_reference_t<It>, std::string_view>)
+    template<advent::string_viewable_iterator It>
     static constexpr WorryTest ParseFromAndAdvanceIterator(It &it) {
         std::string_view line = *it;
         line.remove_prefix(DivisorPrefix.length());
@@ -103,8 +102,7 @@ struct Monkey {
     WorryIncreaser           _worry_increaser;
     WorryTest                _tester;
 
-    template<std::input_iterator It>
-    requires (std::convertible_to<std::iter_reference_t<It>, std::string_view>)
+    template<advent::string_viewable_iterator It>
     static constexpr Monkey ParseFromAndAdvanceIterator(It &it) {
         /* Advance past the "Monkey 0:" lines. */
         ++it;
@@ -174,8 +172,7 @@ struct MonkeyGroup {
     std::vector<Monkey> _monkeys;
     std::size_t lowest_common_divisor;
 
-    template<std::ranges::input_range Rng>
-    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+    template<advent::string_viewable_range Rng>
     constexpr MonkeyGroup(Rng &&monkeys) {
         auto it = std::ranges::begin(monkeys);
 
@@ -202,8 +199,7 @@ struct MonkeyGroup {
     }
 };
 
-template<std::size_t NumRounds, std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<std::size_t NumRounds, advent::string_viewable_range Rng>
 constexpr std::size_t find_monkey_business(const bool decrease_worry_for_boredom, Rng &&monkeys) {
     auto group = MonkeyGroup(std::forward<Rng>(monkeys));
 

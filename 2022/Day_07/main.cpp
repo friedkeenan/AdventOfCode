@@ -134,8 +134,7 @@ struct Terminal {
     }
 };
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t sum_of_directory_sizes_with_limit(const std::size_t limit, Rng &&terminal_lines) {
     Terminal terminal;
 
@@ -159,8 +158,7 @@ constexpr std::size_t sum_of_directory_sizes_with_limit(const std::size_t limit,
     return limited_size;
 }
 
-template<std::ranges::input_range Rng>
-requires (std::convertible_to<std::ranges::range_reference_t<Rng>, std::string_view>)
+template<advent::string_viewable_range Rng>
 constexpr std::size_t find_directory_to_delete(Rng &&terminal_lines) {
     Terminal terminal;
 
