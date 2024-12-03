@@ -447,6 +447,7 @@ namespace advent {
 
 namespace std::ranges {
 
+    /* Enable view. */
     template<typename T> requires (std::same_as<T, typename advent::grid<T>::mutable_row>)
     constexpr inline bool enable_view<T> = true;
 
@@ -458,5 +459,18 @@ namespace std::ranges {
 
     template<typename T> requires (std::same_as<T, typename advent::grid<T>::const_column>)
     constexpr inline bool enable_view<T> = true;
+
+    /* Enable borrowed range. */
+    template<typename T> requires (std::same_as<T, typename advent::grid<T>::mutable_row>)
+    constexpr inline bool enable_borrowed_range<T> = true;
+
+    template<typename T> requires (std::same_as<T, typename advent::grid<T>::const_row>)
+    constexpr inline bool enable_borrowed_range<T> = true;
+
+    template<typename T> requires (std::same_as<T, typename advent::grid<T>::mutable_column>)
+    constexpr inline bool enable_borrowed_range<T> = true;
+
+    template<typename T> requires (std::same_as<T, typename advent::grid<T>::const_column>)
+    constexpr inline bool enable_borrowed_range<T> = true;
 
 }
