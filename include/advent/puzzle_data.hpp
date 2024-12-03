@@ -33,10 +33,15 @@ namespace advent {
             return std::nullopt;
         }
 
-        /* String with adequate buffer size. */
-        std::string file_contents(file_size, '\0');
+        std::string file_contents;
+        bool read_succeeded;
+        file_contents.resize_and_overwrite(file_size, [&](char *data, const std::size_t size) {
+            read_succeeded = (std::fread(data, 1, size, fp) == size);
 
-        if (std::cmp_not_equal(std::fread(file_contents.data(), 1, file_size, fp), file_size)) {
+            return size;
+        });
+
+        if (!read_succeeded) {
             return std::nullopt;
         }
 
