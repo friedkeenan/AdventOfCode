@@ -19,25 +19,25 @@ constexpr std::size_t count_xmas_branches(const advent::grid<char> &grid, const 
     [[assume(*start == 'X')]];
 
     std::size_t total = 0;
-    for (const auto [direction, neighbor] : grid.neighbors_of(start)) {
+    for (const auto [position, neighbor] : grid.neighbors_of(start)) {
         if (*neighbor != 'M') {
             continue;
         }
 
-        if (!grid.has_neighbor(direction, neighbor)) {
+        if (!grid.has_neighbor(position, neighbor)) {
             continue;
         }
 
-        const auto possible_A = grid.neighbor(direction, neighbor);
+        const auto possible_A = grid.neighbor(position, neighbor);
         if (*possible_A != 'A') {
             continue;
         }
 
-        if (!grid.has_neighbor(direction, possible_A)) {
+        if (!grid.has_neighbor(position, possible_A)) {
             continue;
         }
 
-        const auto possible_S = grid.neighbor(direction, possible_A);
+        const auto possible_S = grid.neighbor(position, possible_A);
         if (*possible_S != 'S') {
             continue;
         }
@@ -83,102 +83,20 @@ constexpr bool is_mas_x(const advent::grid<char> &grid, const char *center) {
         return false;
     }
 
-    /* TODO: Make this less repetitive. */
-
-    if (*grid.above_left_neighbor(center) == 'M') {
-        if (*grid.below_right_neighbor(center) != 'S') {
-            return false;
-        }
-
-        if (*grid.above_right_neighbor(center) == 'M') {
-            if (*grid.below_left_neighbor(center) == 'S') {
-                return true;
+    for (const auto position : advent::neighbor_positions<advent::diagonal_neighbor>) {
+        if (*grid.neighbor(position, center) == 'M') {
+            if (*grid.neighbor(advent::opposite_neighbor(position), center) != 'S') {
+                return false;
             }
 
-            return false;
-        }
-
-        if (*grid.below_left_neighbor(center) == 'M') {
-            if (*grid.above_right_neighbor(center) == 'S') {
-                return true;
+            if (*grid.neighbor(advent::row_opposite_neighbor(position), center) == 'M') {
+                return *grid.neighbor(advent::column_opposite_neighbor(position), center) == 'S';
             }
 
-            return false;
-        }
-
-        return false;
-    }
-
-    if (*grid.above_right_neighbor(center) == 'M') {
-        if (*grid.below_left_neighbor(center) != 'S') {
-            return false;
-        }
-
-        if (*grid.above_left_neighbor(center) == 'M') {
-            if (*grid.below_right_neighbor(center) == 'S') {
-                return true;
+            if (*grid.neighbor(advent::column_opposite_neighbor(position), center) == 'M') {
+                return *grid.neighbor(advent::row_opposite_neighbor(position), center) == 'S';
             }
-
-            return false;
         }
-
-        if (*grid.below_right_neighbor(center) == 'M') {
-            if (*grid.above_left_neighbor(center) == 'S') {
-                return true;
-            }
-
-            return false;
-        }
-
-        return false;
-    }
-
-    if (*grid.below_left_neighbor(center) == 'M') {
-        if (*grid.above_right_neighbor(center) != 'S') {
-            return false;
-        }
-
-        if (*grid.below_right_neighbor(center) == 'M') {
-            if (*grid.above_left_neighbor(center) == 'S') {
-                return true;
-            }
-
-            return false;
-        }
-
-        if (*grid.above_left_neighbor(center) == 'M') {
-            if (*grid.below_right_neighbor(center) == 'S') {
-                return true;
-            }
-
-            return false;
-        }
-
-        return false;
-    }
-
-    if (*grid.below_right_neighbor(center) == 'M') {
-        if (*grid.above_left_neighbor(center) != 'S') {
-            return false;
-        }
-
-        if (*grid.below_left_neighbor(center) == 'M') {
-            if (*grid.above_right_neighbor(center) == 'S') {
-                return true;
-            }
-
-            return false;
-        }
-
-        if (*grid.above_right_neighbor(center) == 'M') {
-            if (*grid.below_left_neighbor(center) == 'S') {
-                return true;
-            }
-
-            return false;
-        }
-
-        return false;
     }
 
     return false;

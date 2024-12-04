@@ -23,7 +23,25 @@ namespace advent {
         below = std::to_underlying(advent::neighbor::below),
     };
 
+    enum class diagonal_neighbor : std::uint8_t {
+        above_left  = std::to_underlying(advent::neighbor::above_left),
+        above_right = std::to_underlying(advent::neighbor::above_right),
+        below_left  = std::to_underlying(advent::neighbor::below_left),
+        below_right = std::to_underlying(advent::neighbor::below_right),
+    };
+
+    template<typename T>
+    concept neighbor_enum = (
+        std::same_as<T, advent::neighbor>          ||
+        std::same_as<T, advent::adjacent_neighbor> ||
+        std::same_as<T, advent::diagonal_neighbor>
+    );
+
     constexpr bool operator ==(const advent::neighbor lhs, const advent::adjacent_neighbor rhs) noexcept {
+        return std::to_underlying(lhs) == std::to_underlying(rhs);
+    }
+
+    constexpr bool operator ==(const advent::neighbor lhs, const advent::diagonal_neighbor rhs) noexcept {
         return std::to_underlying(lhs) == std::to_underlying(rhs);
     }
 
@@ -32,19 +50,174 @@ namespace advent {
     static_assert(advent::neighbor::right == advent::adjacent_neighbor::right);
     static_assert(advent::neighbor::below == advent::adjacent_neighbor::below);
 
-    static_assert(advent::adjacent_neighbor::above == advent::neighbor::above);
-    static_assert(advent::adjacent_neighbor::left  == advent::neighbor::left);
-    static_assert(advent::adjacent_neighbor::right == advent::neighbor::right);
-    static_assert(advent::adjacent_neighbor::below == advent::neighbor::below);
+    static_assert(advent::neighbor::above_left  == advent::diagonal_neighbor::above_left);
+    static_assert(advent::neighbor::above_right == advent::diagonal_neighbor::above_right);
+    static_assert(advent::neighbor::below_left  == advent::diagonal_neighbor::below_left);
+    static_assert(advent::neighbor::below_right == advent::diagonal_neighbor::below_right);
 
-    template<typename T>
-    concept neighbor_enum = std::same_as<T, advent::neighbor> || std::same_as<T, advent::adjacent_neighbor>;
+    template<advent::neighbor_enum Position>
+    constexpr inline auto neighbor_positions = std::array{
+        advent::neighbor::above_left,
+        advent::neighbor::above,
+        advent::neighbor::above_right,
+        advent::neighbor::left,
+        advent::neighbor::right,
+        advent::neighbor::below_left,
+        advent::neighbor::below,
+        advent::neighbor::below_right
+    };
+
+    template<>
+    constexpr inline auto neighbor_positions<advent::adjacent_neighbor> = std::array{
+        advent::adjacent_neighbor::above,
+        advent::adjacent_neighbor::left,
+        advent::adjacent_neighbor::right,
+        advent::adjacent_neighbor::below
+    };
+
+    template<>
+    constexpr inline auto neighbor_positions<advent::diagonal_neighbor> = std::array{
+        advent::diagonal_neighbor::above_left,
+        advent::diagonal_neighbor::above_right,
+        advent::diagonal_neighbor::below_left,
+        advent::diagonal_neighbor::below_right
+    };
+
+    constexpr advent::diagonal_neighbor opposite_neighbor(const advent::diagonal_neighbor position) {
+        switch (position) {
+            using enum advent::diagonal_neighbor;
+
+            case above_left:  return below_right;
+            case above_right: return below_left;
+            case below_left:  return above_right;
+            case below_right: return above_left;
+
+            default: std::unreachable();
+        }
+    }
+
+    constexpr advent::diagonal_neighbor column_opposite_neighbor(const advent::diagonal_neighbor position) {
+        switch (position) {
+            using enum advent::diagonal_neighbor;
+
+            case above_left:  return below_left;
+            case above_right: return below_right;
+            case below_left:  return above_left;
+            case below_right: return above_right;
+
+            default: std::unreachable();
+        }
+    }
+
+    constexpr advent::diagonal_neighbor row_opposite_neighbor(const advent::diagonal_neighbor position) {
+        switch (position) {
+            using enum advent::diagonal_neighbor;
+
+            case above_left:  return above_right;
+            case above_right: return above_left;
+            case below_left:  return below_right;
+            case below_right: return below_left;
+
+            default: std::unreachable();
+        }
+    }
 
     /* Forward declaration. */
     template<typename T>
     struct grid;
 
     namespace impl {
+        template<typename T>
+        constexpr bool has_neighbor(const advent::grid<T> &grid, advent::neighbor position, const T *elem) {
+            switch (position) {
+                using enum advent::neighbor;
+
+                case above_left:  return grid.has_above_left_neighbor(elem);
+                case above:       return grid.has_above_neighbor(elem);
+                case above_right: return grid.has_above_right_neighbor(elem);
+                case left:        return grid.has_left_neighbor(elem);
+                case right:       return grid.has_right_neighbor(elem);
+                case below_left:  return grid.has_below_left_neighbor(elem);
+                case below:       return grid.has_below_neighbor(elem);
+                case below_right: return grid.has_below_right_neighbor(elem);
+
+                default: std::unreachable();
+            }
+        }
+
+        template<typename T>
+        constexpr bool has_neighbor(const advent::grid<T> &grid, advent::adjacent_neighbor position, const T *elem) {
+            switch (position) {
+                using enum advent::adjacent_neighbor;
+
+                case above: return grid.has_above_neighbor(elem);
+                case left:  return grid.has_left_neighbor(elem);
+                case right: return grid.has_right_neighbor(elem);
+                case below: return grid.has_below_neighbor(elem);
+
+                default: std::unreachable();
+            }
+        }
+
+        template<typename T>
+        constexpr bool has_neighbor(const advent::grid<T> &grid, advent::diagonal_neighbor position, const T *elem) {
+            switch (position) {
+                using enum advent::diagonal_neighbor;
+
+                case above_left:  return grid.has_above_left_neighbor(elem);
+                case above_right: return grid.has_above_right_neighbor(elem);
+                case below_left:  return grid.has_below_left_neighbor(elem);
+                case below_right: return grid.has_below_right_neighbor(elem);
+
+                default: std::unreachable();
+            }
+        }
+
+        template<typename T>
+        constexpr auto neighbor_of(auto &grid, advent::neighbor position, const T *elem) {
+            switch (position) {
+                using enum advent::neighbor;
+
+                case above_left:  return grid.above_left_neighbor(elem);
+                case above:       return grid.above_neighbor(elem);
+                case above_right: return grid.above_right_neighbor(elem);
+                case left:        return grid.left_neighbor(elem);
+                case right:       return grid.right_neighbor(elem);
+                case below_left:  return grid.below_left_neighbor(elem);
+                case below:       return grid.below_neighbor(elem);
+                case below_right: return grid.below_right_neighbor(elem);
+
+                default: std::unreachable();
+            }
+        }
+
+        template<typename T>
+        constexpr auto neighbor_of(auto &grid, advent::adjacent_neighbor position, const T *elem) {
+            switch (position) {
+                using enum advent::adjacent_neighbor;
+
+                case above: return grid.above_neighbor(elem);
+                case left:  return grid.left_neighbor(elem);
+                case right: return grid.right_neighbor(elem);
+                case below: return grid.below_neighbor(elem);
+
+                default: std::unreachable();
+            }
+        }
+
+        template<typename T>
+        constexpr auto neighbor_of(auto &grid, advent::diagonal_neighbor position, const T *elem) {
+            switch (position) {
+                using enum advent::diagonal_neighbor;
+
+                case above_left:  return grid.above_left_neighbor(elem);
+                case above_right: return grid.above_right_neighbor(elem);
+                case below_left:  return grid.below_left_neighbor(elem);
+                case below_right: return grid.below_right_neighbor(elem);
+
+                default: std::unreachable();
+            }
+        }
 
         template<bool IsConst, typename T>
         struct grid_row_view {
@@ -263,31 +436,11 @@ namespace advent {
             }
         };
 
-        template<bool IsConst, advent::neighbor_enum Direction, typename T>
+        template<bool IsConst, advent::neighbor_enum Position, typename T>
         struct grid_neighbors_view {
             using _grid_type = std::conditional_t<IsConst, const advent::grid<T>, advent::grid<T>>;
 
-            static constexpr auto _neighbor_ordering = []() {
-                if constexpr (std::same_as<Direction, advent::adjacent_neighbor>) {
-                    return std::array{
-                        advent::adjacent_neighbor::above,
-                        advent::adjacent_neighbor::left,
-                        advent::adjacent_neighbor::right,
-                        advent::adjacent_neighbor::below
-                    };
-                } else {
-                    return std::array{
-                        advent::neighbor::above_left,
-                        advent::neighbor::above,
-                        advent::neighbor::above_right,
-                        advent::neighbor::left,
-                        advent::neighbor::right,
-                        advent::neighbor::below_left,
-                        advent::neighbor::below,
-                        advent::neighbor::below_right
-                    };
-                }
-            }();
+            static constexpr auto &_neighbor_positions = advent::neighbor_positions<Position>;
 
             struct iterator {
                 /*
@@ -299,7 +452,7 @@ namespace advent {
                 */
 
                 using iterator_concept = std::bidirectional_iterator_tag;
-                using value_type       = std::pair<Direction, const T *>;
+                using value_type       = std::pair<Position, const T *>;
                 using reference        = value_type;
                 using difference_type  = std::ptrdiff_t;
 
@@ -309,22 +462,22 @@ namespace advent {
                 std::size_t _neighbor_index;
 
                 constexpr reference operator *(this const iterator &self) {
-                    const auto direction = _neighbor_ordering[self._neighbor_index];
+                    const auto position = _neighbor_positions[self._neighbor_index];
 
-                    return {direction, self._grid->neighbor(direction, self._center)};
+                    return {position, self._grid->neighbor(position, self._center)};
                 }
 
                 constexpr bool _is_one_past_end(this const iterator &self) {
-                    return self._neighbor_index >= _neighbor_ordering.size();
+                    return self._neighbor_index >= _neighbor_positions.size();
                 }
 
                 constexpr iterator &operator ++(this iterator &self) {
                     [[assume(!self._is_one_past_end())]];
 
-                    for (const auto i : std::views::iota(self._neighbor_index + 1, _neighbor_ordering.size())) {
-                        const auto direction = _neighbor_ordering[i];
+                    for (const auto i : std::views::iota(self._neighbor_index + 1, _neighbor_positions.size())) {
+                        const auto position = _neighbor_positions[i];
 
-                        if (self._grid->has_neighbor(direction, self._center)) {
+                        if (self._grid->has_neighbor(position, self._center)) {
                             self._neighbor_index = i;
 
                             return self;
@@ -333,7 +486,7 @@ namespace advent {
 
                     /* No further neighbors. */
 
-                    self._neighbor_index = _neighbor_ordering.size();
+                    self._neighbor_index = _neighbor_positions.size();
 
                     return self;
                 }
@@ -348,9 +501,9 @@ namespace advent {
                     }
 
                     for (const auto i : std::views::iota(0uz, self._neighbor_index) | std::views::reverse) {
-                        const auto direction = _neighbor_ordering[i];
+                        const auto position = _neighbor_positions[i];
 
-                        if (self._grid->has_neighbor(direction, self._center)) {
+                        if (self._grid->has_neighbor(position, self._center)) {
                             self._neighbor_index = i;
 
                             return self;
@@ -382,10 +535,10 @@ namespace advent {
             std::size_t _begin_neighbor_index;
 
             constexpr grid_neighbors_view(_grid_type *grid, const T *center) : _grid(grid), _center(center) {
-                for (const auto i : std::views::iota(0uz, _neighbor_ordering.size())) {
-                    const auto direction = _neighbor_ordering[i];
+                for (const auto i : std::views::iota(0uz, _neighbor_positions.size())) {
+                    const auto position = _neighbor_positions[i];
 
-                    if (grid->has_neighbor(direction, center)) {
+                    if (grid->has_neighbor(position, center)) {
                         this->_begin_neighbor_index = i;
 
                         return;
@@ -394,7 +547,7 @@ namespace advent {
 
                 /* No neighbors. */
 
-                this->_begin_neighbor_index = _neighbor_ordering.size();
+                this->_begin_neighbor_index = _neighbor_positions.size();
             }
 
             constexpr iterator begin(this const grid_neighbors_view &self) {
@@ -440,14 +593,20 @@ namespace advent {
         using mutable_adjacent_neighbors = impl::grid_neighbors_view<false, advent::adjacent_neighbor, T>;
         using const_adjacent_neighbors   = impl::grid_neighbors_view<true,  advent::adjacent_neighbor, T>;
 
+        using mutable_diagonal_neighbors = impl::grid_neighbors_view<false, advent::diagonal_neighbor, T>;
+        using const_diagonal_neighbors   = impl::grid_neighbors_view<true,  advent::diagonal_neighbor, T>;
+
         static_assert(std::ranges::bidirectional_range<mutable_neighbors>);
         static_assert(std::ranges::bidirectional_range<const_neighbors>);
 
         static_assert(std::ranges::bidirectional_range<mutable_adjacent_neighbors>);
         static_assert(std::ranges::bidirectional_range<const_adjacent_neighbors>);
 
-        template<typename Self, advent::neighbor_enum Direction>
-        using _neighbors_view_for_type = impl::grid_neighbors_view<std::is_const_v<std::remove_reference_t<Self>>, Direction, T>;
+        static_assert(std::ranges::bidirectional_range<mutable_diagonal_neighbors>);
+        static_assert(std::ranges::bidirectional_range<const_diagonal_neighbors>);
+
+        template<typename Self, advent::neighbor_enum Position>
+        using _neighbors_view_for_type = impl::grid_neighbors_view<std::is_const_v<std::remove_reference_t<Self>>, Position, T>;
 
         struct builder {
             ADVENT_NON_COPYABLE(builder);
@@ -649,68 +808,16 @@ namespace advent {
             return self._forward_const(elem + self.width() + 1);
         }
 
-        template<advent::neighbor_enum Direction>
-        constexpr bool has_neighbor(this const grid &self, const Direction direction, const T *elem) {
-            if constexpr (std::same_as<Direction, advent::adjacent_neighbor>) {
-                switch (direction) {
-                    using enum advent::adjacent_neighbor;
-
-                    case above: return self.has_above_neighbor(elem);
-                    case left:  return self.has_left_neighbor(elem);
-                    case right: return self.has_right_neighbor(elem);
-                    case below: return self.has_below_neighbor(elem);
-
-                    default: std::unreachable();
-                }
-            } else {
-                switch (direction) {
-                    using enum advent::neighbor;
-
-                    case above_left:  return self.has_above_left_neighbor(elem);
-                    case above:       return self.has_above_neighbor(elem);
-                    case above_right: return self.has_above_right_neighbor(elem);
-                    case left:        return self.has_left_neighbor(elem);
-                    case right:       return self.has_right_neighbor(elem);
-                    case below_left:  return self.has_below_left_neighbor(elem);
-                    case below:       return self.has_below_neighbor(elem);
-                    case below_right: return self.has_below_right_neighbor(elem);
-
-                    default: std::unreachable();
-                }
-            }
+        template<advent::neighbor_enum Position>
+        constexpr bool has_neighbor(this const grid &self, const Position position, const T *elem) {
+            return impl::has_neighbor(self, position, elem);
         }
 
-        template<advent::neighbor_enum Direction>
-        constexpr auto neighbor(this auto &self, const Direction direction, const T *elem) {
-            [[assume(self.has_neighbor(direction, elem))]];
+        template<advent::neighbor_enum Position>
+        constexpr auto neighbor(this auto &self, const Position position, const T *elem) {
+            [[assume(self.has_neighbor(position, elem))]];
 
-            if constexpr (std::same_as<Direction, advent::adjacent_neighbor>) {
-                switch (direction) {
-                    using enum advent::adjacent_neighbor;
-
-                    case above: return self.above_neighbor(elem);
-                    case left:  return self.left_neighbor(elem);
-                    case right: return self.right_neighbor(elem);
-                    case below: return self.below_neighbor(elem);
-
-                    default: std::unreachable();
-                }
-            } else {
-                switch (direction) {
-                    using enum advent::neighbor;
-
-                    case above_left:  return self.above_left_neighbor(elem);
-                    case above:       return self.above_neighbor(elem);
-                    case above_right: return self.above_right_neighbor(elem);
-                    case left:        return self.left_neighbor(elem);
-                    case right:       return self.right_neighbor(elem);
-                    case below_left:  return self.below_left_neighbor(elem);
-                    case below:       return self.below_neighbor(elem);
-                    case below_right: return self.below_right_neighbor(elem);
-
-                    default: std::unreachable();
-                }
-            }
+            return impl::neighbor_of(self, position, elem);
         }
 
         constexpr auto neighbors_of(this auto &self, const T *elem) {
@@ -818,8 +925,8 @@ namespace std::ranges {
     template<bool IsConst, typename T>
     constexpr inline bool enable_view<advent::impl::grid_column_view<IsConst, T>> = true;
 
-    template<bool IsConst, typename Direction, typename T>
-    constexpr inline bool enable_view<advent::impl::grid_neighbors_view<IsConst, Direction, T>> = true;
+    template<bool IsConst, typename Position, typename T>
+    constexpr inline bool enable_view<advent::impl::grid_neighbors_view<IsConst, Position, T>> = true;
 
     /* Enable borrowed range. */
     template<bool IsConst, typename T>
@@ -828,7 +935,7 @@ namespace std::ranges {
     template<bool IsConst, typename T>
     constexpr inline bool enable_borrowed_range<advent::impl::grid_column_view<IsConst, T>> = true;
 
-    template<bool IsConst, typename Direction, typename T>
-    constexpr inline bool enable_borrowed_range<advent::impl::grid_neighbors_view<IsConst, Direction, T>> = true;
+    template<bool IsConst, typename Position, typename T>
+    constexpr inline bool enable_borrowed_range<advent::impl::grid_neighbors_view<IsConst, Position, T>> = true;
 
 }
