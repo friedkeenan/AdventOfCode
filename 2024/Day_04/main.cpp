@@ -1,21 +1,6 @@
 #include <advent/advent.hpp>
 
-template<advent::string_viewable_range Rng>
-constexpr advent::grid<char> parse_grid(Rng &&rng) {
-    return advent::grid<char>::build([&](auto &builder) {
-        for (const std::string_view line : std::forward<Rng>(rng)) {
-            if (line.empty()) {
-                continue;
-            }
-
-            builder.push_row(line.size(), [&](const auto row) {
-                std::ranges::copy(line, row.begin());
-            });
-        }
-    });
-}
-
-constexpr std::size_t count_xmas_branches(const advent::grid<char> &grid, const char *start) {
+constexpr std::size_t count_xmas_branches(const advent::string_view_grid &grid, const char *start) {
     [[assume(*start == 'X')]];
 
     std::size_t total = 0;
@@ -48,9 +33,8 @@ constexpr std::size_t count_xmas_branches(const advent::grid<char> &grid, const 
     return total;
 }
 
-template<advent::string_viewable_range Rng>
-constexpr std::size_t count_xmas_occurrences(Rng &&rng) {
-    const auto grid = parse_grid(std::forward<Rng>(rng));
+constexpr std::size_t count_xmas_occurrences(const std::string_view data) {
+    const auto grid = advent::string_view_grid(data);
 
     std::size_t num_occurrences = 0;
     for (const auto &elem : grid.elements()) {
@@ -64,7 +48,7 @@ constexpr std::size_t count_xmas_occurrences(Rng &&rng) {
     return num_occurrences;
 }
 
-constexpr bool is_mas_x(const advent::grid<char> &grid, const char *center) {
+constexpr bool is_mas_x(const advent::string_view_grid &grid, const char *center) {
     [[assume(*center == 'A')]];
 
     if (!grid.has_above_left_neighbor(center)) {
@@ -102,9 +86,8 @@ constexpr bool is_mas_x(const advent::grid<char> &grid, const char *center) {
     return false;
 }
 
-template<advent::string_viewable_range Rng>
-constexpr std::size_t count_mas_x_occurrences(Rng &&rng) {
-    const auto grid = parse_grid(std::forward<Rng>(rng));
+constexpr std::size_t count_mas_x_occurrences(const std::string_view data) {
+    const auto grid = advent::string_view_grid(data);
 
     /* NOTE: We *could* just skip the grid edges, but meh. */
 
@@ -122,14 +105,6 @@ constexpr std::size_t count_mas_x_occurrences(Rng &&rng) {
     return num_occurrences;
 }
 
-constexpr std::size_t count_xmas_occurrences_from_string_data(const std::string_view data) {
-    return count_xmas_occurrences(data | advent::views::split_lines);
-}
-
-constexpr std::size_t count_mas_x_occurrences_from_string_data(const std::string_view data) {
-    return count_mas_x_occurrences(data | advent::views::split_lines);
-}
-
 constexpr inline std::string_view example_data = (
     "MMMSXXMASM\n"
     "MSAMXMSMSA\n"
@@ -143,14 +118,14 @@ constexpr inline std::string_view example_data = (
     "MXMXAXMASX\n"
 );
 
-static_assert(count_xmas_occurrences_from_string_data(example_data) == 18);
-static_assert(count_mas_x_occurrences_from_string_data(example_data) == 9);
+static_assert(count_xmas_occurrences(example_data) == 18);
+static_assert(count_mas_x_occurrences(example_data) == 9);
 
 int main(int argc, char **argv) {
     return advent::solve_puzzles(
         argc, argv,
 
-        count_xmas_occurrences_from_string_data,
-        count_mas_x_occurrences_from_string_data
+        count_xmas_occurrences,
+        count_mas_x_occurrences
     );
 }

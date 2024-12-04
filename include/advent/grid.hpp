@@ -122,13 +122,9 @@ namespace advent {
         }
     }
 
-    /* Forward declaration. */
-    template<typename T>
-    struct grid;
-
     namespace impl {
-        template<typename T>
-        constexpr bool has_neighbor(const advent::grid<T> &grid, advent::neighbor position, const T *elem) {
+
+        constexpr bool has_neighbor(const auto &grid, advent::neighbor position, const auto *elem) {
             switch (position) {
                 using enum advent::neighbor;
 
@@ -145,8 +141,7 @@ namespace advent {
             }
         }
 
-        template<typename T>
-        constexpr bool has_neighbor(const advent::grid<T> &grid, advent::adjacent_neighbor position, const T *elem) {
+        constexpr bool has_neighbor(const auto &grid, advent::adjacent_neighbor position, const auto *elem) {
             switch (position) {
                 using enum advent::adjacent_neighbor;
 
@@ -159,8 +154,7 @@ namespace advent {
             }
         }
 
-        template<typename T>
-        constexpr bool has_neighbor(const advent::grid<T> &grid, advent::diagonal_neighbor position, const T *elem) {
+        constexpr bool has_neighbor(const auto &grid, advent::diagonal_neighbor position, const auto *elem) {
             switch (position) {
                 using enum advent::diagonal_neighbor;
 
@@ -173,8 +167,7 @@ namespace advent {
             }
         }
 
-        template<typename T>
-        constexpr auto neighbor_of(auto &grid, advent::neighbor position, const T *elem) {
+        constexpr auto neighbor_of(auto &grid, advent::neighbor position, const auto *elem) {
             switch (position) {
                 using enum advent::neighbor;
 
@@ -191,8 +184,7 @@ namespace advent {
             }
         }
 
-        template<typename T>
-        constexpr auto neighbor_of(auto &grid, advent::adjacent_neighbor position, const T *elem) {
+        constexpr auto neighbor_of(auto &grid, advent::adjacent_neighbor position, const auto *elem) {
             switch (position) {
                 using enum advent::adjacent_neighbor;
 
@@ -205,8 +197,7 @@ namespace advent {
             }
         }
 
-        template<typename T>
-        constexpr auto neighbor_of(auto &grid, advent::diagonal_neighbor position, const T *elem) {
+        constexpr auto neighbor_of(auto &grid, advent::diagonal_neighbor position, const auto *elem) {
             switch (position) {
                 using enum advent::diagonal_neighbor;
 
@@ -219,11 +210,9 @@ namespace advent {
             }
         }
 
-        template<bool IsConst, typename T>
+        template<typename T>
         struct grid_row_view {
-            using element_type = std::conditional_t<IsConst, const T, T>;
-
-            std::span<element_type> _elems;
+            std::span<T> _elems;
 
             constexpr auto data(this const grid_row_view &self) {
                 return self._elems.data();
@@ -256,11 +245,11 @@ namespace advent {
             }
         };
 
-        template<bool IsConst, typename T>
+        template<typename T>
         struct grid_column_view {
             /* NOTE: This is essentially a 'std::ranges::stride_view'. */
 
-            using element_type = std::conditional_t<IsConst, const T, T>;
+            using element_type = T;
             using pointer      = element_type *;
             using reference    = element_type &;
 
@@ -272,7 +261,7 @@ namespace advent {
                 pointer _current = nullptr;
                 pointer _last    = nullptr;
 
-                std::size_t _grid_width = 0;
+                std::size_t _vertical_step = 0;
 
                 constexpr bool _is_one_past_end(this const iterator &self) {
                     return self._current > self._last;
@@ -287,7 +276,7 @@ namespace advent {
 
                         ++self._current;
                     } else {
-                        self._current += self._grid_width;
+                        self._current += self._vertical_step;
                     }
 
                     return self;
@@ -299,7 +288,7 @@ namespace advent {
                     if (self._is_one_past_end()) {
                         --self._current;
                     } else {
-                        self._current -= self._grid_width;
+                        self._current -= self._vertical_step;
                     }
 
                     return self;
@@ -319,14 +308,14 @@ namespace advent {
 
                 constexpr reference operator [](this const iterator &self, const difference_type index) {
                     [[assume(!self._is_one_past_end())]];
-                    [[assume(self._current + (index * self._grid_width) <= self._last)]];
+                    [[assume(self._current + (index * self._vertical_step) <= self._last)]];
 
-                    return self._current[index * self._grid_width];
+                    return self._current[index * self._vertical_step];
                 }
 
                 friend constexpr auto operator <=>(const iterator &lhs, const iterator &rhs) {
                     [[assume(lhs._last       == rhs._last)]];
-                    [[assume(lhs._grid_width == rhs._grid_width)]];
+                    [[assume(lhs._vertical_step == rhs._vertical_step)]];
 
                     return lhs._current <=> rhs._current;
                 }
@@ -337,20 +326,20 @@ namespace advent {
 
                 friend constexpr difference_type operator -(const iterator &lhs, const iterator &rhs) {
                     [[assume(lhs._last       == rhs._last)]];
-                    [[assume(lhs._grid_width == rhs._grid_width)]];
+                    [[assume(lhs._vertical_step == rhs._vertical_step)]];
 
                     /* NOTE: The rounding here is helpful to our edge cases. */
-                    const auto divided_difference = (lhs._current - rhs._current) / lhs._grid_width;
+                    const auto raw_steps_between = (lhs._current - rhs._current) / lhs._vertical_step;
 
                     if (lhs._is_one_past_end() && !rhs._is_one_past_end()) {
-                        return 1 + divided_difference;
+                        return 1 + raw_steps_between;
                     }
 
                     if (!lhs._is_one_past_end() && rhs._is_one_past_end()) {
-                        return -1 + divided_difference;
+                        return -1 + raw_steps_between;
                     }
 
-                    return divided_difference;
+                    return raw_steps_between;
                 }
 
                 constexpr iterator &operator +=(this iterator &self, difference_type difference) {
@@ -360,14 +349,14 @@ namespace advent {
                             ++difference;
                         }
 
-                        self._current += difference * self._grid_width;
+                        self._current += difference * self._vertical_step;
                     } else {
-                        if (std::cmp_less((self._last - self._current) / self._grid_width, difference)) {
+                        if (std::cmp_less((self._last - self._current) / self._vertical_step, difference)) {
                             /* If the addition would go past the pointer bounds. */
 
                             self._current = self._last + 1;
                         } else {
-                            self._current += difference * self._grid_width;
+                            self._current += difference * self._vertical_step;
                         }
                     }
 
@@ -407,16 +396,16 @@ namespace advent {
 
             pointer _first;
             pointer _last;
-            std::size_t _grid_width;
+            std::size_t _vertical_step;
 
             constexpr reference operator [](this const grid_column_view &self, const std::size_t index) {
-                [[assume(self._first + (index * self._grid_width) <= self._last)]];
+                [[assume(self._first + (index * self._vertical_step) <= self._last)]];
 
-                return self._first[index * self._grid_width];
+                return self._first[index * self._vertical_step];
             }
 
             constexpr iterator begin(this const grid_column_view &self) {
-                return iterator{self._first, self._last, self._grid_width};
+                return iterator{self._first, self._last, self._vertical_step};
             }
 
             constexpr std::default_sentinel_t end(this const grid_column_view &) {
@@ -424,7 +413,7 @@ namespace advent {
             }
 
             constexpr std::size_t size(this const grid_column_view &self) {
-                return (self._last - self._first) / self._grid_width + 1;
+                return (self._last - self._first) / self._vertical_step + 1;
             }
 
             constexpr reference front(this const grid_column_view &self) {
@@ -436,11 +425,11 @@ namespace advent {
             }
         };
 
-        template<bool IsConst, advent::neighbor_enum Position, typename T>
+        template<typename Grid, advent::neighbor_enum Position>
         struct grid_neighbors_view {
-            using _grid_type = std::conditional_t<IsConst, const advent::grid<T>, advent::grid<T>>;
-
             static constexpr auto &_neighbor_positions = advent::neighbor_positions<Position>;
+
+            using _grid_element = std::remove_reference_t<decltype(std::declval<Grid &>()._storage[0])>;
 
             struct iterator {
                 /*
@@ -448,16 +437,16 @@ namespace advent {
                     If we wanted to more directly convey that we skipped
                     a possible neighbor, we could instead yield optionals
                     or similar, but at that point I feel we could just
-                    pre-check everything and return an array-ish things.
+                    pre-check everything and return an array-ish thing.
                 */
 
                 using iterator_concept = std::bidirectional_iterator_tag;
-                using value_type       = std::pair<Position, const T *>;
+                using value_type       = std::pair<Position, _grid_element *>;
                 using reference        = value_type;
                 using difference_type  = std::ptrdiff_t;
 
-                _grid_type *_grid;
-                const T    *_center;
+                Grid *_grid;
+                const _grid_element *_center;
 
                 std::size_t _neighbor_index;
 
@@ -529,12 +518,12 @@ namespace advent {
                 }
             };
 
-            _grid_type *_grid;
-            const T    *_center;
+            Grid *_grid;
+            const _grid_element *_center;
 
             std::size_t _begin_neighbor_index;
 
-            constexpr grid_neighbors_view(_grid_type *grid, const T *center) : _grid(grid), _center(center) {
+            constexpr grid_neighbors_view(Grid *grid, const _grid_element *center) : _grid(grid), _center(center) {
                 for (const auto i : std::views::iota(0uz, _neighbor_positions.size())) {
                     const auto position = _neighbor_positions[i];
 
@@ -559,55 +548,263 @@ namespace advent {
             }
         };
 
+        template<typename T>
+        struct grid {
+            /* CRTP base for our grid implementations. */
+
+            constexpr std::size_t height(this const auto &self) {
+                [[assume(self._storage.size() % self._vertical_step() == 0)]];
+
+                return self._storage.size() / self._vertical_step();
+            }
+
+            constexpr std::size_t _to_raw_index(this const auto &self, const std::size_t column_index, const std::size_t row_index) {
+                [[assume(column_index < self.height())]];
+                [[assume(row_index    < self.width())]];
+
+                return row_index * self._vertical_step() + column_index;
+            }
+
+            constexpr advent::vector_2d<std::size_t> _from_raw_index(this const auto &self, const std::size_t raw_index) {
+                [[assume(raw_index < self._storage.size())]];
+
+                return {raw_index % self._vertical_step(), raw_index / self._vertical_step()};
+            }
+
+            constexpr std::size_t _raw_index_of(this const auto &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return static_cast<std::size_t>(elem - self._storage.data());
+            }
+
+            constexpr bool _contains(this const auto &self, const T *elem) {
+                return elem >= self._storage.data() && elem < self._storage.data() + self._storage.size();
+            }
+
+            constexpr advent::vector_2d<std::size_t> coords_of(this const auto &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return self._from_raw_index(self._raw_index_of(elem));
+            }
+
+            constexpr auto _forward_const(this auto &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                using element_type = std::remove_reference_t<decltype(self._storage[0])>;
+
+                /* NOTE: This only casts to whatever the real const-ness is. */
+                return const_cast<element_type *>(elem);
+            }
+
+            constexpr bool has_above_neighbor(this const auto &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return self._raw_index_of(elem) >= self._vertical_step();
+            }
+
+            constexpr auto above_neighbor(this auto &self, const T *elem) {
+                [[assume(self.has_above_neighbor(elem))]];
+
+                return self._forward_const(elem - self._vertical_step());
+            }
+
+            constexpr bool has_below_neighbor(this const auto &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return self._raw_index_of(elem) < self._storage.size() - self._vertical_step();
+            }
+
+            constexpr auto below_neighbor(this auto &self, const T *elem) {
+                [[assume(self.has_below_neighbor(elem))]];
+
+                return self._forward_const(elem + self._vertical_step());
+            }
+
+            constexpr bool has_left_neighbor(this const auto &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return self._raw_index_of(elem) % self._vertical_step() > 0;
+            }
+
+            constexpr auto left_neighbor(this auto &self, const T *elem) {
+                [[assume(self.has_left_neighbor(elem))]];
+
+                return self._forward_const(elem - 1);
+            }
+
+            constexpr bool has_right_neighbor(this const auto &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return self._raw_index_of(elem) % self._vertical_step() != (self.width() - 1);
+            }
+
+            constexpr auto right_neighbor(this auto &self, const T *elem) {
+                [[assume(self.has_right_neighbor(elem))]];
+
+                return self._forward_const(elem + 1);
+            }
+
+            constexpr bool has_above_left_neighbor(this const auto &self, const T *elem) {
+                return self.has_above_neighbor(elem) && self.has_left_neighbor(elem);
+            }
+
+            constexpr auto above_left_neighbor(this auto &self, const T *elem) {
+                [[assume(self.has_above_left_neighbor(elem))]];
+
+                return self._forward_const(elem - self._vertical_step() - 1);
+            }
+
+            constexpr bool has_above_right_neighbor(this const auto &self, const T *elem) {
+                return self.has_above_neighbor(elem) && self.has_right_neighbor(elem);
+            }
+
+            constexpr auto above_right_neighbor(this auto &self, const T *elem) {
+                [[assume(self.has_above_right_neighbor(elem))]];
+
+                return self._forward_const(elem - self._vertical_step() + 1);
+            }
+
+            constexpr bool has_below_left_neighbor(this const auto &self, const T *elem) {
+                return self.has_below_neighbor(elem) && self.has_left_neighbor(elem);
+            }
+
+            constexpr auto below_left_neighbor(this auto &self, const T *elem) {
+                [[assume(self.has_below_left_neighbor(elem))]];
+
+                return self._forward_const(elem + self._vertical_step() - 1);
+            }
+
+            constexpr bool has_below_right_neighbor(this const auto &self, const T *elem) {
+                return self.has_below_neighbor(elem) && self.has_right_neighbor(elem);
+            }
+
+            constexpr auto below_right_neighbor(this auto &self, const T *elem) {
+                [[assume(self.has_below_right_neighbor(elem))]];
+
+                return self._forward_const(elem + self._vertical_step() + 1);
+            }
+
+            template<advent::neighbor_enum Position>
+            constexpr bool has_neighbor(this const auto &self, const Position position, const T *elem) {
+                return impl::has_neighbor(self, position, elem);
+            }
+
+            template<advent::neighbor_enum Position>
+            constexpr auto neighbor(this auto &self, const Position position, const T *elem) {
+                [[assume(self.has_neighbor(position, elem))]];
+
+                return impl::neighbor_of(self, position, elem);
+            }
+
+            template<typename Self>
+            constexpr auto neighbors_of(this Self &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return impl::grid_neighbors_view<Self, advent::neighbor>(
+                    &self, elem
+                );
+            }
+
+            template<typename Self>
+            constexpr auto adjacent_neighbors_of(this Self &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return impl::grid_neighbors_view<Self, advent::adjacent_neighbor>(
+                    &self, elem
+                );
+            }
+
+            template<typename Self>
+            constexpr auto diagonal_neighbors_of(this Self &self, const T *elem) {
+                [[assume(self._contains(elem))]];
+
+                return impl::grid_neighbors_view<Self, advent::diagonal_neighbor>(
+                    &self, elem
+                );
+            }
+
+            constexpr auto row(this auto &self, const std::size_t row_index){
+                [[assume(row_index < self.height())]];
+
+                return impl::grid_row_view{
+                    std::span(self._storage.data() + (self._vertical_step() * row_index), self.width())
+                };
+            }
+
+            constexpr auto column(this auto &self, const std::size_t column_index) {
+                [[assume(column_index < self.width())]];
+
+                const auto first_ptr = self._storage.data() + column_index;
+
+                const auto last_index = self._storage.size() - self._vertical_step() + column_index;
+                const auto last_ptr   = self._storage.data() + last_index;
+
+                return impl::grid_column_view{
+                    first_ptr, last_ptr, self._vertical_step()
+                };
+            }
+
+            constexpr auto rows(this auto &self) {
+                return std::views::iota(0uz, self.height()) | std::views::transform([self](const auto row_index) {
+                    return self.row(row_index);
+                });
+            }
+
+            constexpr auto columns(this auto &self) {
+                return std::views::iota(0uz, self.width()) | std::views::transform([self](const auto column_index) {
+                    return self.column(column_index);
+                });
+            }
+
+            constexpr auto enumerate(this auto &self) {
+                return std::views::iota(0uz, self._storage.size()) | std::views::transform([self](const auto raw_index) {
+                    return std::pair{self._from_raw_index(raw_index), self._storage[raw_index]};
+                });
+            }
+
+            constexpr auto elements(this auto &self) {
+                return std::span(self._storage);
+            }
+
+            constexpr auto &front(this auto &self) {
+                return self._storage.front();
+            }
+
+            constexpr auto &back(this auto &self) {
+                return self._storage.back();
+            }
+
+            constexpr const T *find(this const auto &self, const std::equality_comparable_with<T> auto &value) {
+                const auto it = std::ranges::find(self._storage, value);
+
+                if (it == self._storage.end()) {
+                    return nullptr;
+                }
+
+                return std::to_address(it);
+            }
+
+            constexpr const T *find_after(this const auto &self, const T *elem, const std::equality_comparable_with<T> auto &value) {
+                [[assume(self._contains(elem))]];
+
+                const auto ptr = std::ranges::find(elem + 1, std::to_address(self._storage.end()), value);
+
+                if (ptr == std::to_address(self._storage.end())) {
+                    return nullptr;
+                }
+
+                return ptr;
+            }
+
+            constexpr auto &operator [](this auto &self, const std::size_t column_index, const std::size_t row_index) {
+                return self._storage[self._to_raw_index(column_index, row_index)];
+            }
+        };
+
     }
 
     template<typename T>
-    struct grid {
-        using mutable_row = impl::grid_row_view<false, T>;
-        using const_row   = impl::grid_row_view<true, T>;
-
-        static_assert(std::ranges::contiguous_range<mutable_row>);
-        static_assert(std::ranges::contiguous_range<const_row>);
-
-        static_assert(std::ranges::sized_range<mutable_row>);
-        static_assert(std::ranges::sized_range<const_row>);
-
-        template<typename Self>
-        using _row_view_for_type = impl::grid_row_view<std::is_const_v<std::remove_reference_t<Self>>, T>;
-
-        using mutable_column = impl::grid_column_view<false, T>;
-        using const_column   = impl::grid_column_view<true, T>;
-
-        static_assert(std::ranges::random_access_range<mutable_column>);
-        static_assert(std::ranges::random_access_range<const_column>);
-
-        static_assert(std::ranges::sized_range<mutable_column>);
-        static_assert(std::ranges::sized_range<const_column>);
-
-        template<typename Self>
-        using _column_view_for_type = impl::grid_column_view<std::is_const_v<std::remove_reference_t<Self>>, T>;
-
-        using mutable_neighbors = impl::grid_neighbors_view<false, advent::neighbor, T>;
-        using const_neighbors   = impl::grid_neighbors_view<true,  advent::neighbor, T>;
-
-        using mutable_adjacent_neighbors = impl::grid_neighbors_view<false, advent::adjacent_neighbor, T>;
-        using const_adjacent_neighbors   = impl::grid_neighbors_view<true,  advent::adjacent_neighbor, T>;
-
-        using mutable_diagonal_neighbors = impl::grid_neighbors_view<false, advent::diagonal_neighbor, T>;
-        using const_diagonal_neighbors   = impl::grid_neighbors_view<true,  advent::diagonal_neighbor, T>;
-
-        static_assert(std::ranges::bidirectional_range<mutable_neighbors>);
-        static_assert(std::ranges::bidirectional_range<const_neighbors>);
-
-        static_assert(std::ranges::bidirectional_range<mutable_adjacent_neighbors>);
-        static_assert(std::ranges::bidirectional_range<const_adjacent_neighbors>);
-
-        static_assert(std::ranges::bidirectional_range<mutable_diagonal_neighbors>);
-        static_assert(std::ranges::bidirectional_range<const_diagonal_neighbors>);
-
-        template<typename Self, advent::neighbor_enum Position>
-        using _neighbors_view_for_type = impl::grid_neighbors_view<std::is_const_v<std::remove_reference_t<Self>>, Position, T>;
-
+    struct grid : impl::grid<T> {
         struct builder {
             ADVENT_NON_COPYABLE(builder);
 
@@ -630,7 +827,7 @@ namespace advent {
                 return {raw_index % self._width, raw_index / self._width};
             }
 
-            template<std::invocable<grid::mutable_row> RowFiller>
+            template<std::invocable<impl::grid_row_view<T>> RowFiller>
             constexpr void push_row(this builder &self, const std::size_t width, RowFiller &&row_filler) {
                 /* TODO: If vector ever gets a 'resize_and_overwrite' method, use that. */
 
@@ -644,7 +841,7 @@ namespace advent {
 
                 self._storage.resize(self._storage.size() + width);
 
-                auto new_row = grid::mutable_row{
+                auto new_row = impl::grid_row_view{
                     std::span(self._storage.data() + self._storage.size() - width, width)
                 };
 
@@ -654,7 +851,7 @@ namespace advent {
             constexpr grid build(this builder &&self) {
                 [[assume(self._width > 0)]];
 
-                return grid{self._width, std::move(self._storage)};
+                return grid{{}, self._width, std::move(self._storage)};
             }
         };
 
@@ -676,266 +873,60 @@ namespace advent {
             return self._width;
         }
 
-        constexpr std::size_t height(this const grid &self) {
-            [[assume(self._storage.size() % self.width() == 0)]];
-
-            return self._storage.size() / self.width();
-        }
-
-        constexpr std::size_t _to_raw_index(this const grid &self, const std::size_t column_index, const std::size_t row_index) {
-            [[assume(column_index < self.height())]];
-            [[assume(row_index    < self.width())]];
-
-            return row_index * self.width() + column_index;
-        }
-
-        constexpr advent::vector_2d<std::size_t> _from_raw_index(this const grid &self, const std::size_t raw_index) {
-            [[assume(raw_index < self._storage.size())]];
-
-            return {raw_index % self.width(), raw_index / self.width()};
-        }
-
-        constexpr std::size_t _raw_index_of(this auto &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            return static_cast<std::size_t>(elem - self._storage.data());
-        }
-
-        constexpr bool _contains(this const grid &self, const T *elem) {
-            return elem >= self._storage.data() && elem < self._storage.data() + self._storage.size();
-        }
-
-        constexpr advent::vector_2d<std::size_t> coords_of(this const grid &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            const auto raw_index = self._raw_index_of(elem);
-
-            return {raw_index % self.width(), raw_index / self.width()};
-        }
-
-        constexpr auto _forward_const(this auto &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            /* NOTE: This only casts to whatever the const-ness of 'self' is. */
-            return const_cast<std::conditional_t<std::is_const_v<decltype(self)>, const T *, T *>>(elem);
-        }
-
-        constexpr bool has_above_neighbor(this const grid &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            return self._raw_index_of(elem) >= self.width();
-        }
-
-        constexpr auto above_neighbor(this auto &self, const T *elem) {
-            [[assume(self.has_above_neighbor(elem))]];
-
-            return self._forward_const(elem - self.width());
-        }
-
-        constexpr bool has_below_neighbor(this const grid &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            return self._raw_index_of(elem) < self._storage.size() - self.width();
-        }
-
-        constexpr auto below_neighbor(this auto &self, const T *elem) {
-            [[assume(self.has_below_neighbor(elem))]];
-
-            return self._forward_const(elem + self.width());
-        }
-
-        constexpr bool has_left_neighbor(this const grid &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            return self._raw_index_of(elem) % self.width() > 0;
-        }
-
-        constexpr auto left_neighbor(this auto &self, const T *elem) {
-            [[assume(self.has_left_neighbor(elem))]];
-
-            return self._forward_const(elem - 1);
-        }
-
-        constexpr bool has_right_neighbor(this const grid &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            return self._raw_index_of(elem) % self.width() != (self.width() - 1);
-        }
-
-        constexpr auto right_neighbor(this auto &self, const T *elem) {
-            [[assume(self.has_right_neighbor(elem))]];
-
-            return self._forward_const(elem + 1);
-        }
-
-        constexpr bool has_above_left_neighbor(this const grid &self, const T *elem) {
-            return self.has_above_neighbor(elem) && self.has_left_neighbor(elem);
-        }
-
-        constexpr auto above_left_neighbor(this auto &self, const T *elem) {
-            [[assume(self.has_above_left_neighbor(elem))]];
-
-            return self._forward_const(elem - self.width() - 1);
-        }
-
-        constexpr bool has_above_right_neighbor(this const grid &self, const T *elem) {
-            return self.has_above_neighbor(elem) && self.has_right_neighbor(elem);
-        }
-
-        constexpr auto above_right_neighbor(this auto &self, const T *elem) {
-            [[assume(self.has_above_right_neighbor(elem))]];
-
-            return self._forward_const(elem - self.width() + 1);
-        }
-
-        constexpr bool has_below_left_neighbor(this const grid &self, const T *elem) {
-            return self.has_below_neighbor(elem) && self.has_left_neighbor(elem);
-        }
-
-        constexpr auto below_left_neighbor(this auto &self, const T *elem) {
-            [[assume(self.has_below_left_neighbor(elem))]];
-
-            return self._forward_const(elem + self.width() - 1);
-        }
-
-        constexpr bool has_below_right_neighbor(this const grid &self, const T *elem) {
-            return self.has_below_neighbor(elem) && self.has_right_neighbor(elem);
-        }
-
-        constexpr auto below_right_neighbor(this auto &self, const T *elem) {
-            [[assume(self.has_below_right_neighbor(elem))]];
-
-            return self._forward_const(elem + self.width() + 1);
-        }
-
-        template<advent::neighbor_enum Position>
-        constexpr bool has_neighbor(this const grid &self, const Position position, const T *elem) {
-            return impl::has_neighbor(self, position, elem);
-        }
-
-        template<advent::neighbor_enum Position>
-        constexpr auto neighbor(this auto &self, const Position position, const T *elem) {
-            [[assume(self.has_neighbor(position, elem))]];
-
-            return impl::neighbor_of(self, position, elem);
-        }
-
-        constexpr auto neighbors_of(this auto &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            return _neighbors_view_for_type<decltype(self), advent::neighbor>(
-                &self, elem
-            );
-        }
-
-        constexpr auto adjacent_neighbors_of(this auto &self, const T *elem) {
-            [[assume(self._contains(elem))]];
-
-            return _neighbors_view_for_type<decltype(self), advent::adjacent_neighbor>(
-                &self, elem
-            );
-        }
-
-        constexpr auto row(this auto &self, const std::size_t row_index){
-            [[assume(row_index < self.height())]];
-
-            return _row_view_for_type<decltype(self)>{
-                std::span(self._storage.data() + (self.width() * row_index), self.width())
-            };
-        }
-
-        constexpr auto column(this auto &self, const std::size_t column_index) {
-            [[assume(column_index < self.width())]];
-
-            const auto first_ptr = self._storage.data() + column_index;
-
-            const auto last_index = self._storage.size() - self.width() + column_index;
-            const auto last_ptr   = self._storage.data() + last_index;
-
-            return _column_view_for_type<decltype(self)>{
-                first_ptr, last_ptr, self.width()
-            };
-        }
-
-        constexpr auto rows(this auto &self) {
-            return std::views::iota(0uz, self.height()) | std::views::transform([self](const auto row_index) {
-                return self.row(row_index);
-            });
-        }
-
-        constexpr auto columns(this auto &self) {
-            return std::views::iota(0uz, self.width()) | std::views::transform([self](const auto column_index) {
-                return self.column(column_index);
-            });
-        }
-
-        constexpr auto enumerate(this auto &self) {
-            return std::views::iota(0uz, self._storage.size()) | std::views::transform([self](const auto raw_index) {
-                return std::pair{self._from_raw_index(raw_index), self._storage[raw_index]};
-            });
-        }
-
-        constexpr auto elements(this auto &self) {
-            return std::span(self._storage);
-        }
-
-        constexpr auto &front(this auto &self) {
-            return self._storage.front();
-        }
-
-        constexpr auto &back(this auto &self) {
-            return self._storage.back();
-        }
-
-        constexpr const T *find(this const grid &self, const std::equality_comparable_with<T> auto &value) {
-            const auto it = std::ranges::find(self._storage, value);
-
-            if (it == self._storage.end()) {
-                return nullptr;
-            }
-
-            return std::to_address(it);
-        }
-
-        constexpr const T *find_after(this const grid &self, const T *elem, const std::equality_comparable_with<T> auto &value) {
-            [[assume(self._contains(elem))]];
-
-            const auto ptr = std::ranges::find(elem + 1, std::to_address(self._storage.end()), value);
-
-            if (ptr == std::to_address(self._storage.end())) {
-                return nullptr;
-            }
-
-            return ptr;
-        }
-
-        constexpr auto &operator [](this auto &self, const std::size_t column_index, const std::size_t row_index) {
-            return self._storage[self._to_raw_index(column_index, row_index)];
+        constexpr std::size_t _vertical_step(this const grid &self) {
+            return self.width();
         }
     };
 
+    struct string_view_grid : impl::grid<char> {
+        static constexpr char RowSeparator = '\n';
+
+        std::size_t      _width;
+        std::string_view _storage;
+
+        constexpr std::size_t width(this const string_view_grid &self) {
+            [[assume(self._width > 0)]];
+
+            return self._width;
+        }
+
+        constexpr std::size_t _vertical_step(this const string_view_grid &self) {
+            return self._width + 1;
+        }
+
+        constexpr string_view_grid(const std::string_view storage) : _storage(storage) {
+            this->_width = storage.find_first_of(RowSeparator);
+
+            [[assume(this->_width != std::string_view::npos)]];
+            [[assume(this->_width > 0)]];
+
+            [[assume(this->_storage.size() % this->_vertical_step() == 0)]];
+
+            /* TODO: It would be nice to add assumes for consistent row widths. */
+        }
+    };
 }
 
 namespace std::ranges {
 
     /* Enable view. */
-    template<bool IsConst, typename T>
-    constexpr inline bool enable_view<advent::impl::grid_row_view<IsConst, T>> = true;
+    template<typename T>
+    constexpr inline bool enable_view<advent::impl::grid_row_view<T>> = true;
 
-    template<bool IsConst, typename T>
-    constexpr inline bool enable_view<advent::impl::grid_column_view<IsConst, T>> = true;
+    template<typename T>
+    constexpr inline bool enable_view<advent::impl::grid_column_view<T>> = true;
 
-    template<bool IsConst, typename Position, typename T>
-    constexpr inline bool enable_view<advent::impl::grid_neighbors_view<IsConst, Position, T>> = true;
+    template<typename Grid, typename Position>
+    constexpr inline bool enable_view<advent::impl::grid_neighbors_view<Grid, Position>> = true;
 
     /* Enable borrowed range. */
-    template<bool IsConst, typename T>
-    constexpr inline bool enable_borrowed_range<advent::impl::grid_row_view<IsConst, T>> = true;
+    template<typename T>
+    constexpr inline bool enable_borrowed_range<advent::impl::grid_row_view<T>> = true;
 
-    template<bool IsConst, typename T>
-    constexpr inline bool enable_borrowed_range<advent::impl::grid_column_view<IsConst, T>> = true;
+    template<typename T>
+    constexpr inline bool enable_borrowed_range<advent::impl::grid_column_view<T>> = true;
 
-    template<bool IsConst, typename Position, typename T>
-    constexpr inline bool enable_borrowed_range<advent::impl::grid_neighbors_view<IsConst, Position, T>> = true;
+    template<typename Grid, typename Position>
+    constexpr inline bool enable_borrowed_range<advent::impl::grid_neighbors_view<Grid, Position>> = true;
 
 }
