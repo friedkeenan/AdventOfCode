@@ -1,19 +1,21 @@
 #include <advent/advent.hpp>
 
-constexpr std::size_t count_xmas_branches(const advent::string_view_grid &grid, const char *start) {
-    [[assume(*start == 'X')]];
+constexpr std::size_t count_xmas_branches(const advent::string_view_grid &grid, const char *possible_X) {
+    if (*possible_X != 'X') {
+        return 0;
+    }
 
     std::size_t total = 0;
-    for (const auto [position, neighbor] : grid.neighbors_of(start)) {
-        if (*neighbor != 'M') {
+    for (const auto [position, possible_M] : grid.neighbors_of(possible_X)) {
+        if (*possible_M != 'M') {
             continue;
         }
 
-        if (!grid.has_neighbor(position, neighbor)) {
+        if (!grid.has_neighbor(position, possible_M)) {
             continue;
         }
 
-        const auto possible_A = grid.neighbor(position, neighbor);
+        const auto possible_A = grid.neighbor(position, possible_M);
         if (*possible_A != 'A') {
             continue;
         }
@@ -38,10 +40,6 @@ constexpr std::size_t count_xmas_occurrences(const std::string_view data) {
 
     std::size_t num_occurrences = 0;
     for (const auto &elem : grid.elements()) {
-        if (elem != 'X') {
-            continue;
-        }
-
         num_occurrences += count_xmas_branches(grid, &elem);
     }
 
@@ -49,7 +47,9 @@ constexpr std::size_t count_xmas_occurrences(const std::string_view data) {
 }
 
 constexpr bool is_mas_x(const advent::string_view_grid &grid, const char *center) {
-    [[assume(*center == 'A')]];
+    if (*center != 'A') {
+        return false;
+    }
 
     if (!grid.has_above_left_neighbor(center)) {
         return false;
@@ -93,10 +93,6 @@ constexpr std::size_t count_mas_x_occurrences(const std::string_view data) {
 
     std::size_t num_occurrences = 0;
     for (const auto &elem : grid.elements()) {
-        if (elem != 'A') {
-            continue;
-        }
-
         if (is_mas_x(grid, &elem)) {
             num_occurrences += 1;
         }
