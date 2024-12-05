@@ -105,8 +105,8 @@ constexpr void make_update_correct(const std::vector<PageOrdering> &orderings, s
             }
         }
 
-        /* Order doesn't matter, so it's correct. */
-        return true;
+        /* Order doesn't matter. */
+        return false;
     });
 }
 
