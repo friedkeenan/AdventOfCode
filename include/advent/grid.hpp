@@ -689,6 +689,17 @@ namespace advent {
                 return impl::has_neighbor(self, position, elem);
             }
 
+            template<advent::neighbor_enum Position = advent::neighbor>
+            constexpr bool has_all_neighbors(this const auto &self, const T *elem) {
+                for (const auto position : advent::neighbor_positions<Position>) {
+                    if (!self.has_neighbor(position, elem)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
             template<advent::neighbor_enum Position>
             constexpr auto neighbor(this auto &self, const Position position, const T *elem) {
                 [[assume(self.has_neighbor(position, elem))]];

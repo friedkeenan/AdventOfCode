@@ -51,19 +51,7 @@ constexpr bool is_mas_x(const advent::string_view_grid &grid, const char *center
         return false;
     }
 
-    if (!grid.has_above_left_neighbor(center)) {
-        return false;
-    }
-
-    if (!grid.has_above_right_neighbor(center)) {
-        return false;
-    }
-
-    if (!grid.has_below_left_neighbor(center)) {
-        return false;
-    }
-
-    if (!grid.has_below_right_neighbor(center)) {
+    if (!grid.has_all_neighbors<advent::diagonal_neighbor>(center)) {
         return false;
     }
 
