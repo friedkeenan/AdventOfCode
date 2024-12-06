@@ -92,6 +92,8 @@ struct Map {
     }
 
     constexpr void mark_passed_over_tiles(this Map &self) {
+        /* NOTE: This doesn't mark the starting position. */
+
         auto guard_info = self.guard_info;
 
         while (true) {
@@ -122,6 +124,8 @@ struct MapForEscape : Map {
     using Map::Map;
 
     constexpr std::size_t count_visited_positions(this MapForEscape &self) {
+        /* NOTE: The starting tile is already marked as passed over. */
+
         self.mark_passed_over_tiles();
 
         return std::ranges::count(self.map.elements(), Tile::PassedOver);
@@ -132,6 +136,7 @@ struct MapForLoop : Map {
     using Map::Map;
 
     constexpr bool _does_new_obstruction_loop(this MapForLoop &self, Tile &tile_to_obstruct) {
+        [[assume(self.map.coords_of(&tile_to_obstruct) != self.guard_info.position)]];
         [[assume(tile_to_obstruct == Tile::PassedOver)]];
 
         tile_to_obstruct = Tile::Obstruction;
@@ -179,13 +184,16 @@ struct MapForLoop : Map {
 
         self.mark_passed_over_tiles();
 
-        std::size_t sum = 0;
-        for (const auto [coords, tile] : self.map.enumerate()) {
-            if (tile != Tile::PassedOver) {
-                continue;
-            }
+        /*
+            We pretend we don't pass over the starting tile so that we
+            don't have to later check that a tile isn't the starting tile.
+        */
+        *self.guard_info.tile(self) = Tile::Empty;
 
-            if (coords == self.guard_info.position) {
+        std::size_t sum = 0;
+        for (auto &tile : self.map.elements()) {
+            /* NOTE: The starting tile is not marked as passed over. */
+            if (tile != Tile::PassedOver) {
                 continue;
             }
 
