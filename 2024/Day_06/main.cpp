@@ -23,11 +23,6 @@ struct GuardInfo {
     constexpr bool operator ==(const GuardInfo &) const = default;
 };
 
-/*
-    NOTE: We must use CRTP instead of deducing 'this'
-    because we call derived methods from the constructor.
-*/
-template<typename Derived>
 struct Map {
     /* NOTE: We use an owning grid so that we can modify the tiles. */
     advent::grid<Tile> map;
@@ -47,14 +42,10 @@ struct Map {
         }
     }
 
-    constexpr auto &&_derived(this auto &&self) {
-        return std::forward_like<decltype(self)>(static_cast<Derived &>(self));
-    }
-
     constexpr void _initialize_guard(this Map &self, advent::grid<Tile>::builder &builder, Tile *tile, const char guard_character) {
         self.guard_info = {builder.coords_of(tile), CharToDirection(guard_character)};
 
-        self._derived()._initialize_guard_tile(tile);
+        *tile = Tile::PassedOver;
     }
 
     template<advent::string_viewable_range Rng>
@@ -99,63 +90,54 @@ struct Map {
 
         return GuardAction::Move;
     }
+
+    constexpr void mark_passed_over_tiles(this Map &self) {
+        auto guard_info = self.guard_info;
+
+        while (true) {
+            switch (self.next_guard_action(guard_info)) {
+                case GuardAction::Escape:
+                    return;
+
+                case GuardAction::Turn: {
+                    guard_info.direction = advent::next_clockwise_neighbor(guard_info.direction);
+                } break;
+
+                case GuardAction::Move: {
+                    guard_info.position = self.map.neighbor_of_coords(
+                        guard_info.direction,
+                        guard_info.position
+                    );
+
+                    *guard_info.tile(self) = Tile::PassedOver;
+                } break;
+
+                default: std::unreachable();
+            }
+        }
+    }
 };
 
-struct MapForEscape : Map<MapForEscape> {
-    using Map<MapForEscape>::Map;
+struct MapForEscape : Map {
+    using Map::Map;
 
-    constexpr void _initialize_guard_tile(this MapForEscape &, Tile *tile) {
-        *tile = Tile::PassedOver;
-    }
+    constexpr std::size_t count_visited_positions(this MapForEscape &self) {
+        self.mark_passed_over_tiles();
 
-    constexpr std::size_t num_visited_positions(this const MapForEscape &self) {
         return std::ranges::count(self.map.elements(), Tile::PassedOver);
     }
-
-    constexpr bool tick(this MapForEscape &self) {
-        switch (self.next_guard_action(self.guard_info)) {
-            case GuardAction::Escape:
-                return true;
-
-            case GuardAction::Turn: {
-                self.guard_info.direction = advent::next_clockwise_neighbor(self.guard_info.direction);
-            } break;
-
-            case GuardAction::Move: {
-                self.guard_info.position = self.map.neighbor_of_coords(
-                    self.guard_info.direction,
-                    self.guard_info.position
-                );
-
-                *self.guard_info.tile(self) = Tile::PassedOver;
-            } break;
-
-            default: std::unreachable();
-        }
-
-        return false;
-    }
 };
 
-struct MapForLoop : Map<MapForLoop> {
-    using Map<MapForLoop>::Map;
+struct MapForLoop : Map {
+    using Map::Map;
 
-    constexpr void _initialize_guard_tile(this MapForLoop &, Tile *tile) {
-        *tile = Tile::Empty;
-    }
+    constexpr bool _does_new_obstruction_loop(this MapForLoop &self, Tile &tile_to_obstruct) {
+        [[assume(tile_to_obstruct == Tile::PassedOver)]];
 
-    constexpr bool does_new_obstruction_loop(this MapForLoop &self, const advent::vector_2d<std::size_t> coord) {
-        if (coord == self.guard_info.position) {
-            return false;
-        }
-
-        const auto original_tile = std::exchange(self.map[coord], Tile::Obstruction);
-        if (original_tile == Tile::Obstruction) {
-            return false;
-        }
+        tile_to_obstruct = Tile::Obstruction;
 
         const advent::scope_guard reset_tile = [&]() {
-            self.map[coord] = original_tile;
+            tile_to_obstruct = Tile::PassedOver;
         };
 
         /* If we come across the same turn, then we are on a loop. */
@@ -190,9 +172,24 @@ struct MapForLoop : Map<MapForLoop> {
     }
 
     constexpr std::size_t count_looping_new_obstructions(this MapForLoop &self) {
+        /*
+            NOTE: We only try to add obstructions to tiles
+            that the guard would have otherwise passed over.
+        */
+
+        self.mark_passed_over_tiles();
+
         std::size_t sum = 0;
-        for (const auto coords : self.map.coords()) {
-            if (self.does_new_obstruction_loop(coords)) {
+        for (const auto [coords, tile] : self.map.enumerate()) {
+            if (tile != Tile::PassedOver) {
+                continue;
+            }
+
+            if (coords == self.guard_info.position) {
+                continue;
+            }
+
+            if (self._does_new_obstruction_loop(tile)) {
                 sum += 1;
             }
         }
@@ -205,11 +202,7 @@ template<advent::string_viewable_range Rng>
 constexpr std::size_t count_visited_positions(Rng &&rng) {
     auto map = MapForEscape(std::forward<Rng>(rng));
 
-    while (true) {
-        if (map.tick()) {
-            return map.num_visited_positions();
-        }
-    }
+    return map.count_visited_positions();
 }
 
 template<advent::string_viewable_range Rng>

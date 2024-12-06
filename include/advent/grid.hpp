@@ -802,32 +802,34 @@ namespace advent {
             }
 
             constexpr auto rows(this auto &self) {
-                return std::views::iota(0uz, self.height()) | std::views::transform([self](const auto row_index) {
+                return std::views::iota(0uz, self.height()) | std::views::transform([&](const auto row_index) {
                     return self.row(row_index);
                 });
             }
 
             constexpr auto columns(this auto &self) {
-                return std::views::iota(0uz, self.width()) | std::views::transform([self](const auto column_index) {
+                return std::views::iota(0uz, self.width()) | std::views::transform([&](const auto column_index) {
                     return self.column(column_index);
                 });
             }
 
             constexpr auto enumerate(this auto &self) {
-                return std::views::iota(0uz, self._storage.size()) | std::views::transform([self](const auto raw_index) {
-                    return std::pair{self._from_raw_index(raw_index), self._storage[raw_index]};
+                return std::views::iota(0uz, self._storage.size()) | std::views::transform([&](const auto raw_index) {
+                    using coords_and_elem = std::pair<coords_t, decltype((self._storage[raw_index]))>;
+
+                    return coords_and_elem{self._from_raw_index(raw_index), self._storage[raw_index]};
                 });
             }
 
             constexpr auto coords(this const auto &self) {
                 return (
                     std::views::cartesian_product(
-                        std::views::iota(0uz, self.width()),
-                        std::views::iota(0uz, self.height())
+                        std::views::iota(0uz, self.height()),
+                        std::views::iota(0uz, self.width())
                     ) |
 
                     std::views::transform([](const auto pair) {
-                        const auto [x, y] = pair;
+                        const auto [y, x] = pair;
 
                         return coords_t{x, y};
                     })
