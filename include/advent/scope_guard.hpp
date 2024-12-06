@@ -13,7 +13,7 @@ namespace advent {
         bool _active = true;
 
         template<std::convertible_to<Invocable> OtherInvocable>
-        constexpr scope_guard(OtherInvocable &&invocable)
+        constexpr explicit(false) scope_guard(OtherInvocable &&invocable)
         noexcept(
             advent::nothrow_convertible_to<OtherInvocable, Invocable>
         ) : _invocable(std::forward<OtherInvocable>(invocable)) { }
