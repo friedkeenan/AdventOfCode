@@ -150,4 +150,80 @@ namespace advent {
     static_assert(advent::to_integral<std::uint8_t, 2>("110")  == 6);
     static_assert(advent::to_integral<std::int8_t,  2>("-110") == -6);
 
+    template<std::integral Num, std::integral Base>
+    struct reverse_digits_view : std::ranges::view_interface<reverse_digits_view<Num, Base>> {
+        struct iterator {
+            using iterator_concept = std::forward_iterator_tag;
+            using value_type       = Num;
+            using reference        = value_type;
+
+            /* TODO: Think about this more. */
+            using difference_type = std::ptrdiff_t;
+
+            Num  _num;
+            Base _base;
+
+            constexpr reference operator *(this const iterator &self) {
+                return self._num % self._base;
+            }
+
+            constexpr iterator &operator ++(this iterator &self) {
+                self._num /= self._base;
+
+                return self;
+            }
+
+            constexpr ADVENT_RIGHT_UNARY_OP_FROM_LEFT(iterator, ++)
+
+            friend constexpr bool operator ==(const iterator &lhs, std::default_sentinel_t) {
+                return lhs._num <= 0;
+            }
+
+            friend constexpr bool operator ==(const iterator &lhs, const iterator &rhs) {
+                return lhs._num == rhs._num && lhs._base == rhs._base;
+            }
+        };
+
+        Num  _num;
+        Base _base;
+
+        constexpr reverse_digits_view(const Num num, const Base base) : _num(num), _base(base) {
+            [[assume(num >= 0)]];
+            [[assume(base > 1)]];
+        }
+
+        constexpr iterator begin(this const reverse_digits_view &self) {
+            return iterator{self._num, self._base};
+        }
+
+        constexpr std::default_sentinel_t end(this const reverse_digits_view &) {
+            return std::default_sentinel;
+        }
+    };
+
+    static_assert(std::ranges::forward_range<advent::reverse_digits_view<std::size_t, std::size_t>>);
+
+    namespace views {
+
+        namespace impl {
+
+            struct reverse_digits_of_fn {
+                static constexpr auto operator ()(const std::integral auto num, const std::integral auto base) {
+                    return advent::reverse_digits_view{num, base};
+                }
+            };
+
+        }
+
+        constexpr inline auto reverse_digits_of = impl::reverse_digits_of_fn{};
+
+    }
+
+}
+
+namespace std::ranges {
+
+    template<typename Num, typename Base>
+    constexpr inline bool enable_borrowed_range<advent::reverse_digits_view<Num, Base>> = true;
+
 }

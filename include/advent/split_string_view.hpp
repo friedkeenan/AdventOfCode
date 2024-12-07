@@ -89,12 +89,6 @@ namespace advent {
                 struct closure : std::ranges::range_adaptor_closure<closure> {
                     char _delimiter;
 
-                    /*
-                        NOTE: We need a constructor because of our base class,
-                        which I think is a libstdc++ implementation bug.
-
-                        TODO: Remove.
-                    */
                     constexpr explicit closure(const char delimiter) : _delimiter(delimiter) { }
 
                     constexpr auto operator ()(const std::string_view str) const {
@@ -149,5 +143,12 @@ namespace advent {
     constexpr void split_with_callback(std::string_view str, const char delimiter, Callback &&callback) {
         return split_with_callback(str, std::string_view(&delimiter, 1), std::forward<Callback>(callback));
     }
+
+}
+
+namespace std::ranges {
+
+    template<>
+    constexpr inline bool enable_borrowed_range<advent::split_string_view> = true;
 
 }
