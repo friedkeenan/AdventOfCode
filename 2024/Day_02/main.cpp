@@ -17,7 +17,7 @@ struct Report {
     }
 
     template<std::ranges::forward_range Rng>
-    requires (std::convertible_to<std::ranges::range_reference_t<Rng>, advent::ssize_t>)
+    requires (std::same_as<std::ranges::range_value_t<Rng>, advent::ssize_t>)
     static constexpr bool _safe_without_dampener(Rng &&levels) {
         auto it = std::ranges::begin(levels);
         const auto end = std::ranges::end(levels);
