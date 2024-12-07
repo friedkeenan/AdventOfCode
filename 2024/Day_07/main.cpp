@@ -45,6 +45,7 @@ struct CalibrationRecord {
 
         /* NOTE: It appears slower to check this for any other operation. */
         if constexpr (std::same_as<decltype(op), const Concatenate<>>) {
+            /* The running total can only increase from here. */
             if (running_total > self.expected_result) {
                 return false;
             }
