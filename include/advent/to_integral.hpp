@@ -157,8 +157,8 @@ namespace advent {
             using value_type       = Num;
             using reference        = value_type;
 
-            /* TODO: Think about this more. */
-            using difference_type = std::ptrdiff_t;
+            /* NOTE: We just nab the difference type from 'std::ranges::iota_view'. */
+            using difference_type = std::ranges::range_difference_t<std::ranges::iota_view<Num>>;
 
             Num  _num;
             Base _base;
