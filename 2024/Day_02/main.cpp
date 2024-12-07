@@ -69,9 +69,7 @@ struct Report {
             return false;
         }
 
-        for (const auto skip_index : std::views::iota(0uz, self.levels.size())) {
-            const auto skipped_iterator = self.levels.begin() + skip_index;
-
+        for (const auto skipped_iterator : std::views::iota(self.levels.begin(), self.levels.end())) {
             /* TODO: Use 'std::views::concat' when I receive an implementation. */
             if (_safe_without_dampener(
                 std::views::join(std::array{
