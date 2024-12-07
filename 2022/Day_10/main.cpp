@@ -435,18 +435,29 @@ static_assert(
 );
 
 int main(int argc, char **argv) {
-    /* NOTE: Part two doesn't warrant use of 'advent::solve_puzzles' because of its non-typical result. */
+    /*
+        NOTE: Part two doesn't warrant use of the default
+        format strings because of its non-typical result.
 
-    const auto data = advent::puzzle_data(argc, argv);
-    if (!data.has_value()) {
-        advent::print("Unable to read puzzle data!\n");
+        Also note that the solution for part two ends in a newline.
+    */
 
-        return 1;
-    }
+    return advent::solve_puzzles<
+        #ifdef ADVENT_TIME_SOLUTIONS
 
-    const auto part_one_solution = sum_signal_strengths_from_string_data<20, 40>(*data);
-    const auto part_two_solution = render_display_from_string_data(*data);
+        "Part one solution: {} (in {:.3})\n",
+        "Part two solution:\n{}(in {:.3})\n"
 
-    advent::print("Part one solution: {}\n", part_one_solution);
-    advent::print("Part two solution:\n{}", part_two_solution);
+        #else
+
+        "Part one solution: {}\n",
+        "Part two solution:\n{}"
+
+        #endif
+    >(
+        argc, argv,
+
+        sum_signal_strengths_from_string_data<20, 40>,
+        render_display_from_string_data
+    );
 }

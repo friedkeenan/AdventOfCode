@@ -28,6 +28,13 @@ cpp_args  = [
 
     '-fconcepts-diagnostics-depth=3',
     '-fconstexpr-ops-limit=9999999999999999',
+
+    # Flag to enable timing solutions.
+    #
+    # Using chrono slows down compile times a lot.
+    #
+    # TODO: Remove when we have modules.
+    '-DADVENT_TIME_SOLUTIONS',
 ]
 
 link_args += sanitizers

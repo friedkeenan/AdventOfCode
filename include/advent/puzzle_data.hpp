@@ -2,6 +2,7 @@
 
 #include <advent/common.hpp>
 #include <advent/scope_guard.hpp>
+#include <advent/timer.hpp>
 #include <advent/print.hpp>
 
 namespace advent {
@@ -53,18 +54,137 @@ namespace advent {
     template<typename Solver>
     concept PuzzleSolver = std::invocable<Solver, const std::string &>;
 
-    template<std::size_t Index>
-    requires (Index <= 1)
-    constexpr inline auto _solution_fmt_string = nullptr;
+    namespace impl {
 
-    template<>
-    constexpr inline std::string_view _solution_fmt_string<0> = "Part one solution: {}\n";
+        template<std::size_t N>
+        struct fixed_string {
+            std::array<char, N> _data;
 
-    template<>
-    constexpr inline std::string_view _solution_fmt_string<1> = "Part two solution: {}\n";
+            consteval explicit(false) fixed_string(const char (&data)[N + 1]) {
+                std::ranges::copy_n(data + 0, N, this->_data.begin());
+            }
 
-    template<PuzzleSolver... Solvers>
-    requires (sizeof...(Solvers) <= 2)
+            constexpr explicit(false) operator std::string_view(this const fixed_string &self) {
+                return std::string_view(self._data);
+            }
+        };
+
+        template<std::size_t N>
+        fixed_string(const char (&)[N]) -> fixed_string<N - 1>;
+
+        template<std::size_t Index>
+        requires (Index <= 1)
+        constexpr inline auto default_solution_fmt_string = nullptr;
+
+        #ifdef ADVENT_TIME_SOLUTIONS
+
+        template<>
+        constexpr inline impl::fixed_string default_solution_fmt_string<0> = "Part one solution: {}\t(in {:.3})\n";
+
+        template<>
+        constexpr inline impl::fixed_string default_solution_fmt_string<1> = "Part two solution: {}\t(in {:.3})\n";
+
+        #else
+
+        template<>
+        constexpr inline impl::fixed_string default_solution_fmt_string<0> = "Part one solution: {}\n";
+
+        template<>
+        constexpr inline impl::fixed_string default_solution_fmt_string<1> = "Part two solution: {}\n";
+
+        #endif
+
+        #ifdef ADVENT_TIME_SOLUTIONS
+
+        template<typename Solution, typename Duration>
+        struct solve_puzzle_result {
+            Solution solution;
+            Duration duration;
+        };
+
+        #else
+
+        template<typename Solution>
+        struct solve_puzzle_result {
+            Solution solution;
+        };
+
+        #endif
+
+        template<advent::PuzzleSolver Solver>
+        constexpr auto solve_puzzle(Solver &&solver, const std::string &data) {
+            #ifdef ADVENT_TIME_SOLUTIONS
+
+            advent::timer timer;
+
+            return impl::solve_puzzle_result{
+                [&]() {
+                    const auto measurer = timer.measure_scope();
+
+                    return std::invoke(std::forward<Solver>(solver), data);
+                }(),
+
+                timer.last_measured_duration()
+            };
+
+            #else
+
+            return impl::solve_puzzle_result{
+                std::invoke(std::forward<Solver>(solver), data)
+            };
+
+            #endif
+        }
+
+        template<impl::fixed_string FormatString, advent::PuzzleSolver Solver>
+        constexpr void print_solution(Solver &&solver, const std::string &data) {
+            /*
+                NOTE: We need to make the format string into a string view
+                so that it'll play nice with 'fmt::format_string'.
+            */
+            static constexpr std::string_view FormatStringView = FormatString;
+
+            auto result = impl::solve_puzzle(std::forward<Solver>(solver), data);
+
+            #ifdef ADVENT_TIME_SOLUTIONS
+
+            const auto print_for_duration = [&](const auto duration) {
+                advent::print(FormatStringView, std::move(result.solution), duration);
+            };
+
+            /* NOTE: fmtlib doesn't know about 'std::float64_t'. */
+
+            if (result.duration >= std::chrono::seconds(1)) {
+                using seconds = std::chrono::duration<double>;
+
+                const auto duration = std::chrono::duration_cast<seconds>(result.duration);
+
+                print_for_duration(duration);
+            } else if (result.duration >= std::chrono::milliseconds(1)) {
+                using milliseconds = std::chrono::duration<double, std::milli>;
+
+                const auto duration = std::chrono::duration_cast<milliseconds>(result.duration);
+
+                print_for_duration(duration);
+            } else {
+                using microseconds = std::chrono::duration<double, std::micro>;
+
+                const auto duration = std::chrono::duration_cast<microseconds>(result.duration);
+
+                print_for_duration(duration);
+            }
+
+            #else
+
+            advent::print(FormatStringView, std::move(result.solution));
+
+            #endif
+        }
+
+    }
+
+    template<impl::fixed_string... FormatStrings, advent::PuzzleSolver... Solvers>
+    requires (sizeof...(FormatStrings) == sizeof...(Solvers))
     constexpr int solve_puzzles(int argc, const char * const *argv, Solvers &&... solvers) {
         const auto data = advent::puzzle_data(argc, argv);
         if (!data.has_value()) {
@@ -73,11 +193,19 @@ namespace advent {
             return 1;
         }
 
-        [&]<std::size_t... Indices>(std::index_sequence<Indices...>) {
-            (advent::print(_solution_fmt_string<Indices>, std::invoke(std::forward<Solvers>(solvers), *data)), ...);
-        }(std::make_index_sequence<sizeof...(Solvers)>{});
+        (impl::print_solution<FormatStrings>(std::forward<Solvers>(solvers), *data), ...);
 
         return 0;
+    }
+
+    template<advent::PuzzleSolver... Solvers>
+    requires (sizeof...(Solvers) <= 2)
+    constexpr int solve_puzzles(int argc, char * const *argv, Solvers &&... solvers) {
+        return [&]<std::size_t... Indices>(std::index_sequence<Indices...>) {
+            return advent::solve_puzzles<impl::default_solution_fmt_string<Indices>...>(
+                argc, argv, std::forward<Solvers>(solvers)...
+            );
+        }(std::make_index_sequence<sizeof...(Solvers)>{});
     }
 
 }
