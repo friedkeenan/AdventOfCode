@@ -201,11 +201,33 @@ namespace advent {
     template<advent::PuzzleSolver... Solvers>
     requires (sizeof...(Solvers) <= 2)
     constexpr int solve_puzzles(int argc, char * const *argv, Solvers &&... solvers) {
-        return [&]<std::size_t... Indices>(std::index_sequence<Indices...>) {
-            return advent::solve_puzzles<impl::default_solution_fmt_string<Indices>...>(
-                argc, argv, std::forward<Solvers>(solvers)...
+        /*
+            NOTE: We can't just call 'advent::solve_puzzles'
+            specifying the default format strings because if
+            we are passed no solvers then this function would
+            be the one which gets called, resulting in an infinite loop.
+
+            So for that reason we accept some mild code duplication.
+        */
+
+        const auto data = advent::puzzle_data(argc, argv);
+        if (!data.has_value()) {
+            advent::print("Unable to read puzzle data!\n");
+
+            return 1;
+        }
+
+        [&]<std::size_t... Indices>(std::index_sequence<Indices...>) {
+            (
+                impl::print_solution<
+                    impl::default_solution_fmt_string<Indices>
+                >(std::forward<Solvers>(solvers), *data),
+
+                ...
             );
         }(std::make_index_sequence<sizeof...(Solvers)>{});
+
+        return 0;
     }
 
 }
