@@ -136,6 +136,16 @@ namespace advent {
     }
 
     namespace impl {
+        template<advent::neighbor_enum Position>
+        constexpr bool has_all_neighbors(const auto &grid, const auto *elem) {
+            for (const auto position : advent::neighbor_positions<Position>) {
+                if (!grid.has_neighbor(position, elem)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         template<typename T>
         struct grid_row_view {
@@ -742,15 +752,20 @@ namespace advent {
                 }
             }
 
-            template<advent::neighbor_enum Position = advent::neighbor>
             constexpr bool has_all_neighbors(this const auto &self, const T *elem) {
-                for (const auto position : advent::neighbor_positions<Position>) {
-                    if (!self.has_neighbor(position, elem)) {
-                        return false;
-                    }
-                }
+                return impl::has_all_neighbors<advent::neighbor>(self, elem);
+            }
 
-                return true;
+            constexpr bool has_all_adjacent_neighbors(this const auto &self, const T *elem) {
+                return impl::has_all_neighbors<advent::adjacent_neighbor>(self, elem);
+            }
+
+            constexpr bool has_all_diagonal_neighbors(this const auto &self, const T *elem) {
+                return impl::has_all_neighbors<advent::diagonal_neighbor>(self, elem);
+            }
+
+            constexpr bool contains_coords(this const auto &self, const coords_t coords) {
+                return coords.x() < self.width() && coords.y() < self.height();
             }
 
             template<typename Self>
@@ -882,7 +897,10 @@ namespace advent {
     }
 
     template<typename T>
+    requires (!std::same_as<T, bool>)
     struct grid : impl::grid<T> {
+        /* TODO: Make it so 'std::vector<bool>' doesn't ruin our grid assumptions. */
+
         struct builder {
             ADVENT_NON_COPYABLE(builder);
 
@@ -942,6 +960,13 @@ namespace advent {
             return std::move(builder).build();
         }
 
+        static constexpr grid from_dimensions(std::size_t width, std::size_t height) {
+            [[assume(width  > 0)]];
+            [[assume(height > 0)]];
+
+            return grid{{}, width, std::vector<T>(width * height)};
+        }
+
         std::size_t    _width;
         std::vector<T> _storage;
 
@@ -957,7 +982,7 @@ namespace advent {
     };
 
     struct string_view_grid : impl::grid<char> {
-        static constexpr char RowSeparator = '\n';
+        static constexpr char row_separator = '\n';
 
         std::size_t      _width;
         std::string_view _storage;
@@ -973,7 +998,7 @@ namespace advent {
         }
 
         constexpr string_view_grid(const std::string_view storage) : _storage(storage) {
-            this->_width = storage.find_first_of(RowSeparator);
+            this->_width = storage.find_first_of(row_separator);
 
             [[assume(this->_width != std::string_view::npos)]];
             [[assume(this->_width > 0)]];

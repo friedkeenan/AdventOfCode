@@ -220,3 +220,62 @@ namespace advent {
     static_assert(std::ranges::sized_range<vector_2d<int>>);
 
 }
+
+namespace fmt {
+
+    /* User-defined formatter for 'advent::vector_nd'. */
+    template<typename T, std::size_t Size>
+    struct formatter<advent::vector_nd<T, Size>> : fmt::formatter<T> {
+        /* Since we inherit from 'fmt::formatter<T>', we inherit its format specifiers. */
+
+        /*
+            NOTE: We *could* skip parsing the format specifier for
+            when we have 0 elements but I don't want to put time into
+            that edge case for what is really just a debug feature, and
+            I would want to make sure that having a format specifier
+            for 0 elements doesn't error so as to not frustrate generic
+            code, and so maybe it's still better to parse the format
+            specifier to detect errors in it for those cases anyways.
+        */
+
+        fmt::format_context::iterator format(this const formatter &self, const advent::vector_nd<T, Size> &vector, fmt::format_context &ctx) {
+            auto it = ctx.out();
+
+            *it = '(';
+            ++it;
+
+            if constexpr (Size == 0) {
+                *it = ')';
+                ++it;
+
+                return it;
+            }
+
+            ctx.advance_to(it);
+
+            for (const auto i : std::views::iota(0uz, Size - 1)) {
+                const auto elem = vector[i];
+                self.fmt::formatter<T>::format(elem, ctx);
+
+                it = ctx.out();
+
+                *it = ',';
+                ++it;
+
+                *it = ' ';
+                ++it;
+
+                ctx.advance_to(it);
+            }
+
+            self.fmt::formatter<T>::format(vector[Size - 1], ctx);
+
+            it = ctx.out();
+            *it = ')';
+            ++it;
+
+            return it;
+        }
+    };
+
+}
