@@ -2,6 +2,7 @@
 
 #include <advent/common.hpp>
 #include <advent/vector_nd.hpp>
+#include <advent/impl_bool_vector.hpp>
 
 namespace advent {
 
@@ -897,15 +898,14 @@ namespace advent {
     }
 
     template<typename T>
-    requires (!std::same_as<T, bool>)
     struct grid : impl::grid<T> {
-        /* TODO: Make it so 'std::vector<bool>' doesn't ruin our grid assumptions. */
+        using storage_type = impl::regular_vector<T>;
 
         struct builder {
             ADVENT_NON_COPYABLE(builder);
 
-            std::size_t    _width   = 0;
-            std::vector<T> _storage = {};
+            std::size_t  _width   = 0;
+            storage_type _storage = {};
 
             constexpr builder() = default;
 
@@ -964,11 +964,11 @@ namespace advent {
             [[assume(width  > 0)]];
             [[assume(height > 0)]];
 
-            return grid{{}, width, std::vector<T>(width * height)};
+            return grid{{}, width, storage_type(width * height)};
         }
 
-        std::size_t    _width;
-        std::vector<T> _storage;
+        std::size_t  _width;
+        storage_type _storage;
 
         constexpr std::size_t width(this const grid &self) {
             [[assume(self._width > 0)]];

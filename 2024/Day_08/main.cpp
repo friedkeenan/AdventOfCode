@@ -12,14 +12,13 @@ struct AntennaMap {
         std::invocable<
             AntinodesMarker &,
 
-            advent::grid<std::uint8_t> &,
+            advent::grid<bool> &,
             advent::vector_2d<std::size_t>,
             advent::vector_2d<std::size_t>
         >
     )
     constexpr std::size_t _count_antinodes(this const AntennaMap &self, AntinodesMarker marker) {
-        /* TODO: Use 'bool' instead when our grid class can handle it. */
-        auto antinodes = advent::grid<std::uint8_t>::from_dimensions(self.frequencies.width(), self.frequencies.height());
+        auto antinodes = advent::grid<bool>::from_dimensions(self.frequencies.width(), self.frequencies.height());
 
         const auto elements = self.frequencies.elements();
         for (const auto first_i : std::views::iota(0uz, elements.size())) {

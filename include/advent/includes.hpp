@@ -14,6 +14,7 @@
 #include <variant>
 #include <optional>
 #include <utility>
+#include <memory>
 #include <functional>
 #include <numeric>
 #include <iterator>
