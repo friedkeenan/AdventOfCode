@@ -21,17 +21,15 @@ struct AntennaMap {
         auto antinodes = advent::grid<bool>::from_dimensions(self.frequencies.width(), self.frequencies.height());
 
         const auto elements = self.frequencies.elements();
-        for (const auto first_i : std::views::iota(0uz, elements.size())) {
-            const auto &first_frequency = elements[first_i];
+        for (const auto first_it : std::views::iota(elements.begin(), elements.end())) {
+            const auto &first_frequency = *first_it;
 
             if (first_frequency == NullFrequency) {
                 continue;
             }
 
             /* Any previous antennas would have already processed us. */
-            for (const auto second_i : std::views::iota(first_i + 1, elements.size())) {
-                const auto &second_frequency = elements[second_i];
-
+            for (const auto &second_frequency : std::ranges::subrange(first_it + 1, elements.end())) {
                 /* NOTE: This will cover if 'second_frequency' is a 'NullFrequency'. */
                 if (second_frequency != first_frequency) {
                     continue;
