@@ -94,7 +94,7 @@ struct Filesystem {
                 return false;
             }
 
-            /* NOTE: I tried being a little more clever about the block shuffling her and it made it slower. */
+            /* NOTE: I tried being a little more clever about the block shuffling here and it made it slower. */
 
             if (first_free_it->count > last_used_it->count) {
                 /* We have a surplus of free space. */
