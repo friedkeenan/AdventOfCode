@@ -1,5 +1,11 @@
 project('AdventOfCode', 'cpp',
-    default_options : 'buildtype=release', # -O3
+    default_options : [
+        # -O3
+        'buildtype=release',
+
+        # Notably, this will prevent STL assertions as well.
+        'b_ndebug=if-release',
+    ],
 )
 
 fs = import('fs')

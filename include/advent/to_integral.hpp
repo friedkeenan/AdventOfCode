@@ -20,6 +20,19 @@ namespace advent {
         );
     }
 
+    constexpr char digit_char(const std::integral auto digit, const std::integral auto base) {
+        [[assume(base <= 10 || base == 16)]];
+
+        [[assume(digit >= 0 && std::cmp_less(digit, base))]];
+
+        if (digit < 10) {
+            return static_cast<char>('0' + digit);
+        }
+
+        /* Base 16. */
+        return static_cast<char>('A' + (digit - 10));
+    }
+
     template<std::integral ToConvert, ToConvert Base>
     struct _to_integral_fn {
         template<std::ranges::input_range R>
@@ -151,6 +164,39 @@ namespace advent {
     static_assert(advent::to_integral<std::int8_t,  2>("-110") == -6);
 
     template<std::integral Num, std::integral Base>
+    constexpr Num count_digits(Num num, const Base base) {
+        Num num_digits = 0;
+
+        while (num > 0) {
+            ++num_digits;
+
+            num /= base;
+        }
+
+        return num_digits;
+    }
+
+    template<std::integral Num, std::integral Base>
+    constexpr auto count_digits_and_raise_base(Num num, const Base base) {
+        struct result_info {
+            Num  num_digits  = 0;
+            Base raised_base = 1;
+        };
+
+        result_info result;
+
+        while (num > 0) {
+            ++result.num_digits;
+
+            result.raised_base *= base;
+
+            num /= base;
+        }
+
+        return result;
+    }
+
+    template<std::integral Num, std::integral Base>
     struct reverse_digits_view : std::ranges::view_interface<reverse_digits_view<Num, Base>> {
         struct iterator {
             using iterator_concept = std::forward_iterator_tag;
@@ -179,9 +225,7 @@ namespace advent {
                 return lhs._num <= 0;
             }
 
-            friend constexpr bool operator ==(const iterator &lhs, const iterator &rhs) {
-                return lhs._num == rhs._num && lhs._base == rhs._base;
-            }
+            constexpr bool operator ==(const iterator &) const = default;
         };
 
         Num  _num;
@@ -203,19 +247,104 @@ namespace advent {
 
     static_assert(std::ranges::forward_range<advent::reverse_digits_view<std::size_t, std::size_t>>);
 
+    template<std::integral Num, std::integral Base>
+    struct digits_view : std::ranges::view_interface<digits_view<Num, Base>> {
+        /*
+            NOTE: This is less efficient than 'reverse_digits_view'.
+
+            It'd be nice if we could customize 'std::views::reverse'.
+        */
+
+        struct iterator {
+            /* NOTE: This could be random access if our 'advent::pow' were constant time. */
+
+            using iterator_concept = std::bidirectional_iterator_tag;
+            using value_type       = Num;
+            using reference        = value_type;
+
+            /* NOTE: We just nab the difference type from 'std::ranges::iota_view'. */
+            using difference_type = std::ranges::range_difference_t<std::ranges::iota_view<Num>>;
+
+            Base _base;
+            Base _raised_base;
+
+            Num _original;
+
+            constexpr reference operator *(this const iterator &self) {
+                return self._original % self._raised_base;
+            }
+
+            constexpr iterator &operator ++(this iterator &self) {
+                self._raised_base /= self._base;
+
+                return self;
+            }
+
+            constexpr ADVENT_RIGHT_UNARY_OP_FROM_LEFT(iterator, ++)
+
+            constexpr iterator &operator --(this iterator &self) {
+                self._raised_base *= self._base;
+
+                return self;
+            }
+
+            constexpr ADVENT_RIGHT_UNARY_OP_FROM_LEFT(iterator, --)
+
+            friend constexpr bool operator ==(const iterator &lhs, std::default_sentinel_t) {
+                return lhs._raised_base <= 1;
+            }
+
+            constexpr bool operator ==(const iterator &) const = default;
+        };
+
+        Base _base;
+        Base _raised_base;
+        Num  _num;
+
+        constexpr digits_view(Num num, const Base base) : _num(num), _base(base) {
+            [[assume(num >= 0)]];
+            [[assume(base > 1)]];
+
+            this->_raised_base = 1;
+            while (num > 0) {
+                this->_raised_base *= base;
+
+                num /= base;
+            }
+        }
+
+        constexpr iterator begin(this const digits_view &self) {
+            return iterator{self._base, self._raised_base, self._num};
+        }
+
+        constexpr std::default_sentinel_t end(this const digits_view &) {
+            return std::default_sentinel;
+        }
+    };
+
+    static_assert(std::ranges::bidirectional_range<advent::digits_view<std::size_t, std::size_t>>);
+
     namespace views {
 
         namespace impl {
 
             struct reverse_digits_of_fn {
                 static constexpr auto operator ()(const std::integral auto num, const std::integral auto base) {
-                    return advent::reverse_digits_view{num, base};
+                    return advent::reverse_digits_view(num, base);
+                }
+            };
+
+            struct digits_of_fn {
+                static constexpr auto operator ()(const std::integral auto num, const std::integral auto base) {
+                    return advent::digits_view(num, base);
                 }
             };
 
         }
 
         constexpr inline auto reverse_digits_of = impl::reverse_digits_of_fn{};
+
+        constexpr inline auto digits_of = impl::digits_of_fn{};
 
     }
 
@@ -225,5 +354,8 @@ namespace std::ranges {
 
     template<typename Num, typename Base>
     constexpr inline bool enable_borrowed_range<advent::reverse_digits_view<Num, Base>> = true;
+
+    template<typename Num, typename Base>
+    constexpr inline bool enable_borrowed_range<advent::digits_view<Num, Base>> = true;
 
 }

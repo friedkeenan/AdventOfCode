@@ -204,7 +204,7 @@ constexpr std::size_t find_monkey_business(const bool decrease_worry_for_boredom
     auto group = MonkeyGroup(std::forward<Rng>(monkeys));
 
     auto num_inspected_items = std::vector<std::size_t>(group.num_monkeys(), 0);
-    for ([[maybe_unused]] const auto _ : std::views::iota(0uz, NumRounds)) {
+    for (auto _ : std::views::iota(0uz, NumRounds)) {
         for (const auto i : std::views::iota(0uz, group.num_monkeys())) {
             auto &monkey = group[i];
 
