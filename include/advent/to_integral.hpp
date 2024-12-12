@@ -263,7 +263,7 @@ namespace advent {
             using reference        = value_type;
 
             /* NOTE: We just nab the difference type from 'std::ranges::iota_view'. */
-            using difference_type = std::ranges::range_difference_t<std::ranges::iota_view<Num>>;
+            using difference_type = std::ranges::range_difference_t<std::ranges::iota_view<Base>>;
 
             Base _base;
             Base _raised_base;
