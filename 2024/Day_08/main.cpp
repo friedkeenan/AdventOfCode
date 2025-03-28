@@ -18,7 +18,7 @@ struct AntennaMap {
         >
     )
     constexpr std::size_t _count_antinodes(this const AntennaMap &self, AntinodesMarker marker) {
-        auto antinodes = advent::grid<bool>::from_dimensions(self.frequencies.width(), self.frequencies.height());
+        auto antinodes = advent::grid<bool>(self.frequencies.width(), self.frequencies.height());
 
         const auto elements = self.frequencies.elements();
         for (const auto first_it : std::views::iota(elements.begin(), elements.end())) {

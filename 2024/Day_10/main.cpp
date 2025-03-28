@@ -51,7 +51,7 @@ struct HeightMap {
         std::size_t score = 0;
 
         /* TODO: Investigate using a 'std::flat_set' when I receive an implementation. */
-        auto trail_ends = advent::grid<bool>::from_dimensions(self.map.width(), self.map.height());
+        auto trail_ends = advent::grid<bool>(self.map.width(), self.map.height());
         for (const auto &elem : self.map.elements()) {
             if (elem != TrailStart) {
                 continue;

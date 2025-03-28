@@ -49,8 +49,9 @@ struct Map {
     }
 
     template<advent::string_viewable_range Rng>
-    constexpr explicit Map(Rng &&rng) {
-        this->map = advent::grid<Tile>::build([&](auto &builder) {
+    constexpr explicit Map(Rng &&rng)
+    :
+        map([&](auto &builder) {
             for (const std::string_view line : std::forward<Rng>(rng)) {
                 if (line.empty()) {
                     continue;
@@ -73,8 +74,8 @@ struct Map {
                     }
                 });
             }
-        });
-    }
+        })
+    {}
 
     constexpr GuardAction next_guard_action(this const Map &self, const GuardInfo &guard_info) {
         const auto guard = guard_info.tile(self);

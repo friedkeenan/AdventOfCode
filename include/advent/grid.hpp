@@ -97,6 +97,19 @@ namespace advent {
         }
     }
 
+    constexpr advent::adjacent_neighbor opposite_neighbor(const advent::adjacent_neighbor position) {
+        switch (position) {
+            using enum advent::adjacent_neighbor;
+
+            case above: return below;
+            case left:  return right;
+            case right: return left;
+            case below: return above;
+
+            default: std::unreachable();
+        }
+    }
+
     constexpr advent::diagonal_neighbor opposite_neighbor(const advent::diagonal_neighbor position) {
         switch (position) {
             using enum advent::diagonal_neighbor;
@@ -242,6 +255,12 @@ namespace advent {
                     [[assume(!self._is_one_past_end())]];
 
                     return *self._current;
+                }
+
+                constexpr pointer operator ->(this const iterator &self) {
+                    [[assume(!self._is_one_past_end())]];
+
+                    return self._current;
                 }
 
                 constexpr reference operator [](this const iterator &self, const difference_type index) {
@@ -765,6 +784,10 @@ namespace advent {
                 return impl::has_all_neighbors<advent::diagonal_neighbor>(self, elem);
             }
 
+            constexpr bool has_neighbors(this const auto &self, const T *elem, const advent::neighbor_enum auto ...positions) {
+                return (self.has_neighbor(positions, elem) && ...);
+            }
+
             constexpr bool contains_coords(this const auto &self, const coords_t coords) {
                 return coords.x() < self.width() && coords.y() < self.height();
             }
@@ -796,11 +819,17 @@ namespace advent {
                 );
             }
 
-            constexpr auto row(this auto &self, const std::size_t row_index){
+            constexpr auto row(this auto &self, const std::size_t row_index) {
                 [[assume(row_index < self.height())]];
 
                 return impl::grid_row_view{
                     std::span(self._storage.data() + (self._vertical_step() * row_index), self.width())
+                };
+            }
+
+            constexpr auto last_row(this auto &self) {
+                return impl::grid_row_view{
+                    std::span(self._storage.data() + self._storage.size() - self._vertical_step(), self.width())
                 };
             }
 
@@ -829,14 +858,6 @@ namespace advent {
                 });
             }
 
-            constexpr auto enumerate(this auto &self) {
-                return std::views::iota(0uz, self._storage.size()) | std::views::transform([&](const auto raw_index) {
-                    using coords_and_elem = std::pair<coords_t, decltype((self._storage[raw_index]))>;
-
-                    return coords_and_elem{self._from_raw_index(raw_index), self._storage[raw_index]};
-                });
-            }
-
             constexpr auto coords(this const auto &self) {
                 return (
                     std::views::cartesian_product(
@@ -852,38 +873,12 @@ namespace advent {
                 );
             }
 
-            constexpr auto elements(this auto &self) {
-                return std::span(self._storage);
-            }
+            constexpr auto enumerate(this auto &self) {
+                return self.coords() | std::views::transform([&](const auto coords) {
+                    using coords_and_elem = std::pair<coords_t, decltype(self[coords])>;
 
-            constexpr auto &front(this auto &self) {
-                return self._storage.front();
-            }
-
-            constexpr auto &back(this auto &self) {
-                return self._storage.back();
-            }
-
-            constexpr const T *find(this const auto &self, const std::equality_comparable_with<T> auto &value) {
-                const auto it = std::ranges::find(self._storage, value);
-
-                if (it == self._storage.end()) {
-                    return nullptr;
-                }
-
-                return std::to_address(it);
-            }
-
-            constexpr const T *find_after(this const auto &self, const T *elem, const std::equality_comparable_with<T> auto &value) {
-                [[assume(self._contains(elem))]];
-
-                const auto ptr = std::ranges::find(elem + 1, std::to_address(self._storage.end()), value);
-
-                if (ptr == std::to_address(self._storage.end())) {
-                    return nullptr;
-                }
-
-                return ptr;
+                    return coords_and_elem{coords, self[coords]};
+                });
             }
 
             constexpr auto &operator [](this auto &self, const std::size_t column_index, const std::size_t row_index) {
@@ -902,73 +897,63 @@ namespace advent {
         using storage_type = impl::regular_vector<T>;
 
         struct builder {
-            ADVENT_NON_COPYABLE(builder);
-
-            std::size_t  _width   = 0;
-            storage_type _storage = {};
-
-            constexpr builder() = default;
-
-            constexpr builder(builder &&) = default;
-            constexpr builder &operator =(builder &&) = default;
+            grid &_grid;
 
             constexpr impl::grid<T>::coords_t coords_of(this const builder &self, const T *elem) {
-                [[assume(self._width > 0)]];
-
-                [[assume(elem >= self._storage.data())]];
-                [[assume(elem <  self._storage.data() + self._storage.size())]];
-
-                const auto raw_index = static_cast<std::size_t>(elem - self._storage.data());
-
-                return {raw_index % self._width, raw_index / self._width};
+                return self._grid.coords_of(elem);
             }
 
             template<std::invocable<impl::grid_row_view<T>> RowFiller>
-            constexpr void push_row(this builder &self, const std::size_t width, RowFiller &&row_filler) {
+            constexpr void push_row(this const builder &self, const std::size_t width, RowFiller &&row_filler) {
                 /* TODO: If vector ever gets a 'resize_and_overwrite' method, use that. */
 
                 [[assume(width > 0)]];
 
-                if (self._width <= 0) {
-                    self._width = width;
+                if (self._grid._width <= 0) {
+                    self._grid._width = width;
                 }
 
-                [[assume(self._width == width)]];
+                [[assume(self._grid._width == width)]];
 
-                self._storage.resize(self._storage.size() + width);
+                self._grid._storage.resize(self._grid._storage.size() + width);
 
-                auto new_row = impl::grid_row_view{
-                    std::span(self._storage.data() + self._storage.size() - width, width)
-                };
-
-                std::invoke(std::forward<RowFiller>(row_filler), std::move(new_row));
-            }
-
-            constexpr grid build(this builder &&self) {
-                [[assume(self._width > 0)]];
-
-                return grid{{}, self._width, std::move(self._storage)};
+                std::invoke(std::forward<RowFiller>(row_filler), self._grid.last_row());
             }
         };
 
+        std::size_t  _width;
+        storage_type _storage;
+
+        /* NOTE: The default constructor leaves the grid in a degenerate state. */
+        constexpr grid() = default;
+
         template<std::invocable<grid::builder &> BuilderFunction>
-        static constexpr grid build(BuilderFunction &&builder_function) {
-            auto builder = grid::builder{};
+        constexpr explicit grid(BuilderFunction &&builder_function) : _width(0), _storage() {
+            auto builder = grid::builder{*this};
 
             std::invoke(std::forward<BuilderFunction>(builder_function), builder);
 
-            return std::move(builder).build();
+            [[assume(this->width()  > 0)]];
+            [[assume(this->height() > 0)]];
         }
 
-        static constexpr grid from_dimensions(std::size_t width, std::size_t height) {
+        constexpr grid(std::size_t width, std::size_t height)
+        :
+            _width(width),
+            _storage(width * height)
+        {
             [[assume(width  > 0)]];
             [[assume(height > 0)]];
-
-            return grid{{}, width, storage_type(width * height)};
         }
 
-        std::size_t  _width;
-        storage_type _storage;
+        constexpr grid(std::size_t width, std::size_t height, const T &fill_value)
+        :
+            _width(width),
+            _storage(width * height, fill_value)
+        {
+            [[assume(width  > 0)]];
+            [[assume(height > 0)]];
+        }
 
         constexpr std::size_t width(this const grid &self) {
             [[assume(self._width > 0)]];
@@ -978,6 +963,10 @@ namespace advent {
 
         constexpr std::size_t _vertical_step(this const grid &self) {
             return self.width();
+        }
+
+        constexpr auto elements(this auto &self) {
+            return std::span(self._storage);
         }
     };
 
@@ -1006,6 +995,12 @@ namespace advent {
             [[assume(this->_storage.size() % this->_vertical_step() == 0)]];
 
             /* TODO: It would be nice to add assumes for consistent row widths. */
+        }
+
+        constexpr auto elements(this auto &self) {
+            return self.coords() | std::views::transform([&](const auto coords) -> decltype(auto) {
+                return self[coords];
+            });
         }
     };
 }

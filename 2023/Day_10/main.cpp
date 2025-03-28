@@ -36,7 +36,7 @@ struct Pipes {
     constexpr explicit Pipes(Rng &&rng) {
         advent::vector_2d<std::size_t> start_coords = {};
 
-        this->grid = advent::grid<Pipe>::build([&](auto &builder) {
+        this->grid = advent::grid<Pipe>([&](auto &builder) {
             for (const std::string_view line : std::forward<Rng>(rng)) {
                 if (line.empty()) {
                     continue;
@@ -54,7 +54,7 @@ struct Pipes {
             }
         });
 
-        this->start_ptr  = &this->grid[start_coords.x(), start_coords.y()];
+        this->start_ptr  = &this->grid[start_coords];
         *this->start_ptr = this->real_start_pipe();
     }
 
