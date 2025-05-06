@@ -5,12 +5,12 @@ struct Report {
 
     constexpr explicit Report(const std::string_view line)
     :
-        /* TODO: When I get a vector constructor that uses 'std::from_range', use that. */
         levels(
+            std::from_range,
+
             line |
             advent::views::split_string(' ') |
-            std::views::transform(advent::to_integral<advent::ssize_t>) |
-            std::ranges::to<std::vector>()
+            std::views::transform(advent::to_integral<advent::ssize_t>)
         )
     {
         [[assume(this->levels.size() >= 2)]];
@@ -70,12 +70,11 @@ struct Report {
         }
 
         for (const auto skipped_iterator : std::views::iota(self.levels.begin(), self.levels.end())) {
-            /* TODO: Use 'std::views::concat' when I receive an implementation. */
             if (_safe_without_dampener(
-                std::views::join(std::array{
+                std::views::concat(
                     std::ranges::subrange(self.levels.begin(),  skipped_iterator),
                     std::ranges::subrange(skipped_iterator + 1, self.levels.end())
-                })
+                )
             )) {
                 return true;
             }

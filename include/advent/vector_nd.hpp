@@ -215,7 +215,6 @@ namespace advent {
     template<advent::arithmetic T>
     using vector_2d = vector_nd<T, 2>;
 
-    static_assert(std::is_trivial_v<vector_2d<int>>);
     static_assert(std::ranges::contiguous_range<vector_2d<int>>);
     static_assert(std::ranges::sized_range<vector_2d<int>>);
 

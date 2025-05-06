@@ -119,7 +119,7 @@ namespace advent {
 
             return impl::solve_puzzle_result{
                 [&]() {
-                    const auto measurer = timer.measure_scope();
+                    auto _ = timer.measure_scope();
 
                     return std::invoke(std::forward<Solver>(solver), data);
                 }(),

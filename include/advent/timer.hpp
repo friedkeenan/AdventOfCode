@@ -15,8 +15,12 @@ namespace advent {
             return self._duration;
         }
 
+        [[nodiscard]]
         constexpr auto measure_scope(this timer &self) {
             struct scope_measurer {
+                ADVENT_NON_COPYABLE(scope_measurer);
+                ADVENT_NON_MOVEABLE(scope_measurer);
+
                 timer &_timer;
 
                 Clock::time_point _start;

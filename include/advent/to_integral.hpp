@@ -105,8 +105,7 @@ namespace advent {
 
                 using Subrange = decltype(subrange);
                 if constexpr (!std::ranges::sized_range<Subrange> && !std::ranges::forward_range<Subrange>) {
-                    auto common_subrange = subrange | std::views::common;
-                    return std::vector(std::ranges::begin(common_subrange), std::ranges::end(common_subrange));
+                    return std::vector(std::from_range, std::move(subrange));
                 } else {
                     return subrange;
                 }

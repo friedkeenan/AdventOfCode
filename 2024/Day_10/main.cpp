@@ -50,7 +50,7 @@ struct HeightMap {
     constexpr std::size_t cumulative_trailhead_score(this const HeightMap &self) {
         std::size_t score = 0;
 
-        /* TODO: Investigate using a 'std::flat_set' when I receive an implementation. */
+        /* TODO: Investigate using a 'std::flat_set' when I receive a constexpr implementation. */
         auto trail_ends = advent::grid<bool>(self.map.width(), self.map.height());
         for (const auto &elem : self.map.elements()) {
             if (elem != TrailStart) {

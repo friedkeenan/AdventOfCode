@@ -108,7 +108,7 @@ struct Map {
 
         std::vector<IntermediateNode> intermediate;
 
-        /* TODO: Investigate if this could be done better when I receive 'std::flat_map'. */
+        /* TODO: Investigate if this could be done better when I receive a constexpr 'std::flat_map'. */
 
         /*
             NOTE: We could encode the node names directly into
