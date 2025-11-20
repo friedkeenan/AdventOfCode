@@ -3,7 +3,7 @@
 #include <advent/common.hpp>
 
 /*
-    This is to be uses where our code expects regular vector semantics,
+    This is to be used where our code expects regular vector semantics,
     such as being contiguous and being able to get normal pointers and such.
 
     This does not provide the entire std::vector API, and only provides

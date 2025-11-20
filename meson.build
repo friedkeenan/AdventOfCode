@@ -23,8 +23,8 @@ link_args = [
     '-s',
 ]
 
-cpp_args  = [
-    '-std=gnu++2c',
+cpp_args = [
+    '-std=c++26',
 
     '-Wall',
     '-Wextra',

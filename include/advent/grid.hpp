@@ -784,7 +784,7 @@ namespace advent {
                 return impl::has_all_neighbors<advent::diagonal_neighbor>(self, elem);
             }
 
-            constexpr bool has_neighbors(this const auto &self, const T *elem, const advent::neighbor_enum auto ...positions) {
+            constexpr bool has_neighbors(this const auto &self, const T *elem, const advent::neighbor_enum auto... positions) {
                 return (self.has_neighbor(positions, elem) && ...);
             }
 
