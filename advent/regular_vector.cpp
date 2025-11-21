@@ -1,6 +1,6 @@
-#pragma once
+module advent:regular_vector;
 
-#include <advent/common.hpp>
+import std;
 
 /*
     This is to be used where our code expects regular vector semantics,

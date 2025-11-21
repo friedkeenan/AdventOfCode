@@ -1,12 +1,13 @@
-#pragma once
+export module advent:vector_nd;
 
-#include <advent/common.hpp>
-#include <advent/math.hpp>
-#include <advent/concepts.hpp>
+import std;
+
+import :concepts;
+import :math;
 
 namespace advent {
 
-    template<advent::arithmetic T, std::size_t Size>
+    export template<advent::arithmetic T, std::size_t Size>
     struct vector_nd {
         std::array<T, Size> _storage;
 
@@ -212,7 +213,7 @@ namespace advent {
     template<advent::arithmetic Head, advent::arithmetic... Tail>
     vector_nd(Head, Tail...) -> vector_nd<Head, sizeof...(Tail) + 1>;
 
-    template<advent::arithmetic T>
+    export template<advent::arithmetic T>
     using vector_2d = vector_nd<T, 2>;
 
     static_assert(std::ranges::contiguous_range<vector_2d<int>>);

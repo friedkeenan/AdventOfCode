@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 template<std::size_t Base = 10>
 struct Concatenate {

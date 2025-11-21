@@ -1,20 +1,24 @@
 cmake_minimum_required(VERSION 4.1)
 
+set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
+
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif ()
 
 project(AdventOfCode LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD      26)
-set(CMAKE_COLOR_DIAGNOSTICS ON)
+set(CMAKE_CXX_STANDARD         26)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+set(CMAKE_CXX_MODULE_STD       ON)
+set(CMAKE_COLOR_DIAGNOSTICS    ON)
 
 set(SANITIZERS
     # -fsanitize=address
     # -fsanitize=undefined
 )
 
-set(COMPILE_FLAGS
+add_compile_options(
     -Wall
     -Wextra
     -Wpedantic
@@ -27,23 +31,13 @@ set(COMPILE_FLAGS
     ${SANITIZERS}
 )
 
-set(LINK_FLAGS
+add_link_options(
     -s
 
     ${SANITIZERS}
 )
 
-add_library(advent INTERFACE)
-
-target_include_directories(advent
-    INTERFACE
-    include
-)
-
-target_compile_definitions(advent
-    INTERFACE
-    ADVENT_TIME_SOLUTIONS
-)
+add_subdirectory(advent)
 
 function (add_day year day)
 
@@ -54,16 +48,6 @@ function (add_day year day)
     )
 
     target_link_libraries(${EXE} advent)
-
-    target_compile_options(${EXE}
-        PRIVATE
-        ${COMPILE_FLAGS}
-    )
-
-    target_link_options(${EXE}
-        PRIVATE
-        ${LINK_FLAGS}
-    )
 
 endfunction ()
 

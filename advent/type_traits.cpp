@@ -1,10 +1,12 @@
-#pragma once
+export module advent:type_traits;
 
-#include <advent/concepts.hpp>
+import std;
+
+import :concepts;
 
 namespace advent {
 
-    template<typename T> requires advent::addable_with<T, T>
+    export template<typename T> requires advent::addable_with<T, T>
     using addition_result = decltype(std::declval<T>() + std::declval<T>());
 
     namespace impl {
@@ -12,27 +14,16 @@ namespace advent {
         consteval auto type_name() {
             std::string_view name, prefix, suffix;
 
-            #if defined(__clang__)
+            /* TODO: Support more compilers. */
+            #if defined(__GNUC__) && !defined(__clang__)
 
             name = __PRETTY_FUNCTION__;
-            prefix = "auto advent::impl::type_name() [T = ";
+            prefix = "consteval auto advent::impl::type_name@advent() [with T = ";
             suffix = "]";
-
-            #elif defined(__GNUC__)
-
-            name = __PRETTY_FUNCTION__;
-            prefix = "consteval auto advent::impl::type_name() [with T = ";
-            suffix = "]";
-
-            #elif defined(_MSC_VER)
-
-            name = __FUNCSIG__;
-            prefix = "auto __cdecl advent::impl::type_name<";
-            suffix = ">(void)";
 
             #else
 
-            #error "Unsupported compiler"
+            static_assert(false, "Unsupported compiler for retrieving type names");
 
             #endif
 
@@ -47,7 +38,7 @@ namespace advent {
         };
     }
 
-    template<typename T = impl::type_name_func_tag>
+    export template<typename T = impl::type_name_func_tag>
     constexpr inline auto type_name = impl::type_name<T>();
 
     template<>

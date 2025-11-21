@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct WorryIncreaser {
     static constexpr std::string_view Prefix = "  Operation: new = old ";

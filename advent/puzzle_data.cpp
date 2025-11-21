@@ -1,14 +1,20 @@
-#pragma once
+module;
 
-#include <advent/common.hpp>
-#include <advent/scope_guard.hpp>
-#include <advent/timer.hpp>
-#include <advent/print.hpp>
+/* NOTE: Needed for 'SEEK_SET' and such. */
+#include <cstdio>
+
+export module advent:puzzle_data;
+
+import std;
+
+import :scope_guard;
+import :print;
+import :timer;
 
 namespace advent {
 
     /* 'argv' is a pointer to a const pointer to a const 'char'. */
-    constexpr std::optional<std::string> puzzle_data(int argc, const char * const *argv) {
+    export constexpr std::optional<std::string> puzzle_data(int argc, const char * const *argv) {
         /* NOTE: If we need more complex logic, we can put the args in a span. */
         if (argc < 2) {
             return std::nullopt;
@@ -51,7 +57,7 @@ namespace advent {
 
     static_assert(!advent::puzzle_data(1, nullptr).has_value());
 
-    template<typename Solver>
+    export template<typename Solver>
     concept PuzzleSolver = std::invocable<Solver, const std::string &>;
 
     namespace impl {
@@ -76,25 +82,11 @@ namespace advent {
         requires (Index <= 1)
         constexpr inline auto default_solution_fmt_string = nullptr;
 
-        #ifdef ADVENT_TIME_SOLUTIONS
-
         template<>
         constexpr inline impl::fixed_string default_solution_fmt_string<0> = "Part one solution: {}\t(in {:.3})";
 
         template<>
         constexpr inline impl::fixed_string default_solution_fmt_string<1> = "Part two solution: {}\t(in {:.3})";
-
-        #else
-
-        template<>
-        constexpr inline impl::fixed_string default_solution_fmt_string<0> = "Part one solution: {}";
-
-        template<>
-        constexpr inline impl::fixed_string default_solution_fmt_string<1> = "Part two solution: {}";
-
-        #endif
-
-        #ifdef ADVENT_TIME_SOLUTIONS
 
         template<typename Solution, typename Duration>
         struct solve_puzzle_result {
@@ -102,19 +94,8 @@ namespace advent {
             Duration duration;
         };
 
-        #else
-
-        template<typename Solution>
-        struct solve_puzzle_result {
-            Solution solution;
-        };
-
-        #endif
-
         template<advent::PuzzleSolver Solver>
         constexpr auto solve_puzzle(Solver &&solver, const std::string &data) {
-            #ifdef ADVENT_TIME_SOLUTIONS
-
             advent::timer timer;
 
             return impl::solve_puzzle_result{
@@ -126,21 +107,11 @@ namespace advent {
 
                 timer.last_measured_duration()
             };
-
-            #else
-
-            return impl::solve_puzzle_result{
-                std::invoke(std::forward<Solver>(solver), data)
-            };
-
-            #endif
         }
 
         template<impl::fixed_string FormatString, advent::PuzzleSolver Solver>
         constexpr void print_solution(Solver &&solver, const std::string &data) {
             auto result = impl::solve_puzzle(std::forward<Solver>(solver), data);
-
-            #ifdef ADVENT_TIME_SOLUTIONS
 
             const auto print_for_duration = [&](const auto duration) {
                 advent::println(FormatString, std::move(result.solution), duration);
@@ -165,17 +136,11 @@ namespace advent {
 
                 print_for_duration(duration);
             }
-
-            #else
-
-            advent::println(FormatString, std::move(result.solution));
-
-            #endif
         }
 
     }
 
-    template<impl::fixed_string... FormatStrings, advent::PuzzleSolver... Solvers>
+    export template<impl::fixed_string... FormatStrings, advent::PuzzleSolver... Solvers>
     requires (sizeof...(FormatStrings) == sizeof...(Solvers))
     constexpr int solve_puzzles(int argc, const char * const *argv, Solvers &&... solvers) {
         const auto data = advent::puzzle_data(argc, argv);
@@ -190,7 +155,7 @@ namespace advent {
         return 0;
     }
 
-    template<advent::PuzzleSolver... Solvers>
+    export template<advent::PuzzleSolver... Solvers>
     requires (sizeof...(Solvers) <= 2)
     constexpr int solve_puzzles(int argc, char * const *argv, Solvers &&... solvers) {
         /*

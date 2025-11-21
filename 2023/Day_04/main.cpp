@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct Card {
     std::vector<std::size_t> winning_numbers;

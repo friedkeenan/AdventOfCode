@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct PageOrdering {
     template<advent::string_viewable_iterator It>

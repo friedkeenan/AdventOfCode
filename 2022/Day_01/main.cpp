@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 template<advent::string_viewable_range Rng>
 constexpr std::size_t find_max_calories(Rng &&calorie_list) {

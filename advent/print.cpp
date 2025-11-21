@@ -1,6 +1,6 @@
-#pragma once
+export module advent:print;
 
-#include <advent/common.hpp>
+import std;
 
 namespace advent {
 
@@ -10,21 +10,21 @@ namespace advent {
         Mostly useful for debugging.
     */
 
-    template<typename... Args>
+    export template<typename... Args>
     constexpr void print(std::format_string<Args...> fmt, Args &&... args) {
         if !consteval {
             std::print(std::move(fmt), std::forward<Args>(args)...);
         }
     }
 
-    template<typename... Args>
+    export template<typename... Args>
     constexpr void println(std::format_string<Args...> fmt, Args &&... args) {
         if !consteval {
             std::println(std::move(fmt), std::forward<Args>(args)...);
         }
     }
 
-    constexpr void println() {
+    export constexpr void println() {
         if !consteval {
             /* TODO: Just call the proper overload when we receive an implementation of it. */
             std::println("\n");

@@ -1,12 +1,15 @@
-#pragma once
+#include <advent/defines.hpp>
 
-#include <advent/common.hpp>
-#include <advent/math.hpp>
-#include <advent/concepts.hpp>
+export module advent:digits;
+
+import std;
+
+import :concepts;
+import :math;
 
 namespace advent {
 
-    constexpr bool is_digit(char c, const std::integral auto base) {
+    export constexpr bool is_digit(char c, const std::integral auto base) {
         [[assume(base <= 10 || base == 16)]];
 
         if (base <= 10) {
@@ -20,7 +23,7 @@ namespace advent {
         );
     }
 
-    constexpr char digit_char(const std::integral auto digit, const std::integral auto base) {
+    export constexpr char digit_char(const std::integral auto digit, const std::integral auto base) {
         [[assume(base <= 10 || base == 16)]];
 
         [[assume(digit >= 0 && std::cmp_less(digit, base))]];
@@ -151,7 +154,7 @@ namespace advent {
         }
     };
 
-    template<std::integral ToConvert, ToConvert Base = 0>
+    export template<std::integral ToConvert, ToConvert Base = 0>
     constexpr inline _to_integral_fn<ToConvert, Base> to_integral{};
 
     static_assert(advent::to_integral<std::uint16_t>("200") == 200);
@@ -162,7 +165,7 @@ namespace advent {
     static_assert(advent::to_integral<std::uint8_t, 2>("110")  == 6);
     static_assert(advent::to_integral<std::int8_t,  2>("-110") == -6);
 
-    template<std::integral Num, std::integral Base>
+    export template<std::integral Num, std::integral Base>
     constexpr Num count_digits(Num num, const Base base) {
         Num num_digits = 0;
 
@@ -175,7 +178,7 @@ namespace advent {
         return num_digits;
     }
 
-    template<std::integral Num, std::integral Base>
+    export template<std::integral Num, std::integral Base>
     constexpr auto count_digits_and_raise_base(Num num, const Base base) {
         struct result_info {
             Num  num_digits  = 0;
@@ -195,7 +198,7 @@ namespace advent {
         return result;
     }
 
-    template<std::integral Num, std::integral Base>
+    export template<std::integral Num, std::integral Base>
     struct reverse_digits_view : std::ranges::view_interface<reverse_digits_view<Num, Base>> {
         struct iterator {
             using iterator_concept = std::forward_iterator_tag;
@@ -246,7 +249,7 @@ namespace advent {
 
     static_assert(std::ranges::forward_range<advent::reverse_digits_view<std::size_t, std::size_t>>);
 
-    template<std::integral Num, std::integral Base>
+    export template<std::integral Num, std::integral Base>
     struct digits_view : std::ranges::view_interface<digits_view<Num, Base>> {
         /*
             NOTE: This is less efficient than 'reverse_digits_view'.
@@ -341,9 +344,9 @@ namespace advent {
 
         }
 
-        constexpr inline auto reverse_digits_of = impl::reverse_digits_of_fn{};
+        export constexpr inline auto reverse_digits_of = impl::reverse_digits_of_fn{};
 
-        constexpr inline auto digits_of = impl::digits_of_fn{};
+        export constexpr inline auto digits_of = impl::digits_of_fn{};
 
     }
 

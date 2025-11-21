@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct Rucksack {
     static constexpr std::size_t ItemTypePriority(const char item_type) {

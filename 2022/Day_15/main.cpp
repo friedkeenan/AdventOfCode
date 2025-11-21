@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 using Coord    = std::int64_t;
 using Position = advent::vector_2d<Coord>;

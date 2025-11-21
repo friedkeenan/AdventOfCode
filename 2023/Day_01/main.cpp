@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 template<typename Matcher>
 concept DigitMatcher = advent::invocable_r<Matcher, std::optional<std::size_t>, const std::string_view &>;

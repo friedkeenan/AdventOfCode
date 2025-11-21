@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct AntennaMap {
     static constexpr char NullFrequency = '.';

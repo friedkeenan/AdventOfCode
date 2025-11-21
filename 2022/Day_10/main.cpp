@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct Display {
     static constexpr std::int64_t Width  = 40;
@@ -443,17 +444,8 @@ int main(int argc, char **argv) {
     */
 
     return advent::solve_puzzles<
-        #ifdef ADVENT_TIME_SOLUTIONS
-
         "Part one solution: {} (in {:.3})\n",
         "Part two solution:\n{}(in {:.3})\n"
-
-        #else
-
-        "Part one solution: {}\n",
-        "Part two solution:\n{}"
-
-        #endif
     >(
         argc, argv,
 

@@ -1,7 +1,8 @@
-#pragma once
+export module advent:math;
 
-#include <advent/common.hpp>
-#include <advent/concepts.hpp>
+import std;
+
+import :concepts;
 
 namespace advent {
 
@@ -35,7 +36,7 @@ namespace advent {
         }
     };
 
-    constexpr inline auto pow = _pow_fn{};
+    export constexpr inline auto pow = _pow_fn{};
 
     struct _floor_sqrt_fn {
         template<std::integral T>
@@ -71,7 +72,7 @@ namespace advent {
         }
     };
 
-    constexpr inline auto floor_sqrt = _floor_sqrt_fn{};
+    export constexpr inline auto floor_sqrt = _floor_sqrt_fn{};
 
     static_assert(advent::floor_sqrt(0)  == 0);
     static_assert(advent::floor_sqrt(1)  == 1);
@@ -113,7 +114,7 @@ namespace advent {
         }
     };
 
-    constexpr inline auto ceil_sqrt = _ceil_sqrt_fn{};
+    export constexpr inline auto ceil_sqrt = _ceil_sqrt_fn{};
 
     static_assert(advent::ceil_sqrt(0)  == 0);
     static_assert(advent::ceil_sqrt(1)  == 1);
@@ -137,7 +138,7 @@ namespace advent {
         }
     };
 
-    constexpr inline auto abs = _abs_fn{};
+    export constexpr inline auto abs = _abs_fn{};
 
     static_assert(advent::abs(-1) == 1);
     static_assert(advent::abs(1)  == 1);
@@ -168,7 +169,7 @@ namespace advent {
         }
     };
 
-    constexpr inline auto gcd = _gcd_fn{};
+    export constexpr inline auto gcd = _gcd_fn{};
 
     static_assert(advent::gcd(12, 6) == 6);
     static_assert(advent::gcd(12, 9) == 3);
@@ -192,7 +193,7 @@ namespace advent {
         }
     };
 
-    constexpr inline auto lcm = _lcm_fn{};
+    export constexpr inline auto lcm = _lcm_fn{};
 
     static_assert(advent::lcm(12, 6) == 12);
     static_assert(advent::lcm(12, 9) == 36);
@@ -200,7 +201,7 @@ namespace advent {
     static_assert(advent::lcm(0, 9) == 0);
     static_assert(advent::lcm(0, 0) == 0);
 
-    template<std::size_t NumMaxes, std::ranges::input_range Rng>
+    export template<std::size_t NumMaxes, std::ranges::input_range Rng>
     requires (advent::arithmetic<std::ranges::range_value_t<Rng>>)
     constexpr auto find_maxes(Rng &&rng) {
         using Elem = std::ranges::range_value_t<Rng>;

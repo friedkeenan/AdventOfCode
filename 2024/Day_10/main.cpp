@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct HeightMap {
     /* NOTE: We can just keep our heights as 'char'. */

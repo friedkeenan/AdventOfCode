@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 template<std::ranges::input_range R>
 requires (advent::arithmetic<std::ranges::range_value_t<R>>)

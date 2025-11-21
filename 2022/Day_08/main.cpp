@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 enum class RowDirection : std::uint8_t {
     Right,

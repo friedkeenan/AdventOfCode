@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct LocationIDLists {
     /* NOTE: We use 'advent::ssize_t' here so that subtraction won't overflow. */

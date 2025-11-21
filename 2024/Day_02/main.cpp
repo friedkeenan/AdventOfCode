@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct Report {
     std::vector<advent::ssize_t> levels;

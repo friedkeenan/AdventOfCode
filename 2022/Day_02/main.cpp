@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 enum class Shape : std::uint8_t {
     Rock,

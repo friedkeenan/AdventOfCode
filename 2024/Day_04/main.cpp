@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 constexpr std::size_t count_xmas_branches(const advent::string_view_grid &grid, const char *possible_X) {
     if (*possible_X != 'X') {
@@ -55,7 +56,7 @@ constexpr bool is_mas_x(const advent::string_view_grid &grid, const char *center
         return false;
     }
 
-    for (const auto position : advent::neighbor_positions<advent::diagonal_neighbor>) {
+    for (const auto position : advent::neighbor_positions<advent::diagonal_neighbor>()) {
         if (*grid.neighbor(position, center) == 'M') {
             if (*grid.neighbor(advent::opposite_neighbor(position), center) != 'S') {
                 return false;

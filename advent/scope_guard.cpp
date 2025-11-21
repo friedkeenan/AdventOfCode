@@ -1,14 +1,13 @@
-#pragma once
+export module advent:scope_guard;
 
-#include <advent/common.hpp>
-#include <advent/concepts.hpp>
+import std;
+
+import :concepts;
 
 namespace advent {
 
-    template<std::invocable Invocable>
+    export template<std::invocable Invocable>
     struct scope_guard {
-        ADVENT_NON_COPYABLE(scope_guard);
-
         [[no_unique_address]] Invocable _invocable;
         bool _active = true;
 
@@ -27,6 +26,9 @@ namespace advent {
 
             return *this;
         }
+
+        scope_guard(const scope_guard &) = delete;
+        scope_guard &operator =(const scope_guard &) = delete;
 
         constexpr ~scope_guard() {
             /* If the invocable throws, 'std::terminate' will be called. */

@@ -1,12 +1,15 @@
-#pragma once
+#include <advent/defines.hpp>
 
-#include <advent/common.hpp>
-#include <advent/vector_nd.hpp>
-#include <advent/impl_bool_vector.hpp>
+export module advent:grid;
+
+import std;
+
+import :vector_nd;
+import :regular_vector;
 
 namespace advent {
 
-    enum class neighbor : std::uint8_t {
+    export enum class neighbor : std::uint8_t {
         above_left,
         above,
         above_right,
@@ -17,32 +20,32 @@ namespace advent {
         below_right,
     };
 
-    enum class adjacent_neighbor : std::uint8_t {
+    export enum class adjacent_neighbor : std::uint8_t {
         above = std::to_underlying(advent::neighbor::above),
         left  = std::to_underlying(advent::neighbor::left),
         right = std::to_underlying(advent::neighbor::right),
         below = std::to_underlying(advent::neighbor::below),
     };
 
-    enum class diagonal_neighbor : std::uint8_t {
+    export enum class diagonal_neighbor : std::uint8_t {
         above_left  = std::to_underlying(advent::neighbor::above_left),
         above_right = std::to_underlying(advent::neighbor::above_right),
         below_left  = std::to_underlying(advent::neighbor::below_left),
         below_right = std::to_underlying(advent::neighbor::below_right),
     };
 
-    template<typename T>
+    export template<typename T>
     concept neighbor_enum = (
         std::same_as<T, advent::neighbor>          ||
         std::same_as<T, advent::adjacent_neighbor> ||
         std::same_as<T, advent::diagonal_neighbor>
     );
 
-    constexpr bool operator ==(const advent::neighbor lhs, const advent::adjacent_neighbor rhs) noexcept {
+    export constexpr bool operator ==(const advent::neighbor lhs, const advent::adjacent_neighbor rhs) noexcept {
         return std::to_underlying(lhs) == std::to_underlying(rhs);
     }
 
-    constexpr bool operator ==(const advent::neighbor lhs, const advent::diagonal_neighbor rhs) noexcept {
+    export constexpr bool operator ==(const advent::neighbor lhs, const advent::diagonal_neighbor rhs) noexcept {
         return std::to_underlying(lhs) == std::to_underlying(rhs);
     }
 
@@ -56,35 +59,45 @@ namespace advent {
     static_assert(advent::neighbor::below_left  == advent::diagonal_neighbor::below_left);
     static_assert(advent::neighbor::below_right == advent::diagonal_neighbor::below_right);
 
-    template<advent::neighbor_enum Position>
-    constexpr inline auto neighbor_positions = std::array{
-        advent::neighbor::above_left,
-        advent::neighbor::above,
-        advent::neighbor::above_right,
-        advent::neighbor::left,
-        advent::neighbor::right,
-        advent::neighbor::below_left,
-        advent::neighbor::below,
-        advent::neighbor::below_right
-    };
+    /*
+        NOTE: This was originally a variable template, but
+        due to a bug, the different specializations weren't
+        being curried to the linker. So it was converted to
+        a function.
 
-    template<>
-    constexpr inline auto neighbor_positions<advent::adjacent_neighbor> = std::array{
-        advent::adjacent_neighbor::above,
-        advent::adjacent_neighbor::left,
-        advent::adjacent_neighbor::right,
-        advent::adjacent_neighbor::below
-    };
+        TODO: Should it be changed back when available?
+    */
+    export template<advent::neighbor_enum Position>
+    consteval auto neighbor_positions() {
+        if constexpr (std::same_as<Position, advent::neighbor>) {
+            return std::array{
+                advent::neighbor::above_left,
+                advent::neighbor::above,
+                advent::neighbor::above_right,
+                advent::neighbor::left,
+                advent::neighbor::right,
+                advent::neighbor::below_left,
+                advent::neighbor::below,
+                advent::neighbor::below_right
+            };
+        } else if constexpr (std::same_as<Position, advent::adjacent_neighbor>) {
+            return std::array{
+                advent::adjacent_neighbor::above,
+                advent::adjacent_neighbor::left,
+                advent::adjacent_neighbor::right,
+                advent::adjacent_neighbor::below
+            };
+        } else if constexpr (std::same_as<Position, advent::diagonal_neighbor>) {
+            return std::array{
+                advent::diagonal_neighbor::above_left,
+                advent::diagonal_neighbor::above_right,
+                advent::diagonal_neighbor::below_left,
+                advent::diagonal_neighbor::below_right
+            };
+        }
+    }
 
-    template<>
-    constexpr inline auto neighbor_positions<advent::diagonal_neighbor> = std::array{
-        advent::diagonal_neighbor::above_left,
-        advent::diagonal_neighbor::above_right,
-        advent::diagonal_neighbor::below_left,
-        advent::diagonal_neighbor::below_right
-    };
-
-    constexpr advent::adjacent_neighbor next_clockwise_neighbor(const advent::adjacent_neighbor position) {
+    export constexpr advent::adjacent_neighbor next_clockwise_neighbor(const advent::adjacent_neighbor position) {
         switch (position) {
             using enum advent::adjacent_neighbor;
 
@@ -97,7 +110,7 @@ namespace advent {
         }
     }
 
-    constexpr advent::adjacent_neighbor opposite_neighbor(const advent::adjacent_neighbor position) {
+    export constexpr advent::adjacent_neighbor opposite_neighbor(const advent::adjacent_neighbor position) {
         switch (position) {
             using enum advent::adjacent_neighbor;
 
@@ -110,7 +123,7 @@ namespace advent {
         }
     }
 
-    constexpr advent::diagonal_neighbor opposite_neighbor(const advent::diagonal_neighbor position) {
+    export constexpr advent::diagonal_neighbor opposite_neighbor(const advent::diagonal_neighbor position) {
         switch (position) {
             using enum advent::diagonal_neighbor;
 
@@ -123,7 +136,7 @@ namespace advent {
         }
     }
 
-    constexpr advent::diagonal_neighbor column_opposite_neighbor(const advent::diagonal_neighbor position) {
+    export constexpr advent::diagonal_neighbor column_opposite_neighbor(const advent::diagonal_neighbor position) {
         switch (position) {
             using enum advent::diagonal_neighbor;
 
@@ -136,7 +149,7 @@ namespace advent {
         }
     }
 
-    constexpr advent::diagonal_neighbor row_opposite_neighbor(const advent::diagonal_neighbor position) {
+    export constexpr advent::diagonal_neighbor row_opposite_neighbor(const advent::diagonal_neighbor position) {
         switch (position) {
             using enum advent::diagonal_neighbor;
 
@@ -152,7 +165,7 @@ namespace advent {
     namespace impl {
         template<advent::neighbor_enum Position>
         constexpr bool has_all_neighbors(const auto &grid, const auto *elem) {
-            for (const auto position : advent::neighbor_positions<Position>) {
+            for (const auto position : advent::neighbor_positions<Position>()) {
                 if (!grid.has_neighbor(position, elem)) {
                     return false;
                 }
@@ -384,7 +397,7 @@ namespace advent {
 
         template<typename Grid, advent::neighbor_enum Position>
         struct grid_neighbors_view {
-            static constexpr auto &_neighbor_positions = advent::neighbor_positions<Position>;
+            static constexpr auto _neighbor_positions = advent::neighbor_positions<Position>();
 
             using _grid_element = std::remove_reference_t<decltype(std::declval<Grid &>()._storage[0])>;
 
@@ -892,7 +905,7 @@ namespace advent {
 
     }
 
-    template<typename T>
+    export template<typename T>
     struct grid : impl::grid<T> {
         using storage_type = impl::regular_vector<T>;
 
@@ -970,7 +983,7 @@ namespace advent {
         }
     };
 
-    struct string_view_grid : impl::grid<char> {
+    export struct string_view_grid : impl::grid<char> {
         static constexpr char row_separator = '\n';
 
         std::size_t      _width;

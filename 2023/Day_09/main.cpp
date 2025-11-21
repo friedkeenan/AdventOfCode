@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 template<bool Behind>
 constexpr std::int64_t next_distance(const std::vector<std::int64_t> &upper_elems) {

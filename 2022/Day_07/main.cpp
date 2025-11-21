@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 struct FileSystem {
     static constexpr std::size_t InvalidSize = -1;

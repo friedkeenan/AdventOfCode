@@ -1,10 +1,10 @@
-#pragma once
+export module advent:functional;
 
-#include <advent/concepts.hpp>
+import :concepts;
 
 namespace advent {
 
-    template<advent::inheritable... Callables>
+    export template<advent::inheritable... Callables>
     struct overloaded : Callables... {
         /* Constructor and deduction guide are implicitly defined. */
 

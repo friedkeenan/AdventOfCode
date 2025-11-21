@@ -1,12 +1,10 @@
-#pragma once
+export module advent:timer;
 
-#ifdef ADVENT_TIME_SOLUTIONS
-
-#include <advent/common.hpp>
+import std;
 
 namespace advent {
 
-    template<typename Clock = std::chrono::steady_clock>
+    export template<typename Clock = std::chrono::steady_clock>
     requires (std::chrono::is_clock_v<Clock> && Clock::is_steady)
     struct timer {
         Clock::duration _duration;
@@ -18,8 +16,11 @@ namespace advent {
         [[nodiscard]]
         constexpr auto measure_scope(this timer &self) {
             struct scope_measurer {
-                ADVENT_NON_COPYABLE(scope_measurer);
-                ADVENT_NON_MOVEABLE(scope_measurer);
+                scope_measurer(const scope_measurer &) = delete;
+                scope_measurer &operator =(const scope_measurer &) = delete;
+
+                scope_measurer(scope_measurer &&) = delete;
+                scope_measurer &operator =(scope_measurer &&) = delete;
 
                 timer &_timer;
 
@@ -47,5 +48,3 @@ namespace advent {
     };
 
 }
-
-#endif

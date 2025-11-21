@@ -1,6 +1,8 @@
-#pragma once
+#include <advent/defines.hpp>
 
-#include <advent/common.hpp>
+export module advent:split_string_view;
+
+import std;
 
 namespace advent {
 
@@ -9,7 +11,7 @@ namespace advent {
 
         I hope 'reconstructed_range' stuff gets in at some point.
     */
-    struct split_string_view : public std::ranges::view_interface<split_string_view> {
+    export struct split_string_view : public std::ranges::view_interface<split_string_view> {
         struct iterator {
             using iterator_category = std::forward_iterator_tag;
             using iterator_concept  = std::forward_iterator_tag;
@@ -113,13 +115,13 @@ namespace advent {
 
         }
 
-        constexpr inline auto split_string = impl::split_range_adaptor{};
+        export constexpr inline auto split_string = impl::split_range_adaptor{};
 
-        constexpr inline auto split_lines = impl::split_lines_adaptor_closure{};
+        export constexpr inline auto split_lines = impl::split_lines_adaptor_closure{};
 
     }
 
-    template<typename Callback>
+    export template<typename Callback>
     requires (std::invocable<Callback &, std::string_view>)
     constexpr void split_with_callback(std::string_view str, const std::string_view delimiter, Callback &&callback) {
         /* Used for cases where we just need to simply loop over each substring. */
@@ -138,7 +140,7 @@ namespace advent {
         }
     }
 
-    template<typename Callback>
+    export template<typename Callback>
     requires (std::invocable<Callback &, std::string_view>)
     constexpr void split_with_callback(std::string_view str, const char delimiter, Callback &&callback) {
         return split_with_callback(str, std::string_view(&delimiter, 1), std::forward<Callback>(callback));

@@ -1,4 +1,7 @@
-#include <advent/advent.hpp>
+#include <advent/defines.hpp>
+
+import std;
+import advent;
 
 enum class Direction : char {
     Left  = 'L',

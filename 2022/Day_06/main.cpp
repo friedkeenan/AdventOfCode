@@ -1,4 +1,5 @@
-#include <advent/advent.hpp>
+import std;
+import advent;
 
 constexpr std::size_t find_duplicate_character(const std::string_view potential_marker) {
     for (const auto i : std::views::iota(0uz, potential_marker.length())) {
