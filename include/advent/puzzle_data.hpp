@@ -79,18 +79,18 @@ namespace advent {
         #ifdef ADVENT_TIME_SOLUTIONS
 
         template<>
-        constexpr inline impl::fixed_string default_solution_fmt_string<0> = "Part one solution: {}\t(in {:.3})\n";
+        constexpr inline impl::fixed_string default_solution_fmt_string<0> = "Part one solution: {}\t(in {:.3})";
 
         template<>
-        constexpr inline impl::fixed_string default_solution_fmt_string<1> = "Part two solution: {}\t(in {:.3})\n";
+        constexpr inline impl::fixed_string default_solution_fmt_string<1> = "Part two solution: {}\t(in {:.3})";
 
         #else
 
         template<>
-        constexpr inline impl::fixed_string default_solution_fmt_string<0> = "Part one solution: {}\n";
+        constexpr inline impl::fixed_string default_solution_fmt_string<0> = "Part one solution: {}";
 
         template<>
-        constexpr inline impl::fixed_string default_solution_fmt_string<1> = "Part two solution: {}\n";
+        constexpr inline impl::fixed_string default_solution_fmt_string<1> = "Part two solution: {}";
 
         #endif
 
@@ -138,36 +138,28 @@ namespace advent {
 
         template<impl::fixed_string FormatString, advent::PuzzleSolver Solver>
         constexpr void print_solution(Solver &&solver, const std::string &data) {
-            /*
-                NOTE: We need to make the format string into a string view
-                so that it'll play nice with 'fmt::format_string'.
-            */
-            static constexpr std::string_view FormatStringView = FormatString;
-
             auto result = impl::solve_puzzle(std::forward<Solver>(solver), data);
 
             #ifdef ADVENT_TIME_SOLUTIONS
 
             const auto print_for_duration = [&](const auto duration) {
-                advent::print(FormatStringView, std::move(result.solution), duration);
+                advent::println(FormatString, std::move(result.solution), duration);
             };
 
-            /* NOTE: fmtlib doesn't know about 'std::float64_t'. */
-
             if (result.duration >= std::chrono::seconds(1)) {
-                using seconds = std::chrono::duration<double>;
+                using seconds = std::chrono::duration<std::float64_t>;
 
                 const auto duration = std::chrono::duration_cast<seconds>(result.duration);
 
                 print_for_duration(duration);
             } else if (result.duration >= std::chrono::milliseconds(1)) {
-                using milliseconds = std::chrono::duration<double, std::milli>;
+                using milliseconds = std::chrono::duration<std::float64_t, std::milli>;
 
                 const auto duration = std::chrono::duration_cast<milliseconds>(result.duration);
 
                 print_for_duration(duration);
             } else {
-                using microseconds = std::chrono::duration<double, std::micro>;
+                using microseconds = std::chrono::duration<std::float64_t, std::micro>;
 
                 const auto duration = std::chrono::duration_cast<microseconds>(result.duration);
 
@@ -176,7 +168,7 @@ namespace advent {
 
             #else
 
-            advent::print(FormatStringView, std::move(result.solution));
+            advent::println(FormatString, std::move(result.solution));
 
             #endif
         }
@@ -188,7 +180,7 @@ namespace advent {
     constexpr int solve_puzzles(int argc, const char * const *argv, Solvers &&... solvers) {
         const auto data = advent::puzzle_data(argc, argv);
         if (!data.has_value()) {
-            advent::print("Unable to read puzzle data!\n");
+            advent::println("Unable to read puzzle data!");
 
             return 1;
         }
@@ -212,7 +204,7 @@ namespace advent {
 
         const auto data = advent::puzzle_data(argc, argv);
         if (!data.has_value()) {
-            advent::print("Unable to read puzzle data!\n");
+            advent::println("Unable to read puzzle data!");
 
             return 1;
         }

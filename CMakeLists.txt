@@ -6,9 +6,8 @@ endif ()
 
 project(AdventOfCode LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 26)
-
-find_package(fmt REQUIRED)
+set(CMAKE_CXX_STANDARD      26)
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 set(SANITIZERS
     # -fsanitize=address
@@ -45,8 +44,6 @@ target_compile_definitions(advent
     INTERFACE
     ADVENT_TIME_SOLUTIONS
 )
-
-target_link_libraries(advent INTERFACE fmt::fmt)
 
 function (add_day year day)
 

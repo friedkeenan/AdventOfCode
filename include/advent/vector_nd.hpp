@@ -220,12 +220,12 @@ namespace advent {
 
 }
 
-namespace fmt {
+namespace std {
 
     /* User-defined formatter for 'advent::vector_nd'. */
     template<typename T, std::size_t Size>
-    struct formatter<advent::vector_nd<T, Size>> : fmt::formatter<T> {
-        /* Since we inherit from 'fmt::formatter<T>', we inherit its format specifiers. */
+    struct formatter<advent::vector_nd<T, Size>> : std::formatter<T> {
+        /* Since we inherit from 'std::formatter<T>', we inherit its format specifiers. */
 
         /*
             NOTE: We *could* skip parsing the format specifier for
@@ -237,7 +237,7 @@ namespace fmt {
             specifier to detect errors in it for those cases anyways.
         */
 
-        fmt::format_context::iterator format(this const formatter &self, const advent::vector_nd<T, Size> &vector, fmt::format_context &ctx) {
+        std::format_context::iterator format(this const formatter &self, const advent::vector_nd<T, Size> &vector, auto &ctx) {
             auto it = ctx.out();
 
             *it = '(';
@@ -254,7 +254,7 @@ namespace fmt {
 
             for (const auto i : std::views::iota(0uz, Size - 1)) {
                 const auto elem = vector[i];
-                self.fmt::formatter<T>::format(elem, ctx);
+                self.std::formatter<T>::format(elem, ctx);
 
                 it = ctx.out();
 
@@ -267,7 +267,7 @@ namespace fmt {
                 ctx.advance_to(it);
             }
 
-            self.fmt::formatter<T>::format(vector[Size - 1], ctx);
+            self.std::formatter<T>::format(vector[Size - 1], ctx);
 
             it = ctx.out();
             *it = ')';

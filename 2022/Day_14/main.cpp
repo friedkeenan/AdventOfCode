@@ -255,7 +255,7 @@ struct Cave {
             }
         }
 
-        advent::print("\n");
+        advent::println();
     }
 };
 

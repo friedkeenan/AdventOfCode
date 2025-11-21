@@ -10,9 +10,7 @@ project('AdventOfCode', 'cpp',
 
 fs = import('fs')
 
-dependencies = [
-    dependency('fmt'),
-]
+dependencies = []
 
 sanitizers = [
     # '-fsanitize=address',
