@@ -25,7 +25,7 @@ namespace advent {
             return std::nullopt;
         }
 
-        const advent::scope_guard fp_close = [&]() {
+        advent::scope_guard _ = [&]() {
             std::fclose(fp);
         };
 
