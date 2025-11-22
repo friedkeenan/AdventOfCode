@@ -11,7 +11,7 @@ namespace advent {
 
         I hope 'reconstructed_range' stuff gets in at some point.
     */
-    export struct split_string_view : public std::ranges::view_interface<split_string_view> {
+    export struct split_string_view : std::ranges::view_interface<split_string_view> {
         struct iterator {
             using iterator_category = std::forward_iterator_tag;
             using iterator_concept  = std::forward_iterator_tag;
