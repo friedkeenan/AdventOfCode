@@ -25,6 +25,6 @@ static_assert(count_chunked_depth_increases_from_string_data(example_data) == 5)
 
 Being able to leverage constant evaluation is a great boon to my solutions, as constant evaluation will catch many errors at compile time, ensuring that my code is safe and functioning properly. I think this is a really good use case for such a thing: to use constant evaluation for "unit tests" to ensure that at runtime the code will work properly, with the added benefit of enhanced debugging.
 
-In pursuit of this goal of `constexpr` capability, I have written a [small library](https://github.com/friedkeenan/AdventOfCode/tree/main/include/advent) that gives me many `constexpr` facilities that are not included in the STL, such as parsing strings to integers, exponentiation, and certain other utilities. This library is shared by all my solutions.
+In pursuit of this goal of `constexpr` capability, I have written a [small library](https://github.com/friedkeenan/AdventOfCode/tree/main/advent) that gives me many `constexpr` facilities that are not included in the STL, such as parsing strings to integers, exponentiation, and certain other utilities. This library is shared by all my solutions.
 
 Additionally, I will sometimes continue to update solutions even after I have solved the problem. Sometimes it's because I discovered/thought of a better way to solve the problem, sometimes it's simply to improve the style/readability of the code, and other times it's simple maintenance.
