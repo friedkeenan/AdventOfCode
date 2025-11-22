@@ -58,7 +58,13 @@ namespace advent {
     static_assert(!advent::puzzle_data(1, nullptr).has_value());
 
     export template<typename Solver>
-    concept PuzzleSolver = std::invocable<Solver, const std::string &>;
+    concept puzzle_solver = (
+        std::invocable<Solver, const std::string &> &&
+
+        requires(Solver &&solver, const std::string &data) {
+            { std::invoke(std::forward<Solver>(solver), data) } -> std::formattable<char>;
+        }
+    );
 
     namespace impl {
 
@@ -94,7 +100,7 @@ namespace advent {
             Duration duration;
         };
 
-        template<advent::PuzzleSolver Solver>
+        template<advent::puzzle_solver Solver>
         constexpr auto solve_puzzle(Solver &&solver, const std::string &data) {
             advent::timer timer;
 
@@ -109,7 +115,7 @@ namespace advent {
             };
         }
 
-        template<impl::fixed_string FormatString, advent::PuzzleSolver Solver>
+        template<impl::fixed_string FormatString, advent::puzzle_solver Solver>
         constexpr void print_solution(Solver &&solver, const std::string &data) {
             auto result = impl::solve_puzzle(std::forward<Solver>(solver), data);
 
@@ -140,7 +146,7 @@ namespace advent {
 
     }
 
-    export template<impl::fixed_string... FormatStrings, advent::PuzzleSolver... Solvers>
+    export template<impl::fixed_string... FormatStrings, advent::puzzle_solver... Solvers>
     requires (sizeof...(FormatStrings) == sizeof...(Solvers))
     constexpr int solve_puzzles(int argc, const char * const *argv, Solvers &&... solvers) {
         const auto data = advent::puzzle_data(argc, argv);
@@ -155,7 +161,7 @@ namespace advent {
         return 0;
     }
 
-    export template<advent::PuzzleSolver... Solvers>
+    export template<advent::puzzle_solver... Solvers>
     requires (sizeof...(Solvers) <= 2)
     constexpr int solve_puzzles(int argc, char * const *argv, Solvers &&... solvers) {
         /*
