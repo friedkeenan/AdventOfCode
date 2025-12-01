@@ -1,0 +1,5 @@
+set(ADVENT_DAYS
+    Day_01
+
+    PARENT_SCOPE
+)

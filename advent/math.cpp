@@ -201,6 +201,23 @@ namespace advent {
     static_assert(advent::lcm(0, 9) == 0);
     static_assert(advent::lcm(0, 0) == 0);
 
+    struct _modulo_fn {
+        template<std::integral Dividend, std::integral Divisor>
+        [[nodiscard]]
+        static constexpr auto operator ()(const Dividend dividend, const Divisor divisor) noexcept {
+            using Common = std::common_type_t<Dividend, Divisor>;
+
+            return Common{(dividend % divisor + divisor) % divisor};
+        }
+    };
+
+    export constexpr inline auto modulo = _modulo_fn{};
+
+    static_assert(advent::modulo(5,   10) == 5);
+    static_assert(advent::modulo(15,  10) == 5);
+    static_assert(advent::modulo(-5,  10) == 5);
+    static_assert(advent::modulo(-15, 10) == 5);
+
     export template<std::size_t NumMaxes, std::ranges::input_range Rng>
     requires (advent::arithmetic<std::ranges::range_value_t<Rng>>)
     constexpr auto find_maxes(Rng &&rng) {

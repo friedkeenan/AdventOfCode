@@ -238,7 +238,7 @@ namespace std {
             specifier to detect errors in it for those cases anyways.
         */
 
-        std::format_context::iterator format(this const formatter &self, const advent::vector_nd<T, Size> &vector, auto &ctx) {
+        auto format(this const formatter &self, const advent::vector_nd<T, Size> &vector, auto &ctx) {
             auto it = ctx.out();
 
             *it = '(';

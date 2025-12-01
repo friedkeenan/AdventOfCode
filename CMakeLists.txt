@@ -56,6 +56,7 @@ set(ADVENT_YEARS
     2022
     2023
     2024
+    2025
 )
 
 foreach (year IN LISTS ADVENT_YEARS)
