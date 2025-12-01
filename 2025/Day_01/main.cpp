@@ -56,7 +56,11 @@ struct RestAtZeroDial : Dial {
         self.net_rotation += rotation.total_amount();
         self.net_rotation %= Length;
 
-        return self.net_rotation == 0;
+        if (self.net_rotation == 0) {
+            return 1;
+        }
+
+        return 0;
     }
 };
 
