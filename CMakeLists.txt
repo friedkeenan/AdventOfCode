@@ -39,6 +39,14 @@ add_link_options(
 
 add_subdirectory(advent)
 
+set(ADVENT_YEARS
+    2021
+    2022
+    2023
+    2024
+    2025
+)
+
 function (add_day year day)
 
     set(EXE ${year}_${day})
@@ -51,16 +59,13 @@ function (add_day year day)
 
 endfunction ()
 
-set(ADVENT_YEARS
-    2021
-    2022
-    2023
-    2024
-    2025
-)
+list(GET ADVENT_YEARS -1 LATEST_YEAR)
 
 foreach (year IN LISTS ADVENT_YEARS)
     add_subdirectory(${year})
+
+    # The last year will store its last day in the 'LATEST_DAY' variable.
+    list(GET ADVENT_DAYS -1 LATEST_DAY)
 
     foreach (day IN LISTS ADVENT_DAYS)
 
@@ -68,3 +73,7 @@ foreach (year IN LISTS ADVENT_YEARS)
 
     endforeach ()
 endforeach ()
+
+add_custom_target(latest
+    DEPENDS ${LATEST_YEAR}_${LATEST_DAY}
+)
