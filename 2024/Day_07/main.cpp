@@ -1,18 +1,6 @@
 import std;
 import advent;
 
-template<std::size_t Base = 10>
-struct Concatenate {
-    static constexpr std::size_t operator ()(std::size_t left, const std::size_t right) {
-        /* Shift all the digits in 'left' over to make space to add 'right'. */
-        for (auto _ : advent::views::reverse_digits_of(right, Base)) {
-            left *= Base;
-        }
-
-        return left + right;
-    }
-};
-
 template<bool IncludeConcatenation>
 struct CalibrationRecord {
     std::size_t expected_result;
@@ -45,7 +33,7 @@ struct CalibrationRecord {
         running_total = op(running_total, self.operands[operand_index]);
 
         /* NOTE: It appears slower to check this for any other operation. */
-        if constexpr (std::same_as<decltype(op), const Concatenate<>>) {
+        if constexpr (std::same_as<decltype(op), const advent::concat_digits<>>) {
             /* The running total can only increase from here. */
             if (running_total > self.expected_result) {
                 return false;
@@ -63,7 +51,7 @@ struct CalibrationRecord {
                 return true;
             }
 
-            return self._is_possibly_correct(running_total, operand_index + 1, Concatenate{});
+            return self._is_possibly_correct(running_total, operand_index + 1, advent::concat_digits{});
         } else {
             return mult_result;
         }
@@ -81,7 +69,7 @@ struct CalibrationRecord {
                 return true;
             }
 
-            return self._is_possibly_correct(0, 0, Concatenate{});
+            return self._is_possibly_correct(0, 0, advent::concat_digits{});
         } else {
             return mult_result;
         }

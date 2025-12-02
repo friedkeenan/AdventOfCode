@@ -212,11 +212,11 @@ namespace advent {
             Base _base;
 
             constexpr reference operator *(this const iterator &self) {
-                return self._num % self._base;
+                return static_cast<reference>(self._num % self._base);
             }
 
             constexpr iterator &operator ++(this iterator &self) {
-                self._num /= self._base;
+                self._num = static_cast<Num>(self._num / self._base);
 
                 return self;
             }
@@ -273,7 +273,7 @@ namespace advent {
             Num _original;
 
             constexpr reference operator *(this const iterator &self) {
-                return self._original % self._raised_base;
+                return static_cast<reference>(self._original % self._raised_base);
             }
 
             constexpr iterator &operator ++(this iterator &self) {
@@ -349,6 +349,30 @@ namespace advent {
         export constexpr inline auto digits_of = impl::digits_of_fn{};
 
     }
+
+    export template<std::integral Base = std::size_t>
+    struct concat_digits {
+        Base _base = 10;
+
+        template<std::integral Left, std::integral Right>
+        constexpr auto operator ()(this const concat_digits self, const Left left, const Right right) {
+            using Common = std::common_type_t<std::common_type_t<Left, Right>, Base>;
+
+            Common result = left;
+
+            /* Shift all the digits in 'left' over to make space to add 'right'. */
+            for (auto _ : views::reverse_digits_of(right, self._base)) {
+                result *= self._base;
+            }
+
+            return Common{result + right};
+        }
+    };
+
+    static_assert(advent::concat_digits{}(123, 456) == 123456);
+    static_assert(advent::concat_digits{}(123, 45)  == 12345);
+
+    static_assert(advent::concat_digits{2uz}(0b10, 0b1) == 0b101);
 
 }
 
