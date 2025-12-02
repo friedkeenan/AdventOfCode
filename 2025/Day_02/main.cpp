@@ -110,8 +110,6 @@ struct ProductIDsRange {
             std::size_t current_raised_base = 10;
 
             while (current_raised_base * current_raised_base <= target_raised_base) {
-                // advent::println("CURRENT BASE: {}", current_raised_base);
-
                 for (const auto sequence : std::views::iota(prev_raised_base, current_raised_base)) {
                     std::size_t concatenated = 0;
                     while (concatenated < target_raised_base) {
