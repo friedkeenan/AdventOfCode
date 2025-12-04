@@ -932,6 +932,14 @@ namespace advent {
 
                 std::invoke(std::forward<RowFiller>(row_filler), self._grid.last_row());
             }
+
+            template<std::ranges::input_range Rng>
+            requires (std::ranges::sized_range<Rng>)
+            constexpr void push_row(this const builder &self, Rng &&rng) {
+                self.push_row(std::ranges::size(rng), [&](const auto row) {
+                    std::ranges::copy(rng, row.begin());
+                });
+            }
         };
 
         std::size_t  _width;
@@ -999,7 +1007,7 @@ namespace advent {
             return self._width + 1;
         }
 
-        constexpr string_view_grid(const std::string_view storage) : _storage(storage) {
+        constexpr explicit string_view_grid(const std::string_view storage) : _storage(storage) {
             this->_width = storage.find_first_of(row_separator);
 
             [[assume(this->_width != std::string_view::npos)]];

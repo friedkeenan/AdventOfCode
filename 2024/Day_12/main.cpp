@@ -82,6 +82,8 @@ struct Garden {
 
     advent::string_view_grid plots;
 
+    constexpr explicit Garden(const std::string_view plots) : plots(plots) {}
+
     constexpr std::size_t fencing_price_without_discount(this const Garden &self) {
         auto tracker = RegionTracker(self);
 
@@ -112,7 +114,7 @@ struct Garden {
 };
 
 constexpr std::size_t find_fencing_price_of_garden_without_discount(const std::string_view data) {
-    return Garden{data}.fencing_price_without_discount();
+    return Garden(data).fencing_price_without_discount();
 }
 
 constexpr inline std::string_view simple_example_data = (

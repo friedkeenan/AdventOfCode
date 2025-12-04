@@ -50,7 +50,7 @@ struct ProductIDsRange {
     std::size_t first;
     std::size_t last;
 
-    constexpr ProductIDsRange(const std::string_view description) {
+    constexpr explicit ProductIDsRange(const std::string_view description) {
         const auto separator_pos = description.find_first_of(Separator);
         [[assume(separator_pos != std::string_view::npos)]];
 

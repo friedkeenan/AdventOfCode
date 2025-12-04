@@ -8,7 +8,7 @@ struct Dial {
     struct Rotation {
         advent::ssize_t amount;
 
-        constexpr Rotation(std::string_view description) {
+        constexpr explicit Rotation(std::string_view description) {
             [[assume(description.size() > 1)]];
 
             if (description.front() == 'R') {
