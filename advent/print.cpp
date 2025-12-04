@@ -27,7 +27,7 @@ namespace advent {
     export constexpr void println() {
         if !consteval {
             /* TODO: Just call the proper overload when we receive an implementation of it. */
-            std::println("\n");
+            std::print("\n");
         }
     }
 

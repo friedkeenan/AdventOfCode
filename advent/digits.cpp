@@ -23,17 +23,36 @@ namespace advent {
         );
     }
 
-    export constexpr char digit_char(const std::integral auto digit, const std::integral auto base) {
-        [[assume(base <= 10 || base == 16)]];
+    export template<std::size_t Base = 10>
+    requires (Base <= 10 || Base == 16)
+    constexpr std::size_t digit_from_char(const char c) {
+        if constexpr (Base <= 10) {
+            return c - '0';
+        } else {
+            static_assert('a' > 'A', "Unexpected character ordering");
 
-        [[assume(digit >= 0 && std::cmp_less(digit, base))]];
+            if (c >= 'a') {
+                return c - 'a';
+            }
 
-        if (digit < 10) {
-            return static_cast<char>('0' + digit);
+            return c - 'A';
         }
+    }
 
-        /* Base 16. */
-        return static_cast<char>('A' + (digit - 10));
+    export template<std::size_t Base = 10>
+    requires (Base <= 10 || Base == 16)
+    constexpr char char_from_digit(const std::integral auto digit) {
+        [[assume(digit >= 0 && std::cmp_less(digit, Base))]];
+
+        if constexpr (Base <= 10) {
+            return static_cast<char>('0' + digit);
+        } else {
+            if (digit < 10) {
+                return static_cast<char>('0' + digit);
+            }
+
+            return static_cast<char>('A' + (digit - 10));
+        }
     }
 
     template<std::integral ToConvert, ToConvert Base>

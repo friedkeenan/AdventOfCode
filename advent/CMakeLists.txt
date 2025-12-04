@@ -15,6 +15,7 @@ target_sources(advent
     math.cpp
     digits.cpp
     split_string_view.cpp
+    views.cpp
     vector_nd.cpp
     regular_vector.cpp
     grid.cpp

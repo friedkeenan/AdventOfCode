@@ -6,6 +6,7 @@ export import :type_aliases;
 export import :math;
 export import :digits;
 export import :split_string_view;
+export import :views;
 export import :vector_nd;
 export import :grid;
 export import :functional;

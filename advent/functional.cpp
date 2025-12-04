@@ -12,4 +12,18 @@ namespace advent {
         using Callables::operator ()...;
     };
 
+    namespace impl {
+
+        struct dereference_fn {
+            template<typename T>
+            requires (requires { *std::declval<T>(); })
+            static constexpr decltype(auto) operator ()(T &&obj) {
+                return *std::forward<T>(obj);
+            }
+        };
+
+    }
+
+    export constexpr inline auto dereference = impl::dereference_fn{};
+
 }
