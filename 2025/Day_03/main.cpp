@@ -5,98 +5,33 @@ struct Bank {
     std::string_view batteries;
 
     template<std::size_t NumBatteries>
-    requires (NumBatteries > 1)
-    constexpr auto joltage_contributions(this const Bank self) {
-        struct JoltageContribution {
-            std::array<std::size_t, NumBatteries> potential_contributions = {};
-        };
-
-        std::vector<JoltageContribution> contributions;
-        contributions.reserve(self.batteries.size());
-
-        for (const auto it : self.batteries | advent::views::iterators) {
-            const auto battery_value = advent::digit_from_char(*it);
-
-            const auto distance_from_end   = self.batteries.end() - it;
-            const auto distance_from_begin = it - self.batteries.begin();
-
-            const auto min_place = std::max(0z, advent::ssize_t{NumBatteries} - distance_from_begin - 1);
-            const auto max_place = std::min(advent::ssize_t{NumBatteries} - 1, distance_from_end - 1);
-
-            auto &contribution = contributions.emplace_back();
-            for (const auto place : std::views::iota(min_place, max_place + 1)) {
-                contribution.potential_contributions[place] = battery_value * advent::pow(10uz, place);
-            }
-        }
-
-        return contributions;
-    }
-
-    template<std::size_t NumBatteries>
-    requires (NumBatteries > 1)
-    constexpr std::size_t find_max_joltage_impl(this const Bank self) {
-        /* NOTE: This implementation works for N=2 as well, but it is slower. */
-
-        const auto contributions = self.joltage_contributions<NumBatteries>();
-
-        std::size_t max_joltage = 0;
-
-        auto search_start = contributions.begin();
-        for (const auto place : std::views::iota(0uz, NumBatteries) | std::views::reverse) {
-            search_start = std::ranges::max_element(search_start, contributions.end(), {}, [&](const auto &contribution) {
-                return contribution.potential_contributions[place];
-            });
-
-            max_joltage += search_start->potential_contributions[place];
-
-            /* Move one forward so we don't find this contribution again. */
-            ++search_start;
-        }
-
-        return max_joltage;
-    }
-
-    template<std::size_t NumBatteries>
     constexpr std::size_t find_max_joltage(this const Bank self) {
+        [[assume(self.batteries.size() >= NumBatteries)]];
+
         if constexpr (NumBatteries == 0) {
             return 0;
         } else if constexpr (NumBatteries == 1) {
             return advent::digit_from_char(*std::ranges::max_element(self.batteries));
-        } else if constexpr (NumBatteries == 2) {
-            const auto max_battery_iter = std::ranges::max_element(self.batteries);
-
-            const auto max_battery_value = advent::digit_from_char(*max_battery_iter);
+        } else {
+            /*
+                The leftmost digit matters most, so search for
+                the maximum that still leaves room for later digits.
+            */
 
             std::size_t max_joltage = 0;
-            for (const auto it : self.batteries | advent::views::iterators) {
-                if (it == max_battery_iter) {
-                    continue;
-                }
 
-                const auto battery_value = advent::digit_from_char(*it);
+            auto search_start = self.batteries.begin();
+            for (const auto place : std::views::iota(0uz, NumBatteries) | std::views::reverse) {
+                search_start = std::ranges::max_element(search_start, self.batteries.end() - place);
 
-                const auto joltage = [&]() {
-                    /*
-                        NOTE: Apparently using a dedicated function
-                        to combine the battery values makes this slower
-                        by 2 microseconds, even if I add 'always_inline'.
-                    */
+                max_joltage *= 10uz;
+                max_joltage += advent::digit_from_char(*search_start);
 
-                    if (it < max_battery_iter) {
-                        return battery_value * 10uz + max_battery_value;
-                    }
-
-                    return max_battery_value * 10uz + battery_value;
-                }();
-
-                if (joltage > max_joltage) {
-                    max_joltage = joltage;
-                }
+                /* Move one forward so we don't find this battery again. */
+                ++search_start;
             }
 
             return max_joltage;
-        } else {
-            return self.find_max_joltage_impl<NumBatteries>();
         }
     }
 };
