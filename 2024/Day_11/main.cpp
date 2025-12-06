@@ -57,7 +57,7 @@ constexpr std::size_t count_stones_after_iterations(std::string_view data) {
 
     /* NOTE: This would probably be faster with a hash map, but we need constexpr. */
     std::vector<StoneIterationResult> results;
-    advent::split_with_callback(data, ' ', [&](const auto stone_repr) {
+    advent::split_for_each(data, ' ', [&](const auto stone_repr) {
         /* NOTE: Stones do not affect each other so we can tick them individually. */
 
         num_stones += tick_stone_and_count(results, advent::to_integral<std::size_t>(stone_repr), NumIterations);

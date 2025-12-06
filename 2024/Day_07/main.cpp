@@ -13,7 +13,7 @@ struct CalibrationRecord {
         this->expected_result = advent::to_integral<std::size_t>(description.substr(0, result_end_pos));
 
         /* NOTE: We move past the trailing space after the colon. */
-        advent::split_with_callback(description.substr(result_end_pos + 1), ' ', [&](const auto operand) {
+        advent::split_for_each(description.substr(result_end_pos + 1), ' ', [&](const auto operand) {
             this->operands.push_back(advent::to_integral<std::size_t>(operand));
         });
 

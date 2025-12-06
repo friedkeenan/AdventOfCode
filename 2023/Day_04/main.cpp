@@ -20,7 +20,7 @@ struct Card {
 
         const auto winning_description = description.substr(winning_start, winning_end - winning_start);
 
-        advent::split_with_callback(winning_description, ' ', [&](const std::string_view number) {
+        advent::split_for_each(winning_description, ' ', [&](const std::string_view number) {
             if (number.empty()) {
                 return;
             }
@@ -31,7 +31,7 @@ struct Card {
         /* Move past the separator and the following space padding. */
         const auto receeived_description = description.substr(separator_pos + 1 + 1);
 
-        advent::split_with_callback(receeived_description, ' ', [&](const std::string_view number) {
+        advent::split_for_each(receeived_description, ' ', [&](const std::string_view number) {
             if (number.empty()) {
                 return;
             }

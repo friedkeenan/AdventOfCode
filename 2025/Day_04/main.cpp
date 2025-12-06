@@ -46,7 +46,7 @@ struct IterativeMap : PaperRollsMap {
     constexpr explicit IterativeMap(const std::string_view map)
     :
         grid([&](auto &builder) {
-            advent::split_with_callback(map, '\n', [&](const auto row) {
+            advent::split_for_each(map, '\n', [&](const auto row) {
                 if (row.empty()) {
                     return;
                 }

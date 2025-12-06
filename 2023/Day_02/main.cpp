@@ -49,10 +49,10 @@ struct Game {
         /* Move past the space trailing after the colon as well. */
         description.remove_prefix(id_end + 1 + 1);
 
-        advent::split_with_callback(description, "; ", [&](const std::string_view set_description) {
+        advent::split_for_each(description, "; ", [&](const std::string_view set_description) {
             auto &cube_set = this->cube_sets.emplace_back();
 
-            advent::split_with_callback(set_description, ", ", [&](std::string_view cube_description) {
+            advent::split_for_each(set_description, ", ", [&](std::string_view cube_description) {
                 const auto count_end = cube_description.find_first_of(' ');
                 [[assume(count_end != std::string_view::npos)]];
 

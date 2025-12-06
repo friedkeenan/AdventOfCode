@@ -18,7 +18,7 @@ struct Cave {
         std::vector<Position> positions;
 
         constexpr explicit Path(const std::string_view path) {
-            advent::split_with_callback(path, " -> ", [&](std::string_view pos) {
+            advent::split_for_each(path, " -> ", [&](std::string_view pos) {
                 const auto comma_pos = pos.find_first_of(',');
                 [[assume(comma_pos != std::string_view::npos)]];
 

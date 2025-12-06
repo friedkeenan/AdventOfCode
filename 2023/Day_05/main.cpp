@@ -89,7 +89,7 @@ constexpr std::size_t minimum_location_of_seeds(Rng &&rng) {
     [[assume(seeds_description.starts_with(SeedsPrefix))]];
 
     std::vector<std::size_t> sources;
-    advent::split_with_callback(seeds_description.substr(SeedsPrefix.size()), ' ', [&](const std::string_view seed) {
+    advent::split_for_each(seeds_description.substr(SeedsPrefix.size()), ' ', [&](const std::string_view seed) {
         sources.push_back(advent::to_integral<std::size_t>(seed));
     });
 

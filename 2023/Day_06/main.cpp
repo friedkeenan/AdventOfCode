@@ -53,7 +53,7 @@ constexpr std::vector<RaceInfo> parse_separated_races(Rng &&rng) {
     [[assume(times_description.starts_with(TimePrefix))]];
     times_description.remove_prefix(TimePrefix.size());
 
-    advent::split_with_callback(times_description, ' ', [&](const std::string_view time) {
+    advent::split_for_each(times_description, ' ', [&](const std::string_view time) {
         if (time.empty()) {
             return;
         }
@@ -70,7 +70,7 @@ constexpr std::vector<RaceInfo> parse_separated_races(Rng &&rng) {
     distances_description.remove_prefix(DistancePrefix.size());
 
     std::size_t i = 0;
-    advent::split_with_callback(distances_description, ' ', [&](const std::string_view distance) {
+    advent::split_for_each(distances_description, ' ', [&](const std::string_view distance) {
         if (distance.empty()) {
             return;
         }

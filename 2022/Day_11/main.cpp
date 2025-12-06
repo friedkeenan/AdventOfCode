@@ -112,7 +112,7 @@ struct Monkey {
         starting_line.remove_prefix(ItemsPrefix.length());
 
         std::vector<std::size_t> item_worries;
-        advent::split_with_callback(starting_line, ',', [&](auto worry_str) {
+        advent::split_for_each(starting_line, ',', [&](auto worry_str) {
             /* Remove leading space. */
             worry_str.remove_prefix(1);
 

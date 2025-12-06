@@ -159,7 +159,7 @@ requires (
 constexpr std::size_t sum_invalid_ids(const std::string_view ranges) {
     std::size_t sum = 0;
 
-    advent::split_with_callback(ranges, ',', [&](auto range_description) {
+    advent::split_for_each(ranges, ',', [&](auto range_description) {
         if (range_description.ends_with('\n')) {
             range_description.remove_suffix(1);
         }

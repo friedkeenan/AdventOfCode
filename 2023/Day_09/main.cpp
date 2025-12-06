@@ -42,7 +42,7 @@ constexpr std::int64_t find_next_element(const std::string_view pattern_descript
     const auto pattern = [&]() {
         std::vector<std::int64_t> pattern;
 
-        advent::split_with_callback(pattern_description, ' ', [&](const std::string_view num) {
+        advent::split_for_each(pattern_description, ' ', [&](const std::string_view num) {
             pattern.push_back(advent::to_integral<std::int64_t>(num));
         });
 

@@ -123,7 +123,7 @@ namespace advent {
 
     export template<typename Callback>
     requires (std::invocable<Callback &, std::string_view>)
-    constexpr void split_with_callback(std::string_view str, const std::string_view delimiter, Callback &&callback) {
+    constexpr void split_for_each(std::string_view str, const std::string_view delimiter, Callback &&callback) {
         /* Used for cases where we just need to simply loop over each substring. */
 
         while (true) {
@@ -136,14 +136,37 @@ namespace advent {
 
             std::invoke(callback, std::string_view(str.data(), split_pos));
 
-            str.remove_prefix(split_pos + delimiter.length());
+            str.remove_prefix(split_pos + delimiter.size());
         }
     }
 
     export template<typename Callback>
     requires (std::invocable<Callback &, std::string_view>)
-    constexpr void split_with_callback(std::string_view str, const char delimiter, Callback &&callback) {
-        return split_with_callback(str, std::string_view(&delimiter, 1), std::forward<Callback>(callback));
+    constexpr void split_for_each(std::string_view str, const char delimiter, Callback &&callback) {
+        return advent::split_for_each(str, std::string_view(&delimiter, 1), std::forward<Callback>(callback));
+    }
+
+   export template<typename Callback>
+   requires (std::invocable<Callback &, std::string_view>)
+   constexpr void reverse_split_for_each(std::string_view str, const std::string_view delimiter, Callback &&callback) {
+       while (true) {
+            const auto split_pos = str.rfind(delimiter);
+            if (split_pos == std::string_view::npos) {
+                std::invoke(callback, std::move(str));
+
+                return;
+            }
+
+            std::invoke(callback, std::string_view(str.begin() + split_pos + delimiter.size(), str.end()));
+
+            str.remove_suffix(str.size() - split_pos);
+       }
+   }
+
+    export template<typename Callback>
+    requires (std::invocable<Callback &, std::string_view>)
+    constexpr void reverse_split_for_each(std::string_view str, const char delimiter, Callback &&callback) {
+        return advent::reverse_split_for_each(str, std::string_view(&delimiter, 1), std::forward<Callback>(callback));
     }
 
 }
