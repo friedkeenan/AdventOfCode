@@ -568,22 +568,22 @@ namespace advent {
             }
 
             constexpr std::size_t height(this const auto &self) {
-                [[assume(self._storage.size() % self._vertical_step() == 0)]];
+                [[assume(self._storage.size() % self.vertical_step() == 0)]];
 
-                return self._storage.size() / self._vertical_step();
+                return self._storage.size() / self.vertical_step();
             }
 
             constexpr std::size_t _to_raw_index(this const auto &self, const std::size_t column_index, const std::size_t row_index) {
                 [[assume(column_index < self.height())]];
                 [[assume(row_index    < self.width())]];
 
-                return row_index * self._vertical_step() + column_index;
+                return row_index * self.vertical_step() + column_index;
             }
 
             constexpr coords_t _from_raw_index(this const auto &self, const std::size_t raw_index) {
                 [[assume(raw_index < self._storage.size())]];
 
-                return {raw_index % self._vertical_step(), raw_index / self._vertical_step()};
+                return {raw_index % self.vertical_step(), raw_index / self.vertical_step()};
             }
 
             constexpr std::size_t _raw_index_of(this const auto &self, const T *elem) {
@@ -614,31 +614,31 @@ namespace advent {
             constexpr bool has_above_neighbor(this const auto &self, const T *elem) {
                 [[assume(self._contains(elem))]];
 
-                return self._raw_index_of(elem) >= self._vertical_step();
+                return self._raw_index_of(elem) >= self.vertical_step();
             }
 
             constexpr auto above_neighbor(this auto &self, const T *elem) {
                 [[assume(self.has_above_neighbor(elem))]];
 
-                return self._forward_const(elem - self._vertical_step());
+                return self._forward_const(elem - self.vertical_step());
             }
 
             constexpr bool has_below_neighbor(this const auto &self, const T *elem) {
                 [[assume(self._contains(elem))]];
 
-                return self._raw_index_of(elem) < self._storage.size() - self._vertical_step();
+                return self._raw_index_of(elem) < self._storage.size() - self.vertical_step();
             }
 
             constexpr auto below_neighbor(this auto &self, const T *elem) {
                 [[assume(self.has_below_neighbor(elem))]];
 
-                return self._forward_const(elem + self._vertical_step());
+                return self._forward_const(elem + self.vertical_step());
             }
 
             constexpr bool has_left_neighbor(this const auto &self, const T *elem) {
                 [[assume(self._contains(elem))]];
 
-                return self._raw_index_of(elem) % self._vertical_step() > 0;
+                return self._raw_index_of(elem) % self.vertical_step() > 0;
             }
 
             constexpr auto left_neighbor(this auto &self, const T *elem) {
@@ -650,7 +650,7 @@ namespace advent {
             constexpr bool has_right_neighbor(this const auto &self, const T *elem) {
                 [[assume(self._contains(elem))]];
 
-                return self._raw_index_of(elem) % self._vertical_step() != (self.width() - 1);
+                return self._raw_index_of(elem) % self.vertical_step() != (self.width() - 1);
             }
 
             constexpr auto right_neighbor(this auto &self, const T *elem) {
@@ -666,7 +666,7 @@ namespace advent {
             constexpr auto above_left_neighbor(this auto &self, const T *elem) {
                 [[assume(self.has_above_left_neighbor(elem))]];
 
-                return self._forward_const(elem - self._vertical_step() - 1);
+                return self._forward_const(elem - self.vertical_step() - 1);
             }
 
             constexpr bool has_above_right_neighbor(this const auto &self, const T *elem) {
@@ -676,7 +676,7 @@ namespace advent {
             constexpr auto above_right_neighbor(this auto &self, const T *elem) {
                 [[assume(self.has_above_right_neighbor(elem))]];
 
-                return self._forward_const(elem - self._vertical_step() + 1);
+                return self._forward_const(elem - self.vertical_step() + 1);
             }
 
             constexpr bool has_below_left_neighbor(this const auto &self, const T *elem) {
@@ -686,7 +686,7 @@ namespace advent {
             constexpr auto below_left_neighbor(this auto &self, const T *elem) {
                 [[assume(self.has_below_left_neighbor(elem))]];
 
-                return self._forward_const(elem + self._vertical_step() - 1);
+                return self._forward_const(elem + self.vertical_step() - 1);
             }
 
             constexpr bool has_below_right_neighbor(this const auto &self, const T *elem) {
@@ -696,7 +696,7 @@ namespace advent {
             constexpr auto below_right_neighbor(this auto &self, const T *elem) {
                 [[assume(self.has_below_right_neighbor(elem))]];
 
-                return self._forward_const(elem + self._vertical_step() + 1);
+                return self._forward_const(elem + self.vertical_step() + 1);
             }
 
             constexpr bool has_neighbor(this const auto &self, advent::neighbor position, const auto *elem) {
@@ -836,13 +836,13 @@ namespace advent {
                 [[assume(row_index < self.height())]];
 
                 return impl::grid_row_view{
-                    std::span(self._storage.data() + (self._vertical_step() * row_index), self.width())
+                    std::span(self._storage.data() + (self.vertical_step() * row_index), self.width())
                 };
             }
 
             constexpr auto last_row(this auto &self) {
                 return impl::grid_row_view{
-                    std::span(self._storage.data() + self._storage.size() - self._vertical_step(), self.width())
+                    std::span(self._storage.data() + self._storage.size() - self.vertical_step(), self.width())
                 };
             }
 
@@ -851,11 +851,11 @@ namespace advent {
 
                 const auto first_ptr = self._storage.data() + column_index;
 
-                const auto last_index = self._storage.size() - self._vertical_step() + column_index;
+                const auto last_index = self._storage.size() - self.vertical_step() + column_index;
                 const auto last_ptr   = self._storage.data() + last_index;
 
                 return impl::grid_column_view{
-                    first_ptr, last_ptr, self._vertical_step()
+                    first_ptr, last_ptr, self.vertical_step()
                 };
             }
 
@@ -982,7 +982,7 @@ namespace advent {
             return self._width;
         }
 
-        constexpr std::size_t _vertical_step(this const grid &self) {
+        constexpr std::size_t vertical_step(this const grid &self) {
             return self.width();
         }
 
@@ -1003,7 +1003,7 @@ namespace advent {
             return self._width;
         }
 
-        constexpr std::size_t _vertical_step(this const string_view_grid &self) {
+        constexpr std::size_t vertical_step(this const string_view_grid &self) {
             return self._width + 1;
         }
 
@@ -1013,9 +1013,42 @@ namespace advent {
             [[assume(this->_width != std::string_view::npos)]];
             [[assume(this->_width > 0)]];
 
-            [[assume(this->_storage.size() % this->_vertical_step() == 0)]];
+            [[assume(this->_storage.size() % this->vertical_step() == 0)]];
 
             /* TODO: It would be nice to add assumes for consistent row widths. */
+        }
+
+        constexpr auto elements(this auto &self) {
+            return self.coords() | std::views::transform([&](const auto coords) -> decltype(auto) {
+                return self[coords];
+            });
+        }
+    };
+
+    export template<typename T>
+    struct grid_view : impl::grid<char> {
+        /* Must begin at the start of the grid, and end at the last vertical step. */
+        std::span<T> _storage;
+
+        std::size_t  _width;
+        std::size_t  _vertical_step;
+
+        constexpr std::size_t width(this const grid_view &self) {
+            return self._width;
+        }
+
+        constexpr std::size_t vertical_step(this const grid_view &self) {
+            return self._vertical_step;
+        }
+
+        constexpr grid_view(std::span<T> storage, std::size_t width, std::size_t vertical_step)
+        :
+            _storage(storage),
+            _width(width),
+            _vertical_step(vertical_step)
+        {
+            [[assume(width > 0)]];
+            [[assume(vertical_step >= width)]];
         }
 
         constexpr auto elements(this auto &self) {
