@@ -107,25 +107,6 @@ struct JunctionBoxes {
         }
     }
 
-    /* TODO: Do we need this? */
-    constexpr std::size_t index_for_distance(this const JunctionBoxes &self, std::size_t first, std::size_t second) {
-        [[assume(first != second)]];
-
-        if (second < first) {
-            std::ranges::swap(first, second);
-        }
-
-        return self.num_boxes * first + second - ((first + 1) * (first + 2)) / 2;
-    }
-
-    constexpr std::size_t distance_between(this const JunctionBoxes &self, const std::size_t first, const std::size_t second) {
-        if (first == second) {
-            return 0;
-        }
-
-        return self.distance_storage[self.index_for_distance(first, second)];
-    }
-
     constexpr auto boxes_with_minimum_distance(this JunctionBoxes &self) {
         struct DistanceInfo {
             BoxIndices indices;
