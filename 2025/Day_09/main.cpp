@@ -232,13 +232,13 @@ constexpr advent::ssize_t max_bounded_area_of_rectangles(Rng &&rng) {
     for (const auto [first_corner, second_corner] : tiles.corner_combinations()) {
         const auto rect = Rectangle{first_corner, second_corner};
 
-        if (!tiles.contains(rect)) {
-            continue;
-        }
-
         const auto area = rect.area();
 
         if (area > current_max_area) {
+            if (!tiles.contains(rect)) {
+                continue;
+            }
+
             current_max_area = area;
         }
     }
