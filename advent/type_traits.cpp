@@ -6,6 +6,9 @@ import :concepts;
 
 namespace advent {
 
+    template<bool IsConst, typename T>
+    using maybe_const = std::conditional_t<IsConst, const T, T>;
+
     export template<typename T> requires advent::addable_with<T, T>
     using addition_result = decltype(std::declval<T>() + std::declval<T>());
 

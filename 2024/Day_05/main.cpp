@@ -74,7 +74,7 @@ constexpr std::size_t sum_middle_of_correct_updates(Rng &&rng) {
     const auto orderings = PageOrdering::ParseOrderingsAndAdvanceIterator(it);
 
     std::size_t sum = 0;
-    for (const std::string_view line : std::ranges::subrange(it, std::ranges::end(rng))) {
+    for (const std::string_view line : std::ranges::subrange(std::move(it), std::ranges::end(rng))) {
         if (line.empty()) {
             continue;
         }
@@ -118,7 +118,7 @@ constexpr std::size_t sum_middle_of_corrected_updates(Rng &&rng) {
     const auto orderings = PageOrdering::ParseOrderingsAndAdvanceIterator(it);
 
     std::size_t sum = 0;
-    for (const std::string_view line : std::ranges::subrange(it, std::ranges::end(rng))) {
+    for (const std::string_view line : std::ranges::subrange(std::move(it), std::ranges::end(rng))) {
         if (line.empty()) {
             continue;
         }

@@ -135,7 +135,7 @@ constexpr std::size_t count_available_fresh_ingredients(Rng &&rng) {
     const auto fresh_ingredients = FreshIngredients::ParseDeduplicatedAndAdvance(it);
 
     std::size_t num_fresh = 0;
-    for (const std::string_view line : std::ranges::subrange(it, std::ranges::end(rng))) {
+    for (const std::string_view line : std::ranges::subrange(std::move(it), std::ranges::end(rng))) {
         if (line.empty()) {
             continue;
         }

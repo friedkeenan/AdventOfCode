@@ -574,8 +574,8 @@ namespace advent {
             }
 
             constexpr std::size_t _to_raw_index(this const auto &self, const std::size_t column_index, const std::size_t row_index) {
-                [[assume(column_index < self.height())]];
-                [[assume(row_index    < self.width())]];
+                [[assume(column_index < self.width())]];
+                [[assume(row_index    < self.height())]];
 
                 return row_index * self.vertical_step() + column_index;
             }

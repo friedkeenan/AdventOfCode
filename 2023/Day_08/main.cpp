@@ -239,7 +239,7 @@ constexpr std::size_t count_steps_until_end(Rng &&rng) {
     ++it;
     ++it;
 
-    const auto map = Map(std::ranges::subrange(it, std::ranges::end(rng)));
+    const auto map = Map(std::ranges::subrange(std::move(it), std::ranges::end(rng)));
 
     std::size_t steps_until_end = 1;
 

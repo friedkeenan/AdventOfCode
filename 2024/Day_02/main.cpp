@@ -35,7 +35,7 @@ struct Report {
             return false;
         }
 
-        for (const auto [prev, next] : std::ranges::subrange(it, end) | std::views::pairwise) {
+        for (const auto [prev, next] : std::ranges::subrange(std::move(it), end) | std::views::pairwise) {
             if (increasing && next <= prev) {
                 return false;
             } else if (!increasing && next >= prev) {

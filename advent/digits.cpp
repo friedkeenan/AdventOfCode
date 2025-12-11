@@ -123,7 +123,7 @@ namespace advent {
             /* If our range is only an input range and is not sized, just stuff the range into a vector. */
             auto rng = [&]() {
                 /* Use a subrange as getting the sign and base may have incremented 'it'. */
-                auto subrange = std::ranges::subrange(it, std::ranges::end(str));
+                auto subrange = std::ranges::subrange(std::move(it), std::ranges::end(str));
 
                 using Subrange = decltype(subrange);
                 if constexpr (!std::ranges::sized_range<Subrange> && !std::ranges::forward_range<Subrange>) {

@@ -7,6 +7,7 @@ set(ADVENT_DAYS
     Day_06
     Day_07
     Day_08
+    Day_09
 
     PARENT_SCOPE
 )
