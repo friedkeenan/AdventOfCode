@@ -361,9 +361,9 @@ constexpr std::size_t find_total_winnings(Rng &&rng) {
     return winnings;
 }
 
-template<HandBehavior Behavior>
-constexpr std::size_t find_total_winnings_from_string_data(const std::string_view data) {
-    return find_total_winnings<Behavior>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^find_total_winnings, ^^StandardBehavior);
+    advent::part_two.is_solved_by(^^find_total_winnings, ^^JokerBehavior);
 }
 
 constexpr inline std::string_view example_data = (
@@ -374,14 +374,9 @@ constexpr inline std::string_view example_data = (
     "QQQJA 483\n"
 );
 
-static_assert(find_total_winnings_from_string_data<StandardBehavior>(example_data) == 6440);
-static_assert(find_total_winnings_from_string_data<JokerBehavior>(example_data) == 5905);
+static_assert(advent::part_one() == 6440);
+static_assert(advent::part_two() == 5905);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        find_total_winnings_from_string_data<StandardBehavior>,
-        find_total_winnings_from_string_data<JokerBehavior>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

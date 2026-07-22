@@ -70,12 +70,9 @@ constexpr std::size_t find_similarity_score(Rng &&rng) {
     return similarity_score;
 }
 
-constexpr std::size_t sum_sorted_distances_from_string_data(const std::string_view data) {
-    return sum_sorted_distances(data | advent::views::split_lines);
-}
-
-constexpr std::size_t find_similarity_score_from_string_data(const std::string_view data) {
-    return find_similarity_score(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_sorted_distances);
+    advent::part_two.is_solved_by(^^find_similarity_score);
 }
 
 constexpr inline std::string_view example_data = (
@@ -87,14 +84,9 @@ constexpr inline std::string_view example_data = (
     "3   3\n"
 );
 
-static_assert(sum_sorted_distances_from_string_data(example_data)  == 11);
-static_assert(find_similarity_score_from_string_data(example_data) == 31);
+static_assert(advent::part_one() == 11);
+static_assert(advent::part_two() == 31);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_sorted_distances_from_string_data,
-        find_similarity_score_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

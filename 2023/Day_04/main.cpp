@@ -113,12 +113,9 @@ constexpr std::size_t sum_remnant_scratch_cards(Rng &&rng) {
     return std::ranges::fold_left(trackers | std::views::transform(&CardTracker::amount), 0uz, std::plus{});
 }
 
-constexpr std::size_t sum_card_points_from_string_data(const std::string_view data) {
-    return sum_card_points(data | advent::views::split_lines);
-}
-
-constexpr std::size_t sum_remnant_scratch_cards_from_string_data(const std::string_view data) {
-    return sum_remnant_scratch_cards(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_card_points);
+    advent::part_two.is_solved_by(^^sum_remnant_scratch_cards);
 }
 
 constexpr inline std::string_view example_data = (
@@ -130,14 +127,9 @@ constexpr inline std::string_view example_data = (
     "Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11\n"
 );
 
-static_assert(sum_card_points_from_string_data(example_data) == 13);
-static_assert(sum_remnant_scratch_cards_from_string_data(example_data) == 30);
+static_assert(advent::part_one() == 13);
+static_assert(advent::part_two() == 30);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_card_points_from_string_data,
-        sum_remnant_scratch_cards_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

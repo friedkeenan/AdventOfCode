@@ -246,12 +246,9 @@ constexpr advent::ssize_t max_bounded_area_of_rectangles(Rng &&rng) {
     return current_max_area;
 }
 
-constexpr advent::ssize_t max_unbounded_area_of_rectangles_from_string_data(const std::string_view data) {
-    return max_unbounded_area_of_rectangles(data | advent::views::split_lines);
-}
-
-constexpr advent::ssize_t max_bounded_area_of_rectangles_from_string_data(const std::string_view data) {
-    return max_bounded_area_of_rectangles(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^max_unbounded_area_of_rectangles);
+    advent::part_two.is_solved_by(^^max_bounded_area_of_rectangles);
 }
 
 constexpr inline std::string_view example_data = (
@@ -265,14 +262,9 @@ constexpr inline std::string_view example_data = (
     "7,3\n"
 );
 
-static_assert(max_unbounded_area_of_rectangles_from_string_data(example_data) == 50);
-static_assert(max_bounded_area_of_rectangles_from_string_data(example_data)   == 24);
+static_assert(advent::part_one() == 50);
+static_assert(advent::part_two() == 24);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        max_unbounded_area_of_rectangles_from_string_data,
-        max_bounded_area_of_rectangles_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

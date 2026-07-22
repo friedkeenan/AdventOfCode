@@ -264,9 +264,9 @@ constexpr std::size_t count_steps_until_end(Rng &&rng) {
     return steps_until_end;
 }
 
-template<typename Map>
-constexpr std::size_t count_steps_until_end_from_string_data(const std::string_view data) {
-    return count_steps_until_end<Map>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^count_steps_until_end, ^^NormalMap);
+    advent::part_two.is_solved_by(^^count_steps_until_end, ^^GhostMap);
 }
 
 constexpr inline std::string_view basic_example_data = (
@@ -281,8 +281,8 @@ constexpr inline std::string_view basic_example_data = (
     "ZZZ = (ZZZ, ZZZ)\n"
 );
 
-static_assert(count_steps_until_end_from_string_data<NormalMap>(basic_example_data) == 2);
-static_assert(count_steps_until_end_from_string_data<GhostMap>(basic_example_data) == 2);
+static_assert(advent::part_one(basic_example_data) == 2);
+static_assert(advent::part_two(basic_example_data) == 2);
 
 constexpr inline std::string_view cycled_example_data = (
     "LLR\n"
@@ -292,8 +292,8 @@ constexpr inline std::string_view cycled_example_data = (
     "ZZZ = (ZZZ, ZZZ)\n"
 );
 
-static_assert(count_steps_until_end_from_string_data<NormalMap>(cycled_example_data) == 6);
-static_assert(count_steps_until_end_from_string_data<GhostMap>(cycled_example_data) == 6);
+static_assert(advent::part_one(cycled_example_data) == 6);
+static_assert(advent::part_two(cycled_example_data) == 6);
 
 constexpr inline std::string_view spooky_example_data = (
     "LR\n"
@@ -308,13 +308,8 @@ constexpr inline std::string_view spooky_example_data = (
     "XXX = (XXX, XXX)\n"
 );
 
-static_assert(count_steps_until_end_from_string_data<GhostMap>(spooky_example_data) == 6);
+static_assert(advent::part_two(spooky_example_data) == 6);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_steps_until_end_from_string_data<NormalMap>,
-        count_steps_until_end_from_string_data<GhostMap>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

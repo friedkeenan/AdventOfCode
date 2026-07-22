@@ -127,8 +127,8 @@ struct Crates {
 template<typename Executer>
 concept InstructionExecuter = std::invocable<const Executer &, Crates &, const Crates::InstructionInfo &>;
 
-template<InstructionExecuter Executer, advent::string_viewable_range Rng>
-constexpr std::string top_crates_after_moving(const Executer executer, Rng &&crate_info) {
+template<InstructionExecuter auto Executer, advent::string_viewable_range Rng>
+constexpr std::string top_crates_after_moving(Rng &&crate_info) {
     auto it     = std::ranges::begin(crate_info);
     auto crates = Crates::ParseFromAndAdvanceIterator(it);
 
@@ -141,18 +141,15 @@ constexpr std::string top_crates_after_moving(const Executer executer, Rng &&cra
         }
 
         const auto info = Crates::InstructionInfo(instruction);
-        std::invoke(executer, crates, info);
+        std::invoke(Executer, crates, info);
     }
 
     return crates.top_crates();
 }
 
-constexpr std::string top_crates_after_moving_individuals_from_string_data(const std::string_view data) {
-    return top_crates_after_moving(&Crates::move_individual_crates, data | advent::views::split_lines);
-}
-
-constexpr std::string top_crates_after_moving_several_from_string_data(const std::string_view data) {
-    return top_crates_after_moving(&Crates::move_several_crates, data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^top_crates_after_moving, &Crates::move_individual_crates);
+    advent::part_two.is_solved_by(^^top_crates_after_moving, &Crates::move_several_crates);
 }
 
 constexpr inline std::string_view example_data = (
@@ -167,14 +164,9 @@ constexpr inline std::string_view example_data = (
     "move 1 from 1 to 2\n"
 );
 
-static_assert(top_crates_after_moving_individuals_from_string_data(example_data) == "CMZ");
-static_assert(top_crates_after_moving_several_from_string_data(example_data) == "MCD");
+static_assert(advent::part_one() == "CMZ");
+static_assert(advent::part_two() == "MCD");
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        top_crates_after_moving_individuals_from_string_data,
-        top_crates_after_moving_several_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

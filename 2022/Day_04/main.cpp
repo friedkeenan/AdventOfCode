@@ -22,7 +22,11 @@ struct SectionInterval {
         );
     }
 
-    constexpr bool overlaps(const SectionInterval &other) const {
+    constexpr bool wholly_overlaps(const SectionInterval &other) const {
+        return this->contains(other) || other.contains(*this);
+    }
+
+    constexpr bool partially_overlaps(const SectionInterval &other) const {
         /*
             If our start is <= other's end,
             then we may overlap, but if our
@@ -41,8 +45,8 @@ concept SectionsChecker = requires(const Checker checker, const SectionInterval 
     { std::invoke(checker, sections, sections) } -> std::convertible_to<bool>;
 };
 
-template<SectionsChecker Checker, advent::string_viewable_range Rng>
-constexpr std::size_t count_section_pairs_with_checker(const Checker checker, Rng &&pairs) {
+template<SectionsChecker auto Checker, advent::string_viewable_range Rng>
+constexpr std::size_t count_section_pairs_with_checker(Rng &&pairs) {
     std::size_t num_passing_pairs = 0;
 
     for (const std::string_view intervals : std::forward<Rng>(pairs)) {
@@ -54,7 +58,7 @@ constexpr std::size_t count_section_pairs_with_checker(const Checker checker, Rn
         const auto first_sections = SectionInterval(intervals.substr(0, comma_pos));
         const auto second_sections = SectionInterval(intervals.substr(comma_pos + 1));
 
-        if (std::invoke(checker, first_sections, second_sections)) {
+        if (std::invoke(Checker, first_sections, second_sections)) {
             ++num_passing_pairs;
         }
     }
@@ -62,22 +66,9 @@ constexpr std::size_t count_section_pairs_with_checker(const Checker checker, Rn
     return num_passing_pairs;
 }
 
-constexpr std::size_t count_wholly_overlapping_section_pairs_from_string_data(const std::string_view data) {
-    return count_section_pairs_with_checker(
-        [](const SectionInterval &first, const SectionInterval &second) {
-            return first.contains(second) || second.contains(first);
-        },
-
-        data | advent::views::split_lines
-    );
-}
-
-constexpr std::size_t count_partially_overlapping_section_pairs_from_string_data(const std::string_view data) {
-    return count_section_pairs_with_checker(
-        &SectionInterval::overlaps,
-
-        data | advent::views::split_lines
-    );
+consteval {
+    advent::part_one.is_solved_by(^^count_section_pairs_with_checker, &SectionInterval::wholly_overlaps);
+    advent::part_two.is_solved_by(^^count_section_pairs_with_checker, &SectionInterval::partially_overlaps);
 }
 
 constexpr inline std::string_view example_data = (
@@ -89,14 +80,9 @@ constexpr inline std::string_view example_data = (
     "2-6,4-8\n"
 );
 
-static_assert(count_wholly_overlapping_section_pairs_from_string_data(example_data) == 2);
-static_assert(count_partially_overlapping_section_pairs_from_string_data(example_data) == 4);
+static_assert(advent::part_one() == 2);
+static_assert(advent::part_two() == 4);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_wholly_overlapping_section_pairs_from_string_data,
-        count_partially_overlapping_section_pairs_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

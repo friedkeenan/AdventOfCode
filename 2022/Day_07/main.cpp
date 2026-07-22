@@ -135,8 +135,8 @@ struct Terminal {
     }
 };
 
-template<advent::string_viewable_range Rng>
-constexpr std::size_t sum_of_directory_sizes_with_limit(const std::size_t limit, Rng &&terminal_lines) {
+template<std::size_t Limit, advent::string_viewable_range Rng>
+constexpr std::size_t sum_of_directory_sizes_with_limit(Rng &&terminal_lines) {
     Terminal terminal;
 
     for (const std::string_view line : std::forward<Rng>(terminal_lines)) {
@@ -149,7 +149,7 @@ constexpr std::size_t sum_of_directory_sizes_with_limit(const std::size_t limit,
 
     std::size_t limited_size = 0;
     terminal.fs.for_each_directory([&](const FileSystem::Directory &directory) {
-        if (directory.size > limit) {
+        if (directory.size > Limit) {
             return;
         }
 
@@ -183,12 +183,9 @@ constexpr std::size_t find_directory_to_delete(Rng &&terminal_lines) {
     return minimum_sufficient_space;
 }
 
-constexpr std::size_t sum_of_directory_sizes_with_limit_from_string_data(const std::string_view data) {
-    return sum_of_directory_sizes_with_limit(10'0000, data | advent::views::split_lines);
-}
-
-constexpr std::size_t find_directory_to_delete_from_string_data(const std::string_view data) {
-    return find_directory_to_delete(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_of_directory_sizes_with_limit, 100'000);
+    advent::part_two.is_solved_by(^^find_directory_to_delete);
 }
 
 constexpr inline std::string_view example_data = (
@@ -217,14 +214,9 @@ constexpr inline std::string_view example_data = (
     "7214296 k\n"
 );
 
-static_assert(sum_of_directory_sizes_with_limit_from_string_data(example_data) == 95437);
-static_assert(find_directory_to_delete_from_string_data(example_data) == 24933642);
+static_assert(advent::part_one() == 95437);
+static_assert(advent::part_two() == 24933642);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_of_directory_sizes_with_limit_from_string_data,
-        find_directory_to_delete_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

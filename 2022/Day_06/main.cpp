@@ -44,23 +44,23 @@ constexpr std::size_t find_start_of_message(const std::string_view stream) {
     return find_end_of_marker(14, stream);
 }
 
-static_assert(find_start_of_packet("mjqjpqmgbljsphdztnvjfqwrcgsmlb\n")    == 7);
-static_assert(find_start_of_packet("bvwbjplbgvbhsrlpgdmjqwftvncz\n")      == 5);
-static_assert(find_start_of_packet("nppdvjthqldpwncqszvftbrmjlhg\n")      == 6);
-static_assert(find_start_of_packet("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg\n") == 10);
-static_assert(find_start_of_packet("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw\n")  == 11);
+consteval {
+    advent::part_one.is_solved_by(^^find_start_of_packet);
+    advent::part_two.is_solved_by(^^find_start_of_message);
+}
 
-static_assert(find_start_of_message("mjqjpqmgbljsphdztnvjfqwrcgsmlb\n")    == 19);
-static_assert(find_start_of_message("bvwbjplbgvbhsrlpgdmjqwftvncz\n")      == 23);
-static_assert(find_start_of_message("nppdvjthqldpwncqszvftbrmjlhg\n")      == 23);
-static_assert(find_start_of_message("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg\n") == 29);
-static_assert(find_start_of_message("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw\n")  == 26);
+static_assert(advent::part_one("mjqjpqmgbljsphdztnvjfqwrcgsmlb\n")    == 7);
+static_assert(advent::part_one("bvwbjplbgvbhsrlpgdmjqwftvncz\n")      == 5);
+static_assert(advent::part_one("nppdvjthqldpwncqszvftbrmjlhg\n")      == 6);
+static_assert(advent::part_one("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg\n") == 10);
+static_assert(advent::part_one("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw\n")  == 11);
+
+static_assert(advent::part_two("mjqjpqmgbljsphdztnvjfqwrcgsmlb\n")    == 19);
+static_assert(advent::part_two("bvwbjplbgvbhsrlpgdmjqwftvncz\n")      == 23);
+static_assert(advent::part_two("nppdvjthqldpwncqszvftbrmjlhg\n")      == 23);
+static_assert(advent::part_two("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg\n") == 29);
+static_assert(advent::part_two("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw\n")  == 26);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        find_start_of_packet,
-        find_start_of_message
-    );
+    return advent::solve_puzzles(argc, argv);
 }

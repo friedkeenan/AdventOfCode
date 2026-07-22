@@ -328,8 +328,8 @@ constexpr std::size_t steps_to_get_furthest_from_start(Rng &&rng) {
     }
 }
 
-constexpr std::size_t steps_to_get_furthest_from_start_from_string_data(const std::string_view data) {
-    return steps_to_get_furthest_from_start(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^steps_to_get_furthest_from_start);
 }
 
 constexpr inline std::string_view simple_example_data = (
@@ -340,7 +340,7 @@ constexpr inline std::string_view simple_example_data = (
     ".....\n"
 );
 
-static_assert(steps_to_get_furthest_from_start_from_string_data(simple_example_data) == 4);
+static_assert(advent::part_one(simple_example_data) == 4);
 
 constexpr inline std::string_view complex_example_data = (
     "..F7.\n"
@@ -350,12 +350,8 @@ constexpr inline std::string_view complex_example_data = (
     "LJ...\n"
 );
 
-static_assert(steps_to_get_furthest_from_start_from_string_data(complex_example_data) == 8);
+static_assert(advent::part_one(complex_example_data) == 8);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        steps_to_get_furthest_from_start_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

@@ -243,12 +243,9 @@ constexpr std::size_t decoder_key(Rng &&packet_representations) {
     return divider_2_index * divider_6_index;
 }
 
-constexpr std::size_t sum_correct_indices_from_string_data(const std::string_view data) {
-    return sum_correct_indices(data | advent::views::split_lines);
-}
-
-constexpr std::size_t decoder_key_from_string_data(const std::string_view data) {
-    return decoder_key(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_correct_indices);
+    advent::part_two.is_solved_by(^^decoder_key);
 }
 
 constexpr inline std::string_view example_data = (
@@ -277,14 +274,9 @@ constexpr inline std::string_view example_data = (
     "[1,[2,[3,[4,[5,6,0]]]],8,9]\n"
 );
 
-static_assert(sum_correct_indices_from_string_data(example_data) == 13);
-static_assert(decoder_key_from_string_data(example_data) == 140);
+static_assert(advent::part_one() == 13);
+static_assert(advent::part_two() == 140);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_correct_indices_from_string_data,
-        decoder_key_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

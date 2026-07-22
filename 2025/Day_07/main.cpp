@@ -190,12 +190,9 @@ constexpr std::size_t count_tachyon_timelines(Rng &&rng) {
     return QuantumTachyonManifold(std::forward<Rng>(rng)).count_timelines();
 }
 
-constexpr std::size_t count_tachyon_splits_from_string_data(const std::string_view data) {
-    return count_tachyon_splits(data | advent::views::split_lines);
-}
-
-constexpr std::size_t count_tachyon_timelines_from_string_data(const std::string_view data) {
-    return count_tachyon_timelines(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^count_tachyon_splits);
+    advent::part_two.is_solved_by(^^count_tachyon_timelines);
 }
 
 constexpr inline std::string_view example_data = (
@@ -217,14 +214,9 @@ constexpr inline std::string_view example_data = (
     "...............\n"
 );
 
-static_assert(count_tachyon_splits_from_string_data(example_data)    == 21);
-static_assert(count_tachyon_timelines_from_string_data(example_data) == 40);
+static_assert(advent::part_one() == 21);
+static_assert(advent::part_two() == 40);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_tachyon_splits_from_string_data,
-        count_tachyon_timelines_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

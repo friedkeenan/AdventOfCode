@@ -355,12 +355,9 @@ constexpr std::size_t max_scenic_score(Rng &&tree_rows) {
     return highest_scenic_score;
 }
 
-constexpr std::size_t num_visible_trees_from_string_data(const std::string_view data) {
-    return num_visible_trees(data | advent::views::split_lines);
-}
-
-constexpr std::size_t max_scenic_score_from_string_data(const std::string_view data) {
-    return max_scenic_score(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^num_visible_trees);
+    advent::part_two.is_solved_by(^^max_scenic_score);
 }
 
 constexpr inline std::string_view example_data = (
@@ -371,14 +368,9 @@ constexpr inline std::string_view example_data = (
     "35390\n"
 );
 
-static_assert(num_visible_trees_from_string_data(example_data) == 21);
-static_assert(max_scenic_score_from_string_data(example_data) == 8);
+static_assert(advent::part_one() == 21);
+static_assert(advent::part_two() == 8);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        num_visible_trees_from_string_data,
-        max_scenic_score_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

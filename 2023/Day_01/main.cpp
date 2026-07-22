@@ -122,6 +122,11 @@ constexpr std::size_t find_sum_of_expanded_calibration_values_from_string_data(c
     );
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^find_sum_of_limited_calibration_values_from_string_data);
+    advent::part_two.is_solved_by(^^find_sum_of_expanded_calibration_values_from_string_data);
+}
+
 constexpr inline std::string_view limited_example_data = (
     "1abc2\n"
     "pqr3stu8vwx\n"
@@ -129,7 +134,7 @@ constexpr inline std::string_view limited_example_data = (
     "treb7uchet\n"
 );
 
-static_assert(find_sum_of_limited_calibration_values_from_string_data(limited_example_data) == 142);
+static_assert(advent::part_one(limited_example_data) == 142);
 
 constexpr inline std::string_view expanded_example_data = (
     "two1nine\n"
@@ -141,13 +146,8 @@ constexpr inline std::string_view expanded_example_data = (
     "7pqrstsixteen\n"
 );
 
-static_assert(find_sum_of_expanded_calibration_values_from_string_data(expanded_example_data) == 281);
+static_assert(advent::part_two(expanded_example_data) == 281);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        find_sum_of_limited_calibration_values_from_string_data,
-        find_sum_of_expanded_calibration_values_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

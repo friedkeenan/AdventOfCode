@@ -236,12 +236,9 @@ constexpr std::size_t shortest_distance_from_lowest_to_end(Rng &&height_rows) {
     return shortest_distance;
 }
 
-constexpr std::size_t shortest_distance_to_end_from_string_data(const std::string_view data) {
-    return shortest_distance_to_end(data | advent::views::split_lines);
-}
-
-constexpr std::size_t shortest_distance_from_lowest_to_end_from_string_data(const std::string_view data) {
-    return shortest_distance_from_lowest_to_end(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^shortest_distance_to_end);
+    advent::part_two.is_solved_by(^^shortest_distance_from_lowest_to_end);
 }
 
 constexpr inline std::string_view example_data = (
@@ -252,14 +249,9 @@ constexpr inline std::string_view example_data = (
     "abdefghi\n"
 );
 
-static_assert(shortest_distance_to_end_from_string_data(example_data) == 31);
-static_assert(shortest_distance_from_lowest_to_end_from_string_data(example_data) == 29);
+static_assert(advent::part_one() == 31);
+static_assert(advent::part_two() == 29);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        shortest_distance_to_end_from_string_data,
-        shortest_distance_from_lowest_to_end_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

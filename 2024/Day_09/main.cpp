@@ -247,18 +247,18 @@ constexpr std::size_t checksum_of_atomic_compressed_filesystem(const std::string
     return filesystem.checksum();
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^checksum_of_fragmented_compressed_filesystem);
+    advent::part_two.is_solved_by(^^checksum_of_atomic_compressed_filesystem);
+}
+
 constexpr inline std::string_view example_data = (
     "2333133121414131402\n"
 );
 
-static_assert(checksum_of_fragmented_compressed_filesystem(example_data) == 1928);
-static_assert(checksum_of_atomic_compressed_filesystem(example_data) == 2858);
+static_assert(advent::part_one() == 1928);
+static_assert(advent::part_two() == 2858);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        checksum_of_fragmented_compressed_filesystem,
-        checksum_of_atomic_compressed_filesystem
-    );
+    return advent::solve_puzzles(argc, argv);
 }

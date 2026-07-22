@@ -90,6 +90,11 @@ constexpr std::size_t count_mas_x_occurrences(const std::string_view data) {
     return num_occurrences;
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^count_xmas_occurrences);
+    advent::part_two.is_solved_by(^^count_mas_x_occurrences);
+}
+
 constexpr inline std::string_view example_data = (
     "MMMSXXMASM\n"
     "MSAMXMSMSA\n"
@@ -103,14 +108,9 @@ constexpr inline std::string_view example_data = (
     "MXMXAXMASX\n"
 );
 
-static_assert(count_xmas_occurrences(example_data) == 18);
-static_assert(count_mas_x_occurrences(example_data) == 9);
+static_assert(advent::part_one() == 18);
+static_assert(advent::part_two() == 9);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_xmas_occurrences,
-        count_mas_x_occurrences
-    );
+    return advent::solve_puzzles(argc, argv);
 }

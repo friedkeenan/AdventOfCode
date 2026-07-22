@@ -88,6 +88,11 @@ constexpr std::size_t count_harmonic_antinodes(const std::string_view data) {
     return AntennaMap(data).count_harmonic_antinodes();
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^count_nonharmonic_antinodes);
+    advent::part_two.is_solved_by(^^count_harmonic_antinodes);
+}
+
 constexpr inline std::string_view example_data = (
     "............\n"
     "........0...\n"
@@ -103,14 +108,9 @@ constexpr inline std::string_view example_data = (
     "............\n"
 );
 
-static_assert(count_nonharmonic_antinodes(example_data) == 14);
-static_assert(count_harmonic_antinodes(example_data) == 34);
+static_assert(advent::part_one() == 14);
+static_assert(advent::part_two() == 34);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_nonharmonic_antinodes,
-        count_harmonic_antinodes
-    );
+    return advent::solve_puzzles(argc, argv);
 }

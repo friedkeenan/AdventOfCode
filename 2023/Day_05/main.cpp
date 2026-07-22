@@ -172,12 +172,9 @@ constexpr std::size_t minimum_location_of_seed_ranges(Rng &&rng) {
     return location_minimum;
 }
 
-constexpr std::size_t minimum_location_of_seeds_from_string_data(const std::string_view data) {
-    return minimum_location_of_seeds(data | advent::views::split_lines);
-}
-
-constexpr std::size_t minimum_location_of_seed_ranges_from_string_data(const std::string_view data) {
-    return minimum_location_of_seed_ranges(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^minimum_location_of_seeds);
+    advent::part_two.is_solved_by(^^minimum_location_of_seed_ranges);
 }
 
 constexpr inline std::string_view example_data = (
@@ -216,14 +213,9 @@ constexpr inline std::string_view example_data = (
     "56 93 4\n"
 );
 
-static_assert(minimum_location_of_seeds_from_string_data(example_data) == 35);
-static_assert(minimum_location_of_seed_ranges_from_string_data(example_data) == 46);
+static_assert(advent::part_one() == 35);
+static_assert(advent::part_two() == 46);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        minimum_location_of_seeds_from_string_data,
-        minimum_location_of_seed_ranges_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

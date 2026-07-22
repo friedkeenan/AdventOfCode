@@ -130,12 +130,9 @@ constexpr std::size_t number_of_ways_to_beat_single_race(Rng &&rng) {
     return race.num_ways_to_break_record();
 }
 
-constexpr std::size_t number_of_ways_to_beat_separated_races_from_string_data(const std::string_view data) {
-    return number_of_ways_to_beat_separated_races(data | advent::views::split_lines);
-}
-
-constexpr std::size_t number_of_ways_to_beat_single_race_from_string_data(const std::string_view data) {
-    return number_of_ways_to_beat_single_race(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^number_of_ways_to_beat_separated_races);
+    advent::part_two.is_solved_by(^^number_of_ways_to_beat_single_race);
 }
 
 constexpr std::string_view example_data = (
@@ -143,14 +140,9 @@ constexpr std::string_view example_data = (
     "Distance:  9  40  200\n"
 );
 
-static_assert(number_of_ways_to_beat_separated_races_from_string_data(example_data) == 288);
-static_assert(number_of_ways_to_beat_single_race_from_string_data(example_data) == 71503);
+static_assert(advent::part_one() == 288);
+static_assert(advent::part_two() == 71503);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        number_of_ways_to_beat_separated_races_from_string_data,
-        number_of_ways_to_beat_single_race_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

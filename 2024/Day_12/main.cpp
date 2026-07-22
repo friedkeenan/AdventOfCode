@@ -117,6 +117,10 @@ constexpr std::size_t find_fencing_price_of_garden_without_discount(const std::s
     return Garden(data).fencing_price_without_discount();
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^find_fencing_price_of_garden_without_discount);
+}
+
 constexpr inline std::string_view simple_example_data = (
     "AAAA\n"
     "BBCD\n"
@@ -124,7 +128,7 @@ constexpr inline std::string_view simple_example_data = (
     "EEEC\n"
 );
 
-static_assert(find_fencing_price_of_garden_without_discount(simple_example_data) == 140);
+static_assert(advent::part_one(simple_example_data) == 140);
 
 constexpr inline std::string_view disjointed_example_data = (
     "OOOOO\n"
@@ -134,7 +138,7 @@ constexpr inline std::string_view disjointed_example_data = (
     "OOOOO\n"
 );
 
-static_assert(find_fencing_price_of_garden_without_discount(disjointed_example_data) == 772);
+static_assert(advent::part_one(disjointed_example_data) == 772);
 
 constexpr inline std::string_view complex_example_data = (
     "RRRRIICCFF\n"
@@ -149,12 +153,8 @@ constexpr inline std::string_view complex_example_data = (
     "MMMISSJEEE\n"
 );
 
-static_assert(find_fencing_price_of_garden_without_discount(complex_example_data) == 1930);
+static_assert(advent::part_one(complex_example_data) == 1930);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        find_fencing_price_of_garden_without_discount
-    );
+    return advent::solve_puzzles(argc, argv);
 }

@@ -25,6 +25,8 @@ add_compile_options(
     -Wconversion
     -Werror
 
+    -freflection
+
     -fconcepts-diagnostics-depth=3
     -fconstexpr-ops-limit=9999999999999999
 

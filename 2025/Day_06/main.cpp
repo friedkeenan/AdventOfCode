@@ -145,6 +145,11 @@ constexpr std::size_t sum_solutions(const std::string_view data) {
     return result;
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^sum_solutions, &MathProblem::solve_row_numbers);
+    advent::part_two.is_solved_by(^^sum_solutions, &MathProblem::solve_column_numbers);
+}
+
 constexpr inline std::string_view example_data = (
     "123 328  51 64 \n"
     " 45 64  387 23 \n"
@@ -152,14 +157,9 @@ constexpr inline std::string_view example_data = (
     "*   +   *   +  \n"
 );
 
-static_assert(sum_solutions<&MathProblem::solve_row_numbers>(example_data)    == 4277556);
-static_assert(sum_solutions<&MathProblem::solve_column_numbers>(example_data) == 3263827);
+static_assert(advent::part_one() == 4277556);
+static_assert(advent::part_two() == 3263827);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_solutions<&MathProblem::solve_row_numbers>,
-        sum_solutions<&MathProblem::solve_column_numbers>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

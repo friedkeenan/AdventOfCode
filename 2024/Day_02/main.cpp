@@ -118,12 +118,9 @@ constexpr std::size_t count_safe_reports_with_dampener(Rng &&rng) {
     return count_reports_if(std::forward<Rng>(rng), &Report::safe_with_dampener);
 }
 
-constexpr std::size_t count_safe_reports_without_dampener_from_string_data(const std::string_view data) {
-    return count_safe_reports_without_dampener(data | advent::views::split_lines);
-}
-
-constexpr std::size_t count_safe_reports_with_dampener_from_string_data(const std::string_view data) {
-    return count_safe_reports_with_dampener(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^count_safe_reports_without_dampener);
+    advent::part_two.is_solved_by(^^count_safe_reports_with_dampener);
 }
 
 constexpr inline std::string_view example_data = (
@@ -135,14 +132,9 @@ constexpr inline std::string_view example_data = (
     "1 3 6 7 9\n"
 );
 
-static_assert(count_safe_reports_without_dampener_from_string_data(example_data) == 2);
-static_assert(count_safe_reports_with_dampener_from_string_data(example_data) == 4);
+static_assert(advent::part_one() == 2);
+static_assert(advent::part_two() == 4);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_safe_reports_without_dampener_from_string_data,
-        count_safe_reports_with_dampener_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

@@ -94,6 +94,11 @@ constexpr std::size_t count_accessible_rolls(const std::string_view data) {
     return Map(data).count_accessible_rolls();
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^count_accessible_rolls, ^^StaticMap);
+    advent::part_two.is_solved_by(^^count_accessible_rolls, ^^IterativeMap);
+}
+
 constexpr inline std::string_view example_data = (
     "..@@.@@@@.\n"
     "@@@.@.@.@@\n"
@@ -107,14 +112,9 @@ constexpr inline std::string_view example_data = (
     "@.@.@@@.@.\n"
 );
 
-static_assert(count_accessible_rolls<StaticMap>(example_data)    == 13);
-static_assert(count_accessible_rolls<IterativeMap>(example_data) == 43);
+static_assert(advent::part_one() == 13);
+static_assert(advent::part_two() == 43);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_accessible_rolls<StaticMap>,
-        count_accessible_rolls<IterativeMap>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

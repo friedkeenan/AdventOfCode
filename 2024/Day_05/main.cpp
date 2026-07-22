@@ -140,12 +140,9 @@ constexpr std::size_t sum_middle_of_corrected_updates(Rng &&rng) {
     return sum;
 }
 
-constexpr std::size_t sum_middle_of_correct_updates_from_string_data(const std::string_view data) {
-    return sum_middle_of_correct_updates(data | advent::views::split_lines);
-}
-
-constexpr std::size_t sum_middle_of_corrected_updates_from_string_data(const std::string_view data) {
-    return sum_middle_of_corrected_updates(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_middle_of_correct_updates);
+    advent::part_two.is_solved_by(^^sum_middle_of_corrected_updates);
 }
 
 constexpr inline std::string_view example_data = (
@@ -179,14 +176,9 @@ constexpr inline std::string_view example_data = (
     "97,13,75,29,47\n"
 );
 
-static_assert(sum_middle_of_correct_updates_from_string_data(example_data) == 143);
-static_assert(sum_middle_of_corrected_updates_from_string_data(example_data) == 123);
+static_assert(advent::part_one() == 143);
+static_assert(advent::part_two() == 123);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_middle_of_correct_updates_from_string_data,
-        sum_middle_of_corrected_updates_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

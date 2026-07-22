@@ -109,6 +109,11 @@ constexpr std::size_t cumulative_trailhead_rating(const std::string_view data) {
     return HeightMap(data).cumulative_trailhead_rating();
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^cumulative_trailhead_score);
+    advent::part_two.is_solved_by(^^cumulative_trailhead_rating);
+}
+
 constexpr inline std::string_view example_data = (
     "89010123\n"
     "78121874\n"
@@ -120,14 +125,9 @@ constexpr inline std::string_view example_data = (
     "10456732\n"
 );
 
-static_assert(cumulative_trailhead_score(example_data) == 36);
-static_assert(cumulative_trailhead_rating(example_data) == 81);
+static_assert(advent::part_one() == 36);
+static_assert(advent::part_two() == 81);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        cumulative_trailhead_score,
-        cumulative_trailhead_rating
-    );
+    return advent::solve_puzzles(argc, argv);
 }

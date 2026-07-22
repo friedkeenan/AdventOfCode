@@ -53,9 +53,9 @@ constexpr std::size_t sum_bank_joltages(Rng &&rng) {
     return sum;
 }
 
-template<std::size_t NumBatteries>
-constexpr std::size_t sum_bank_joltages_from_string_data(const std::string_view data) {
-    return sum_bank_joltages<NumBatteries>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_bank_joltages, 2);
+    advent::part_two.is_solved_by(^^sum_bank_joltages, 12);
 }
 
 constexpr inline std::string_view example_data = (
@@ -65,14 +65,9 @@ constexpr inline std::string_view example_data = (
     "818181911112111\n"
 );
 
-static_assert(sum_bank_joltages_from_string_data<2>(example_data)  == 357);
-static_assert(sum_bank_joltages_from_string_data<12>(example_data) == 3121910778619);
+static_assert(advent::part_one() == 357);
+static_assert(advent::part_two() == 3121910778619);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_bank_joltages_from_string_data<2>,
-        sum_bank_joltages_from_string_data<12>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

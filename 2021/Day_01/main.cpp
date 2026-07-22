@@ -49,6 +49,11 @@ constexpr std::size_t count_chunked_depth_increases_from_string_data(const std::
     return count_chunked_depth_increases(parse_string_data(data));
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^count_depth_increases_from_string_data);
+    advent::part_two.is_solved_by(^^count_chunked_depth_increases_from_string_data);
+}
+
 constexpr inline std::string_view example_data = (
     "199\n"
     "200\n"
@@ -62,15 +67,9 @@ constexpr inline std::string_view example_data = (
     "263\n"
 );
 
-static_assert(count_depth_increases_from_string_data(example_data) == 7);
-
-static_assert(count_chunked_depth_increases_from_string_data(example_data) == 5);
+static_assert(advent::part_one() == 7);
+static_assert(advent::part_two() == 5);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_depth_increases_from_string_data,
-        count_chunked_depth_increases_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

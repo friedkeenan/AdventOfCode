@@ -156,25 +156,25 @@ constexpr std::size_t sum_multiplications(const std::string_view memory) {
     }
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^sum_multiplications, false);
+    advent::part_two.is_solved_by(^^sum_multiplications, true);
+}
+
 constexpr inline std::string_view example_data_without_toggling = (
     "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))\n"
 );
 
-static_assert(sum_multiplications<false>(example_data_without_toggling) == 161);
-static_assert(sum_multiplications<true>(example_data_without_toggling)  == 161);
+static_assert(advent::part_one(example_data_without_toggling) == 161);
+static_assert(advent::part_two(example_data_without_toggling) == 161);
 
 constexpr inline std::string_view example_data_with_toggling = (
     "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))\n"
 );
 
-static_assert(sum_multiplications<false>(example_data_with_toggling) == 161);
-static_assert(sum_multiplications<true>(example_data_with_toggling)  == 48);
+static_assert(advent::part_one(example_data_with_toggling) == 161);
+static_assert(advent::part_two(example_data_with_toggling) == 48);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_multiplications<false>,
-        sum_multiplications<true>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

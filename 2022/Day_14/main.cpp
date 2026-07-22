@@ -290,12 +290,9 @@ constexpr std::size_t max_sand_units_with_floor(Rng &&rock_paths) {
     }
 }
 
-constexpr std::size_t num_resting_sand_units_no_floor_from_string_data(const std::string_view data) {
-    return num_resting_sand_units_no_floor(data | advent::views::split_lines);
-}
-
-constexpr std::size_t max_sand_units_with_floor_from_string_data(const std::string_view data) {
-    return max_sand_units_with_floor(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^num_resting_sand_units_no_floor);
+    advent::part_two.is_solved_by(^^max_sand_units_with_floor);
 }
 
 constexpr inline std::string_view example_data = (
@@ -303,14 +300,9 @@ constexpr inline std::string_view example_data = (
     "503,4 -> 502,4 -> 502,9 -> 494,9\n"
 );
 
-static_assert(num_resting_sand_units_no_floor_from_string_data(example_data) == 24);
-static_assert(max_sand_units_with_floor_from_string_data(example_data) == 93);
+static_assert(advent::part_one() == 24);
+static_assert(advent::part_two() == 93);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        num_resting_sand_units_no_floor_from_string_data,
-        max_sand_units_with_floor_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

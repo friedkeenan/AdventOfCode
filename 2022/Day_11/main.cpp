@@ -200,8 +200,8 @@ struct MonkeyGroup {
     }
 };
 
-template<std::size_t NumRounds, advent::string_viewable_range Rng>
-constexpr std::size_t find_monkey_business(const bool decrease_worry_for_boredom, Rng &&monkeys) {
+template<std::size_t NumRounds, bool DecreaseWorryForBoredom, advent::string_viewable_range Rng>
+constexpr std::size_t find_monkey_business(Rng &&monkeys) {
     auto group = MonkeyGroup(std::forward<Rng>(monkeys));
 
     auto num_inspected_items = std::vector<std::size_t>(group.num_monkeys(), 0);
@@ -211,7 +211,7 @@ constexpr std::size_t find_monkey_business(const bool decrease_worry_for_boredom
 
             num_inspected_items[i] += monkey.num_items();
 
-            monkey.throw_items(group, decrease_worry_for_boredom);
+            monkey.throw_items(group, DecreaseWorryForBoredom);
         }
     }
 
@@ -220,12 +220,9 @@ constexpr std::size_t find_monkey_business(const bool decrease_worry_for_boredom
     return maxes[0] * maxes[1];
 }
 
-constexpr std::size_t find_monkey_business_with_worry_decrease_from_string_data(const std::string_view data) {
-    return find_monkey_business<20>(true, data | advent::views::split_lines);
-}
-
-constexpr std::size_t find_monkey_business_without_worry_decrease_from_string_data(const std::string_view data) {
-    return find_monkey_business<10'000>(false, data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^find_monkey_business, 20,     true);
+    advent::part_two.is_solved_by(^^find_monkey_business, 10'000, false);
 }
 
 constexpr inline std::string_view example_data = (
@@ -258,14 +255,9 @@ constexpr inline std::string_view example_data = (
     "    If false: throw to monkey 1\n"
 );
 
-static_assert(find_monkey_business_with_worry_decrease_from_string_data(example_data) == 10605);
-static_assert(find_monkey_business_without_worry_decrease_from_string_data(example_data) == 2713310158);
+static_assert(advent::part_one() == 10605);
+static_assert(advent::part_two() == 2713310158);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        find_monkey_business_with_worry_decrease_from_string_data,
-        find_monkey_business_without_worry_decrease_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

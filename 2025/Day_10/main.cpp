@@ -160,9 +160,8 @@ constexpr std::size_t sum_minimum_button_presses(Rng &&rng) {
     return sum;
 }
 
-template<typename Machine>
-constexpr std::size_t sum_minimum_button_presses_from_string_data(const std::string_view data) {
-    return sum_minimum_button_presses<Machine>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_minimum_button_presses, ^^StartingMachine);
 }
 
 constexpr inline std::string_view example_data = (
@@ -171,12 +170,8 @@ constexpr inline std::string_view example_data = (
     "[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}\n"
 );
 
-static_assert(sum_minimum_button_presses_from_string_data<StartingMachine>(example_data) == 7);
+static_assert(advent::part_one() == 7);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_minimum_button_presses_from_string_data<StartingMachine>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

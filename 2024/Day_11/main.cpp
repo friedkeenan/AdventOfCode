@@ -66,17 +66,17 @@ constexpr std::size_t count_stones_after_iterations(std::string_view data) {
     return num_stones;
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^count_stones_after_iterations, 25);
+    advent::part_two.is_solved_by(^^count_stones_after_iterations, 75);
+}
+
 constexpr inline std::string_view example_data = (
     "125 17\n"
 );
 
-static_assert(count_stones_after_iterations<25>(example_data) == 55312);
+static_assert(advent::part_one() == 55312);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_stones_after_iterations<25>,
-        count_stones_after_iterations<75>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

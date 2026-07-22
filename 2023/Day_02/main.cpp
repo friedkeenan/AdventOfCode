@@ -148,12 +148,9 @@ constexpr std::size_t sum_minimum_needed_set_powers(Rng &&rng) {
     return sum;
 }
 
-constexpr std::size_t sum_possible_game_ids_from_string_data(const std::string_view data) {
-    return sum_possible_game_ids(data | advent::views::split_lines);
-}
-
-constexpr std::size_t sum_minimum_needed_set_powers_from_string_data(const std::string_view data) {
-    return sum_minimum_needed_set_powers(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_possible_game_ids);
+    advent::part_two.is_solved_by(^^sum_minimum_needed_set_powers);
 }
 
 constexpr inline std::string_view example_data = (
@@ -164,14 +161,9 @@ constexpr inline std::string_view example_data = (
     "Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green\n"
 );
 
-static_assert(sum_possible_game_ids_from_string_data(example_data) == 8);
-static_assert(sum_minimum_needed_set_powers_from_string_data(example_data) == 2286);
+static_assert(advent::part_one() == 8);
+static_assert(advent::part_two() == 2286);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_possible_game_ids_from_string_data,
-        sum_minimum_needed_set_powers_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

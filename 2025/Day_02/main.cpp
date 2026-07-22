@@ -180,20 +180,20 @@ constexpr std::size_t sum_extended_invalid_ids(const std::string_view data) {
     return sum_invalid_ids<&ProductIDsRange::sum_extended_invalid_ids>(data);
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^sum_bisected_invalid_ids);
+    advent::part_two.is_solved_by(^^sum_extended_invalid_ids);
+}
+
 constexpr inline std::string_view example_data = (
     "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,"
     "1698522-1698528,446443-446449,38593856-38593862,565653-565659,"
     "824824821-824824827,2121212118-2121212124\n"
 );
 
-static_assert(sum_bisected_invalid_ids(example_data) == 1227775554);
-static_assert(sum_extended_invalid_ids(example_data) == 4174379265);
+static_assert(advent::part_one() == 1227775554);
+static_assert(advent::part_two() == 4174379265);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_bisected_invalid_ids,
-        sum_extended_invalid_ids
-    );
+    return advent::solve_puzzles(argc, argv);
 }

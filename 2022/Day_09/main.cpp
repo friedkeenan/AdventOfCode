@@ -139,12 +139,12 @@ constexpr std::size_t count_unique_end_positions(Rng &&motion_descriptions) {
     return end_positions.size();
 }
 
-template<std::size_t Length>
-constexpr std::size_t count_unique_end_positions_from_string_data(const std::string_view data) {
-    return count_unique_end_positions<Length>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^count_unique_end_positions, 2);
+    advent::part_two.is_solved_by(^^count_unique_end_positions, 10);
 }
 
-constexpr inline std::string_view example_data = (
+constexpr inline std::string_view basic_example_data = (
     "R 4\n"
     "U 4\n"
     "L 3\n"
@@ -155,8 +155,8 @@ constexpr inline std::string_view example_data = (
     "R 2\n"
 );
 
-static_assert(count_unique_end_positions_from_string_data<2>(example_data) == 13);
-static_assert(count_unique_end_positions_from_string_data<10>(example_data) == 1);
+static_assert(advent::part_one(basic_example_data) == 13);
+static_assert(advent::part_two(basic_example_data) == 1);
 
 constexpr inline std::string_view spiral_example_data = (
     "R 5\n"
@@ -169,13 +169,8 @@ constexpr inline std::string_view spiral_example_data = (
     "U 20\n"
 );
 
-static_assert(count_unique_end_positions_from_string_data<10>(spiral_example_data) == 36);
+static_assert(advent::part_two(spiral_example_data) == 36);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_unique_end_positions_from_string_data<2>,
-        count_unique_end_positions_from_string_data<10>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

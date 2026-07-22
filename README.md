@@ -5,6 +5,11 @@ This is a repository of my [Advent of Code](https://adventofcode.com/) solutions
 My solutions all work in `constexpr`, and in fact the example data provided by Advent of Code is used to static assert that my solutions are correct. For instance, here's an example of that for [day one of 2021](https://adventofcode.com/2021/day/1):
 
 ```cpp
+consteval {
+    advent::part_one.is_solved_by(^^count_depth_increases_from_string_data);
+    advent::part_two.is_solved_by(^^count_chunked_depth_increases_from_string_data);
+}
+
 constexpr inline std::string_view example_data = (
     "199\n"
     "200\n"
@@ -18,12 +23,13 @@ constexpr inline std::string_view example_data = (
     "263\n"
 );
 
-static_assert(count_depth_increases_from_string_data(example_data) == 7);
-
-static_assert(count_chunked_depth_increases_from_string_data(example_data) == 5);
+static_assert(advent::part_one() == 7);
+static_assert(advent::part_two() == 5);
 ```
 
 Being able to leverage constant evaluation is a great boon to my solutions, as constant evaluation will catch many errors at compile time, ensuring that my code is safe and functioning properly. I think this is a really good use case for such a thing: to use constant evaluation for "unit tests" to ensure that at runtime the code will work properly, with the added benefit of enhanced debugging.
+
+Being able to `static_assert` on the solutions for the example data also allows me to edit my code and my solutions years after writing them, and remain confident that those edits have not broken the solutions.
 
 In pursuit of this goal of `constexpr` capability, I have written a [small library](https://github.com/friedkeenan/AdventOfCode/tree/main/advent) that gives me many `constexpr` facilities that are not included in the STL, such as parsing strings to integers, exponentiation, and certain other utilities. This library is shared by all my solutions.
 

@@ -103,9 +103,9 @@ constexpr std::size_t derive_password(Rng &&rng) {
     return password;
 }
 
-template<std::derived_from<Dial> DialImpl>
-constexpr std::size_t derive_password_from_string_data(const std::string_view data) {
-    return derive_password<DialImpl>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^derive_password, ^^RestAtZeroDial);
+    advent::part_two.is_solved_by(^^derive_password, ^^PassesZeroDial);
 }
 
 constexpr inline std::string_view example_data = (
@@ -121,14 +121,9 @@ constexpr inline std::string_view example_data = (
     "L82\n"
 );
 
-static_assert(derive_password_from_string_data<RestAtZeroDial>(example_data) == 3);
-static_assert(derive_password_from_string_data<PassesZeroDial>(example_data) == 6);
+static_assert(advent::part_one() == 3);
+static_assert(advent::part_two() == 6);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        derive_password_from_string_data<RestAtZeroDial>,
-        derive_password_from_string_data<PassesZeroDial>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

@@ -125,12 +125,9 @@ constexpr std::size_t badge_item_type_priority_sum(Rng &&rucksacks) {
     return priority_sum;
 }
 
-constexpr std::size_t illicit_item_type_priority_sum_from_string_data(const std::string_view data) {
-    return illicit_item_type_priority_sum(data | advent::views::split_lines);
-}
-
-constexpr std::size_t badge_item_type_priority_sum_from_string_data(const std::string_view data) {
-    return badge_item_type_priority_sum(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^illicit_item_type_priority_sum);
+    advent::part_two.is_solved_by(^^badge_item_type_priority_sum);
 }
 
 constexpr inline std::string_view example_data = (
@@ -142,14 +139,9 @@ constexpr inline std::string_view example_data = (
     "CrZsJsPPZsGzwwsLwLmpwMDw\n"
 );
 
-static_assert(illicit_item_type_priority_sum_from_string_data(example_data) == 157);
-static_assert(badge_item_type_priority_sum_from_string_data(example_data) == 70);
+static_assert(advent::part_one() == 157);
+static_assert(advent::part_two() == 70);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        illicit_item_type_priority_sum_from_string_data,
-        badge_item_type_priority_sum_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

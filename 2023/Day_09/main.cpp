@@ -79,9 +79,9 @@ constexpr std::int64_t sum_next_elements(Rng &&rng) {
     return sum;
 }
 
-template<bool Behind>
-constexpr std::int64_t sum_next_elements_from_string_data(const std::string_view data) {
-    return sum_next_elements<Behind>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_next_elements, false);
+    advent::part_two.is_solved_by(^^sum_next_elements, true);
 }
 
 constexpr inline std::string_view example_data = (
@@ -90,14 +90,9 @@ constexpr inline std::string_view example_data = (
     "10 13 16 21 30 45\n"
 );
 
-static_assert(sum_next_elements_from_string_data<false>(example_data) == 114);
-static_assert(sum_next_elements_from_string_data<true>(example_data) == 2);
+static_assert(advent::part_one() == 114);
+static_assert(advent::part_two() == 2);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_next_elements_from_string_data<false>,
-        sum_next_elements_from_string_data<true>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

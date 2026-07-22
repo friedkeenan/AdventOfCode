@@ -264,13 +264,17 @@ constexpr std::string render_display(Rng &&asm_lines) {
     return display.render();
 }
 
-template<std::int64_t CycleStart, std::int64_t CycleStep>
-constexpr std::int64_t sum_signal_strengths_from_string_data(const std::string_view data) {
-    return sum_signal_strengths<CycleStart, CycleStep>(data | advent::views::split_lines);
-}
+consteval {
+    advent::part_one.is_solved_by(^^sum_signal_strengths, 20, 40);
+    advent::part_two.is_solved_by(^^render_display);
 
-constexpr std::string render_display_from_string_data(const std::string_view data) {
-    return render_display(data | advent::views::split_lines);
+    /*
+        NOTE: Part two doesn't warrant use of the default
+        format strings because of its non-typical result.
+
+        Also note that the solution for part two ends in a newline.
+    */
+    advent::part_two.is_printed_with("Part two solution:\n{}(in {:.3})");
 }
 
 constexpr inline std::string_view example_data = (
@@ -422,10 +426,10 @@ constexpr inline std::string_view example_data = (
     "noop\n"
 );
 
-static_assert(sum_signal_strengths_from_string_data<20, 40>(example_data) == 13140);
+static_assert(advent::part_one() == 13140);
 
 static_assert(
-    render_display_from_string_data(example_data) ==
+    advent::part_two() ==
 
     "##..##..##..##..##..##..##..##..##..##..\n"
     "###...###...###...###...###...###...###.\n"
@@ -436,20 +440,5 @@ static_assert(
 );
 
 int main(int argc, char **argv) {
-    /*
-        NOTE: Part two doesn't warrant use of the default
-        format strings because of its non-typical result.
-
-        Also note that the solution for part two ends in a newline.
-    */
-
-    return advent::solve_puzzles<
-        "Part one solution: {} (in {:.3})\n",
-        "Part two solution:\n{}(in {:.3})\n"
-    >(
-        argc, argv,
-
-        sum_signal_strengths_from_string_data<20, 40>,
-        render_display_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

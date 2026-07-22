@@ -284,15 +284,9 @@ constexpr std::size_t find_tuning_frequency(Rng &&sensors) {
     std::unreachable();
 }
 
-template<Coord Row>
-constexpr std::size_t num_non_beacons_in_row_from_string_data(const std::string_view data) {
-    return num_non_beacons_in_row<Row>(data | advent::views::split_lines);
-}
-
-template<Coord Max>
-requires (Max > 0)
-constexpr std::size_t find_tuning_frequency_from_string_data(const std::string_view data) {
-    return find_tuning_frequency<Max>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^num_non_beacons_in_row, 2'000'000);
+    advent::part_two.is_solved_by(^^find_tuning_frequency,  4'000'000);
 }
 
 constexpr inline std::string_view example_data = (
@@ -312,18 +306,12 @@ constexpr inline std::string_view example_data = (
     "Sensor at x=20, y=1: closest beacon is at x=15, y=3\n"
 );
 
-static_assert(num_non_beacons_in_row_from_string_data<10>(example_data) == 26);
+static_assert(advent::part_one.with_template_args<10>() == 26);
+static_assert(advent::part_two.with_template_args<20>() == 56000011);
 
 /* Add this extra assert for a test case where the slices don't all overlap. */
-static_assert(num_non_beacons_in_row_from_string_data<11>(example_data) == 28);
-
-static_assert(find_tuning_frequency_from_string_data<20>(example_data) == 56000011);
+static_assert(advent::part_one.with_template_args<11>() == 28);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        num_non_beacons_in_row_from_string_data<2'000'000>,
-        find_tuning_frequency_from_string_data<4'000'000>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

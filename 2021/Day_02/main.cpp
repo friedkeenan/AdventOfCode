@@ -133,6 +133,11 @@ constexpr Command::Value test_submarine(const std::string_view commands_data) {
     return submarine.horizontal_distance * submarine.depth;
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^test_submarine, ^^FaultySubmarine);
+    advent::part_two.is_solved_by(^^test_submarine, ^^ProperSubmarine);
+}
+
 constexpr inline std::string_view example_data = (
     "forward 5\n"
     "down 5\n"
@@ -142,14 +147,9 @@ constexpr inline std::string_view example_data = (
     "forward 2\n"
 );
 
-static_assert(test_submarine<FaultySubmarine>(example_data) == 150);
-static_assert(test_submarine<ProperSubmarine>(example_data) == 900);
+static_assert(advent::part_one() == 150);
+static_assert(advent::part_two() == 900);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        test_submarine<FaultySubmarine>,
-        test_submarine<ProperSubmarine>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

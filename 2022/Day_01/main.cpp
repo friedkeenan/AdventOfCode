@@ -70,13 +70,9 @@ constexpr std::size_t find_sum_of_max_calories(Rng &&calorie_list) {
     return std::ranges::fold_left(current_max_calories, 0uz, std::plus{});
 }
 
-constexpr std::size_t find_max_calories_from_string_data(const std::string_view data) {
-    return find_max_calories(data | advent::views::split_lines);
-}
-
-template<std::size_t NumMaximums = 3>
-constexpr std::size_t find_sum_of_max_calories_from_string_data(const std::string_view data) {
-    return find_sum_of_max_calories<NumMaximums>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^find_max_calories);
+    advent::part_two.is_solved_by(^^find_sum_of_max_calories, 3);
 }
 
 constexpr inline std::string_view example_data = (
@@ -105,14 +101,9 @@ constexpr inline std::string_view example_data = (
     "10000\n"
 );
 
-static_assert(find_max_calories_from_string_data(example_data) == 24000);
-static_assert(find_sum_of_max_calories_from_string_data(example_data) == 45000);
+static_assert(advent::part_one() == 24000);
+static_assert(advent::part_two() == 45000);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        find_max_calories_from_string_data,
-        find_sum_of_max_calories_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

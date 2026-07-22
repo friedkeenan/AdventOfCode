@@ -186,13 +186,9 @@ constexpr std::size_t multiply_last_wall_distances(Rng &&rng) {
     return box_locations[last_connected.first].x() * box_locations[last_connected.second].x();
 }
 
-template<std::size_t AmountLargest, std::size_t Connections>
-constexpr std::size_t multiply_largest_circuit_lengths_from_string_data(const std::string_view data) {
-    return multiply_largest_circuit_lengths<AmountLargest, Connections>(data | advent::views::split_lines);
-}
-
-constexpr std::size_t multiply_last_wall_distances_from_string_data(const std::string_view data) {
-    return multiply_last_wall_distances(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^multiply_largest_circuit_lengths, 3, 10);
+    advent::part_two.is_solved_by(^^multiply_last_wall_distances);
 }
 
 constexpr inline std::string_view example_data = (
@@ -218,15 +214,9 @@ constexpr inline std::string_view example_data = (
     "425,690,689\n"
 );
 
-static_assert(multiply_largest_circuit_lengths_from_string_data<3, 10>(example_data) == 40);
-
-static_assert(multiply_last_wall_distances_from_string_data(example_data) == 25272);
+static_assert(advent::part_one() == 40);
+static_assert(advent::part_two() == 25272);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        multiply_largest_circuit_lengths_from_string_data<3, 1000>,
-        multiply_last_wall_distances_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

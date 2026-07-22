@@ -105,9 +105,9 @@ constexpr std::size_t sum_possibly_correct_calibration_results(Rng &&rng) {
     return sum;
 }
 
-template<bool IncludeConcatenation>
-constexpr std::size_t sum_possibly_correct_calibration_results_from_string_data(const std::string_view data) {
-    return sum_possibly_correct_calibration_results<IncludeConcatenation>(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_possibly_correct_calibration_results, false);
+    advent::part_two.is_solved_by(^^sum_possibly_correct_calibration_results, true);
 }
 
 constexpr inline std::string_view example_data = (
@@ -122,14 +122,9 @@ constexpr inline std::string_view example_data = (
     "292: 11 6 16 20\n"
 );
 
-static_assert(sum_possibly_correct_calibration_results_from_string_data<false>(example_data) == 3749);
-static_assert(sum_possibly_correct_calibration_results_from_string_data<true>(example_data)  == 11387);
+static_assert(advent::part_one() == 3749);
+static_assert(advent::part_two() == 11387);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_possibly_correct_calibration_results_from_string_data<false>,
-        sum_possibly_correct_calibration_results_from_string_data<true>
-    );
+    return advent::solve_puzzles(argc, argv);
 }

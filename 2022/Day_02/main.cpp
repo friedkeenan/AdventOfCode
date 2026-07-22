@@ -137,20 +137,20 @@ constexpr std::size_t find_player_total_score_outcome_decoder(const std::string_
     >(data | advent::views::split_lines);
 }
 
+consteval {
+    advent::part_one.is_solved_by(^^find_player_total_score_naive_decoder);
+    advent::part_two.is_solved_by(^^find_player_total_score_outcome_decoder);
+}
+
 constexpr inline std::string_view example_data = (
     "A Y\n"
     "B X\n"
     "C Z\n"
 );
 
-static_assert(find_player_total_score_naive_decoder(example_data) == 15);
-static_assert(find_player_total_score_outcome_decoder(example_data) == 12);
+static_assert(advent::part_one() == 15);
+static_assert(advent::part_two() == 12);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        find_player_total_score_naive_decoder,
-        find_player_total_score_outcome_decoder
-    );
+    return advent::solve_puzzles(argc, argv);
 }

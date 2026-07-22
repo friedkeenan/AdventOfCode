@@ -420,12 +420,9 @@ constexpr std::size_t sum_gear_ratios(Rng &&rng) {
     return sum;
 }
 
-constexpr std::size_t sum_engine_part_numbers_from_string_data(const std::string_view data) {
-    return sum_engine_part_numbers(data | advent::views::split_lines);
-}
-
-constexpr std::size_t sum_gear_ratios_from_string_data(const std::string_view data) {
-    return sum_gear_ratios(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^sum_engine_part_numbers);
+    advent::part_two.is_solved_by(^^sum_gear_ratios);
 }
 
 constexpr inline std::string_view example_data = (
@@ -441,14 +438,9 @@ constexpr inline std::string_view example_data = (
     ".664.598..\n"
 );
 
-static_assert(sum_engine_part_numbers_from_string_data(example_data) == 4361);
-static_assert(sum_gear_ratios_from_string_data(example_data) == 467835);
+static_assert(advent::part_one() == 4361);
+static_assert(advent::part_two() == 467835);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        sum_engine_part_numbers_from_string_data,
-        sum_gear_ratios_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }

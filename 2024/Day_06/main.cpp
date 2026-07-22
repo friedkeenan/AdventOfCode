@@ -222,12 +222,9 @@ constexpr std::size_t count_looping_new_obstructions(Rng &&rng) {
     return map.count_looping_new_obstructions();
 }
 
-constexpr std::size_t count_visited_positions_from_string_data(const std::string_view data) {
-    return count_visited_positions(data | advent::views::split_lines);
-}
-
-constexpr std::size_t count_looping_new_obstructions_from_string_data(const std::string_view data) {
-    return count_looping_new_obstructions(data | advent::views::split_lines);
+consteval {
+    advent::part_one.is_solved_by(^^count_visited_positions);
+    advent::part_two.is_solved_by(^^count_looping_new_obstructions);
 }
 
 constexpr inline std::string_view example_data = (
@@ -243,14 +240,9 @@ constexpr inline std::string_view example_data = (
     "......#...\n"
 );
 
-static_assert(count_visited_positions_from_string_data(example_data) == 41);
-static_assert(count_looping_new_obstructions_from_string_data(example_data) == 6);
+static_assert(advent::part_one() == 41);
+static_assert(advent::part_two() == 6);
 
 int main(int argc, char **argv) {
-    return advent::solve_puzzles(
-        argc, argv,
-
-        count_visited_positions_from_string_data,
-        count_looping_new_obstructions_from_string_data
-    );
+    return advent::solve_puzzles(argc, argv);
 }
